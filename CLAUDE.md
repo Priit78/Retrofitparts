@@ -29,6 +29,8 @@ memory of Next.js APIs.
   `font-sans` (Inter), `font-mono` (JetBrains Mono).
 - Animation uses `motion/react` and CSS. Every animation respects `prefers-reduced-motion`, and no
   content may stay hidden if JS or animation doesn't run. Use `Reveal` for simple scroll entrances.
+  Never wrap above-the-fold or LCP content (the hero h1) in `Reveal`, and put hover transitions
+  on a child of a `Reveal` rather than on the element itself.
 - Add `"use client"` only on leaf components that need it.
 - Use real facts only. No invented reviews, ratings, counts or performance figures.
 - No horizontal scroll at 360 px. Keep visible focus states and AA contrast.

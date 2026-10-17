@@ -48,7 +48,9 @@ export function Reveal({
           observer.disconnect();
         }
       },
-      { rootMargin: "0px 0px -10% 0px" },
+      // No negative margin: an element that can never scroll past such a margin would
+      // stay hidden forever.
+      { threshold: 0 },
     );
     observer.observe(el);
     return () => observer.disconnect();

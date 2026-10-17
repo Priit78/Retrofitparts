@@ -64,18 +64,22 @@
 }
 
 /* Scroll reveal (see components/ui/Reveal.tsx). Content is only hidden when JS has
-   run and the user has not asked for reduced motion, so it can never get stuck invisible. */
-@media (prefers-reduced-motion: no-preference) {
-  html.js [data-reveal] {
-    transition:
-      opacity 0.8s var(--ease-out-expo),
-      transform 0.8s var(--ease-out-expo);
-    transition-delay: var(--reveal-delay, 0s);
-  }
+   run and the user has not asked for reduced motion, so it can never get stuck invisible.
+   In the components layer, so transition utilities on the same element win; put hover
+   transitions on a child rather than on the Reveal element itself. */
+@layer components {
+  @media (prefers-reduced-motion: no-preference) {
+    html.js [data-reveal] {
+      transition:
+        opacity 0.8s var(--ease-out-expo),
+        transform 0.8s var(--ease-out-expo);
+      transition-delay: var(--reveal-delay, 0s);
+    }
 
-  html.js [data-reveal]:not([data-revealed]) {
-    opacity: 0;
-    transform: translate3d(0, var(--reveal-y, 24px), 0);
+    html.js [data-reveal]:not([data-revealed]) {
+      opacity: 0;
+      transform: translate3d(0, var(--reveal-y, 24px), 0);
+    }
   }
 }
 

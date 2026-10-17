@@ -23,7 +23,7 @@ type ButtonAsButton = CommonProps & { href?: undefined } & Omit<
   >;
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-full font-medium whitespace-nowrap transition-[background-color,border-color,color,box-shadow,transform] duration-300 ease-out-expo active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-full text-center leading-tight font-medium transition-[background-color,border-color,color,box-shadow,transform] duration-300 ease-out-expo active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50";
 
 const variants: Record<Variant, string> = {
   primary:
@@ -33,8 +33,8 @@ const variants: Record<Variant, string> = {
 };
 
 const sizes: Record<Size, string> = {
-  md: "h-11 px-5 text-sm",
-  lg: "h-13 px-7 text-base",
+  md: "min-h-11 px-5 py-2 text-sm",
+  lg: "min-h-13 px-7 py-3 text-base",
 };
 
 /** Plain anchors for protocols and external URLs; Next Link for in-app routes and hashes. */
