@@ -11,6 +11,7 @@ import { Hero } from "@/components/sections/Hero";
 import { Process } from "@/components/sections/Process";
 import { Services } from "@/components/sections/Services";
 import { isLocale } from "@/lib/i18n";
+import { autoRepairJsonLd, serializeJsonLd } from "@/lib/seo";
 
 export default async function HomePage({ params }: PageProps<"/[locale]">) {
   const { locale } = await params;
@@ -18,6 +19,10 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(autoRepairJsonLd(locale)) }}
+      />
       <Hero locale={locale} />
       <BrandMarquee locale={locale} />
       <Difference locale={locale} />
