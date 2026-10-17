@@ -1,5 +1,5 @@
 import type { Localized } from "@/lib/i18n";
-import type { FieldErrorCode } from "@/lib/inquiry";
+import type { FieldErrorCode } from "@/lib/inquiry-shared";
 
 /** Copy for the inquiry form (`components/inquiry/InquiryForm.tsx`). */
 export const inquiry = {
@@ -123,10 +123,7 @@ export const contact = {
     email: { et: "E-post", en: "Email" },
     hours: { et: "Lahtiolekuajad", en: "Opening hours" },
     closed: { et: "Suletud", en: "Closed" },
+    regLabel: { et: "Reg.", en: "Reg." },
     vatLabel: { et: "KMKR", en: "VAT" },
-    mapLabel: {
-      et: "Ava Retrofit Partsi töökoda Google Mapsis",
-      en: "Open the Retrofit Parts workshop in Google Maps",
-    },
   },
 };

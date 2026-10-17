@@ -15,9 +15,26 @@ import { inquiry as copy } from "@/content/inquiry";
 import { site } from "@/content/site";
 import { cn } from "@/lib/cn";
 import type { Locale } from "@/lib/i18n";
-import { inquiryLimits, type InquiryInput, type InquiryState } from "@/lib/inquiry";
+// Types only from `inquiry` (erased at build time) and the values from the zod-free
+// `inquiry-shared`, so the validation library stays out of the browser bundle.
+import type { InquiryInput, InquiryState } from "@/lib/inquiry";
+import { inquiryLimits, readInquiryValues } from "@/lib/inquiry-shared";
 
 const initialState: InquiryState = { status: "idle" };
+
+/**
+ * The server action, with transport failures (offline, deploy skew, an oversized body)
+ * turned into the same `send-failed` result as a delivery failure. Left alone, a rejected
+ * action is rethrown while rendering: the page errors out, the typed message is lost and
+ * the phone and email fallback never shows.
+ */
+async function submit(prev: InquiryState, fd: FormData): Promise<InquiryState> {
+  try {
+    return await submitInquiry(prev, fd);
+  } catch {
+    return { status: "error", code: "send-failed", values: readInquiryValues(fd) };
+  }
+}
 
 interface ControlProps {
   id: string;
@@ -34,19 +51,19 @@ const labelClass = "font-mono text-xs font-medium tracking-[0.12em] text-muted u
 
 function controlClass(compact: boolean) {
   return cn(
-    "block w-full rounded-xl border border-fg/15 bg-surface-2/70 px-4 text-base text-fg",
-    "placeholder:text-muted/80",
+    // The border is the only thing marking the control's edge, so it needs 3:1 (WCAG 1.4.11).
+    "block w-full rounded-xl border border-fg/40 bg-surface-2/70 px-4 text-base text-fg",
+    "placeholder:text-muted",
     "transition-[border-color,background-color,box-shadow] duration-300 ease-out-expo",
-    "hover:border-fg/30 focus:border-accent/70 focus:bg-surface-2",
-    "focus:shadow-[0_0_0_4px_rgb(76_195_255/0.12)]",
-    "aria-[invalid=true]:border-red-400/70 aria-[invalid=true]:focus:shadow-[0_0_0_4px_rgb(248_113_113/0.14)]",
+    "hover:border-fg/60 focus:border-accent focus:bg-surface-2 focus:ring-4 focus:ring-accent/15",
+    "aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger/15",
     compact ? "h-11" : "h-12",
   );
 }
 
 function FieldError({ id, children }: { id: string; children: ReactNode }) {
   return (
-    <p id={id} className="mt-2 flex items-start gap-2 text-sm leading-snug text-red-300">
+    <p id={id} className="mt-2 flex items-start gap-2 text-sm leading-snug text-danger">
       <CircleAlert aria-hidden className="mt-0.5 size-4 shrink-0" />
       <span>{children}</span>
     </p>
@@ -79,7 +96,7 @@ function Field({
           {label}
         </label>
         {optionalLabel ? (
-          <span className="font-mono text-xs text-muted/80">{optionalLabel}</span>
+          <span className="font-mono text-xs text-muted">{optionalLabel}</span>
         ) : null}
       </div>
       {control({
@@ -108,7 +125,7 @@ function GlowCheck() {
         }
       `}</style>
       <span className="rp-check-glow absolute inset-0 rounded-full bg-accent/30 blur-2xl" />
-      <span className="absolute inset-1 rounded-full border border-accent/40 bg-surface shadow-[0_0_56px_-8px_rgb(76_195_255/0.65)]" />
+      <span className="absolute inset-1 rounded-full border border-accent/40 bg-surface shadow-[0_0_56px_-8px] shadow-accent/65" />
       <svg
         viewBox="0 0 24 24"
         className="relative size-10 text-accent"
@@ -135,7 +152,7 @@ function InquiryFormBody({
   compact: boolean;
   onReset: () => void;
 }) {
-  const [state, formAction, pending] = useActionState(submitInquiry, initialState);
+  const [state, formAction, pending] = useActionState(submit, initialState);
   const uid = useId();
   const id = (field: string) => `${uid}-${field}`;
 
@@ -298,7 +315,7 @@ function InquiryFormBody({
         <legend className="mb-2 w-full p-0">
           <span className="flex items-baseline justify-between gap-3">
             <span className={labelClass}>{copy.labels.car[locale]}</span>
-            <span className="font-mono text-xs text-muted/80">{copy.optional[locale]}</span>
+            <span className="font-mono text-xs text-muted">{copy.optional[locale]}</span>
           </span>
         </legend>
         <div className={cn("grid grid-cols-2 @sm:grid-cols-[1fr_1fr_6.5rem]", gap)}>
@@ -400,9 +417,9 @@ function InquiryFormBody({
           ref={bannerRef}
           role="alert"
           tabIndex={-1}
-          className="rounded-2xl border border-red-400/30 bg-red-400/[0.07] p-4 md:p-5"
+          className="rounded-2xl border border-danger/30 bg-danger/[0.07] p-4 md:p-5"
         >
-          <p className="flex items-start gap-2 font-medium text-red-200">
+          <p className="flex items-start gap-2 font-medium text-danger">
             <CircleAlert aria-hidden className="mt-0.5 size-5 shrink-0" />
             <span>{bannerCopy.title[locale]}</span>
           </p>

@@ -10,6 +10,7 @@
   --color-light: #e8f4ff;
   --color-accent: #4cc3ff;
   --color-halogen: #ffc46b;
+  --color-danger: #ff8a80;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }

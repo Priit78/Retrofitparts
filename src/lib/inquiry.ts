@@ -9,33 +9,22 @@ import { z } from "zod";
  * functions.
  */
 
-/**
- * Codes for field errors. They are not user-facing text: the form looks the localized
- * message up in `src/content/inquiry.ts`.
- */
-export const fieldErrorCodes = [
-  "name-length",
-  "email-invalid",
-  "phone-invalid",
-  "contact-required",
-  "message-required",
-  "too-long",
-  "invalid",
-] as const;
+import {
+  fieldErrorCodes,
+  formText,
+  inquiryLimits,
+  readInquiryValues,
+  type FieldErrorCode,
+  type InquiryValues,
+} from "./inquiry-shared";
 
-export type FieldErrorCode = (typeof fieldErrorCodes)[number];
+// The client form imports these from `inquiry-shared` directly (no zod); they stay
+// available here so server code and tests have one place to import from.
+export { fieldErrorCodes, inquiryLimits, readInquiryValues };
+export type { FieldErrorCode, InquiryValues };
 
-const phonePattern = /^[\d\s+\-()]{6,20}$/;
-
-/** Maximum lengths, shared with the form's `maxLength` attributes. */
-export const inquiryLimits = {
-  name: 100,
-  email: 254,
-  phone: 20,
-  car: 60,
-  topic: 200,
-  message: 2000,
-} as const;
+/** Digits, spaces, `+`, `-` and parentheses. A literal space on purpose: `\s` would admit newlines. */
+const phonePattern = /^[\d +\-()]{6,20}$/;
 
 function isEmail(value: string) {
   return z.email().safeParse(value).success;
@@ -87,9 +76,6 @@ export type InquiryInput = z.infer<typeof inquirySchema>;
 
 export type InquiryFieldErrors = Partial<Record<keyof InquiryInput, FieldErrorCode>>;
 
-/** What the visitor typed into the visible fields; sent back so an error never costs them their text. */
-export type InquiryValues = Partial<Record<Exclude<keyof InquiryInput, "locale" | "website">, string>>;
-
 export type InquiryState =
   | { status: "idle" }
   | { status: "success" }
@@ -112,28 +98,6 @@ const fieldNames = [
   "locale",
   "website",
 ] as const satisfies readonly (keyof InquiryInput)[];
-
-const valueNames = [
-  "name",
-  "email",
-  "phone",
-  "carMake",
-  "carModel",
-  "carYear",
-  "topic",
-  "message",
-] as const satisfies readonly (keyof InquiryValues)[];
-
-function formText(fd: FormData, key: string) {
-  const value = fd.get(key);
-  return typeof value === "string" ? value : "";
-}
-
-export function readInquiryValues(fd: FormData): InquiryValues {
-  const values: InquiryValues = {};
-  for (const key of valueNames) values[key] = formText(fd, key);
-  return values;
-}
 
 function isFieldErrorCode(value: unknown): value is FieldErrorCode {
   return (fieldErrorCodes as readonly unknown[]).includes(value);
@@ -159,9 +123,13 @@ export function parseInquiry(
   return { ok: false, fieldErrors };
 }
 
-/** One line, no control characters: the topic and name are visitor-supplied and go in a header. */
-function singleLine(value: string) {
-  return value.replace(/\s+/g, " ").trim();
+/**
+ * Collapses all whitespace, newlines included. Everything above the message is visitor
+ * supplied, so each value stays on its own line and cannot fake another header-like line
+ * (or, in the subject, inject a real header).
+ */
+function singleLine(value: string | undefined) {
+  return (value ?? "").replace(/\s+/g, " ").trim();
 }
 
 /**
@@ -169,19 +137,16 @@ function singleLine(value: string) {
  * is included so the reply can use it.
  */
 export function buildInquiryEmail(d: InquiryInput): { subject: string; text: string } {
-  const subject = `Päring: ${singleLine(d.topic ?? "") || "üldine"} — ${singleLine(d.name)}`;
+  const subject = `Päring: ${singleLine(d.topic) || "üldine"} — ${singleLine(d.name)}`;
 
-  const car = [d.carMake, d.carModel, d.carYear]
-    .map((part) => singleLine(part ?? ""))
-    .filter(Boolean)
-    .join(" ");
+  const car = [d.carMake, d.carModel, d.carYear].map(singleLine).filter(Boolean).join(" ");
 
   const lines = [
-    ["Nimi", d.name],
-    ["E-post", d.email],
-    ["Telefon", d.phone],
+    ["Nimi", singleLine(d.name)],
+    ["E-post", singleLine(d.email)],
+    ["Telefon", singleLine(d.phone)],
     ["Auto", car],
-    ["Teenus või toode", d.topic],
+    ["Teenus või toode", singleLine(d.topic)],
     ["Saidi keel", d.locale],
   ]
     .filter(([, value]) => Boolean(value))

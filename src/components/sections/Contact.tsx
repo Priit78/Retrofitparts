@@ -11,7 +11,7 @@ export function Contact({ locale }: { locale: Locale }) {
     <section id="contact" className="relative overflow-hidden border-b border-line py-20 md:py-32">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(55%_45%_at_12%_0%,rgb(76_195_255/0.09),transparent_70%)]"
+        className="pointer-events-none absolute inset-0 bg-radial-[55%_45%_at_12%_0%] from-accent/10 to-transparent to-70%"
       />
       <Container className="relative">
         <Reveal>

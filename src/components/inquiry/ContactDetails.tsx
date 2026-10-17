@@ -104,18 +104,21 @@ function DetailRow({
   label: string;
   children: ReactNode;
 }) {
+  // `dt` and `dd` are the only children of the row, and the row is a direct child of the
+  // `dl`, which is what a definition list requires. The icon sits inside the `dt`
+  // (decorative, positioned into the row's left padding).
   return (
-    <div className="flex gap-4">
-      <span
-        aria-hidden
-        className="grid size-10 shrink-0 place-items-center rounded-full border border-line bg-white/[0.03] text-accent"
-      >
-        {icon}
-      </span>
-      <div className="min-w-0 flex-1">
-        <dt className="font-mono text-xs tracking-[0.12em] text-muted uppercase">{label}</dt>
-        <dd className="mt-1.5">{children}</dd>
-      </div>
+    <div className="relative min-w-0 pl-14">
+      <dt className="font-mono text-xs tracking-[0.12em] text-muted uppercase">
+        <span
+          aria-hidden
+          className="absolute top-0 left-0 grid size-10 place-items-center rounded-full border border-line bg-white/[0.03] text-accent"
+        >
+          {icon}
+        </span>
+        {label}
+      </dt>
+      <dd className="mt-1.5">{children}</dd>
     </div>
   );
 }
@@ -190,7 +193,11 @@ export function ContactDetails({ locale }: { locale: Locale }) {
 
         {/* nowrap keeps each label with its code when the line wraps; the text stays plain. */}
         <p className="mt-6 border-t border-line pt-5 font-mono text-xs leading-relaxed text-muted">
-          {site.legalName} · <span className="whitespace-nowrap">Reg. {site.regCode}</span> ·{" "}
+          {site.legalName} ·{" "}
+          <span className="whitespace-nowrap">
+            {t.regLabel[locale]} {site.regCode}
+          </span>{" "}
+          ·{" "}
           <span className="whitespace-nowrap">
             {t.vatLabel[locale]} {site.vat}
           </span>

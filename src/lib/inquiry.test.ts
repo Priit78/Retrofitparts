@@ -92,6 +92,14 @@ describe("parseInquiry", () => {
     expect(result.ok).toBe(true);
   });
 
+  it("rejects a phone number containing a newline, tab or other whitespace", () => {
+    for (const phone of ["123456\n7890", "123456\r\n7890", "123456\t7890", "123456\u00a07890"]) {
+      const result = parseInquiry(formData({ email: "", phone }));
+      expect(result.ok, JSON.stringify(phone)).toBe(false);
+      if (!result.ok) expect(result.fieldErrors.phone).toBe("phone-invalid");
+    }
+  });
+
   it("rejects a name that is too short or too long", () => {
     const short = parseInquiry(formData({ name: "M" }));
     const long = parseInquiry(formData({ name: "M".repeat(101) }));
@@ -179,21 +187,48 @@ describe("buildInquiryEmail", () => {
     expect(subject).not.toMatch(/[\r\n]/);
   });
 
-  it("lists contact details, car, language and message in the body", () => {
-    const { text } = buildInquiryEmail(valid);
-    expect(text).toContain("Mari Maasikas");
-    expect(text).toContain("mari@example.com");
-    expect(text).toContain("BMW");
-    expect(text).toContain("F30");
-    expect(text).toContain("2015");
-    expect(text).toContain("Bi-LED projektorid");
-    expect(text).toContain("Tahaksin hinnapakkumist esituledele.");
-    expect(text).toMatch(/et/);
+  it("writes the whole body in a fixed Estonian format, with the site language on its own line", () => {
+    const { text } = buildInquiryEmail({ ...valid, phone: "+372 5667 0631" });
+    expect(text).toBe(
+      [
+        "Nimi: Mari Maasikas",
+        "E-post: mari@example.com",
+        "Telefon: +372 5667 0631",
+        "Auto: BMW F30 2015",
+        "Teenus või toode: Bi-LED projektorid",
+        "Saidi keel: et",
+        "",
+        "Sõnum:",
+        "Tahaksin hinnapakkumist esituledele.",
+      ].join("\n"),
+    );
   });
 
-  it("leaves out empty lines such as a missing phone number", () => {
-    const { text } = buildInquiryEmail({ ...valid, phone: "" });
-    expect(text).not.toMatch(/Telefon:\s*$/m);
+  it("reports the English site language so the reply can use it", () => {
+    const { text } = buildInquiryEmail({ ...valid, locale: "en" });
+    expect(text.split("\n")).toContain("Saidi keel: en");
+  });
+
+  it("leaves out empty lines such as a missing phone number and car", () => {
+    const { text } = buildInquiryEmail({ ...valid, phone: "", carMake: "", carModel: "", carYear: "" });
+    expect(text).not.toContain("Telefon");
+    expect(text).not.toContain("Auto");
+  });
+
+  it("keeps newlines in name, email, phone and topic from faking extra lines", () => {
+    const { subject, text } = buildInquiryEmail({
+      ...valid,
+      name: "Mari\nTelefon: 111 111 111",
+      phone: "123456\r\nE-post: boss@example.com",
+      topic: "Hind\nSaidi keel: xx",
+    });
+    const lines = text.split("\n");
+    // One line each: exactly the labels the template writes, nothing a sender added.
+    expect(lines.filter((line) => line.startsWith("Telefon:"))).toHaveLength(1);
+    expect(lines.filter((line) => line.startsWith("E-post:"))).toHaveLength(1);
+    expect(lines.filter((line) => line.startsWith("Saidi keel:"))).toHaveLength(1);
+    expect(lines.filter((line) => line.startsWith("Nimi:"))).toEqual(["Nimi: Mari Telefon: 111 111 111"]);
+    expect(subject).not.toMatch(/[\r\n]/);
   });
 });
 
