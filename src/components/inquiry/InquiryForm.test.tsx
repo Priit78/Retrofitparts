@@ -16,6 +16,13 @@ function fill(label: string, value: string) {
   fireEvent.change(screen.getByLabelText(label), { target: { value } });
 }
 
+/** The fields the form requires before it calls the server. */
+function fillRequired() {
+  fill("Nimi", "Mari Maasikas");
+  fill("E-post", "mari@example.com");
+  fill("Sõnum", "Tahaksin hinnapakkumist.");
+}
+
 async function submit(container: HTMLElement) {
   const form = container.querySelector("form");
   if (!form) throw new Error("no form rendered");
@@ -115,6 +122,7 @@ describe("InquiryForm", () => {
       mocks.submitInquiry.mockRejectedValue(new TypeError("NetworkError"));
       const { container } = render(<InquiryForm locale="en" />);
       fill("Name", "Mari Maasikas");
+      fill("Phone", "+372 5555 5555");
       fill("Message", "Hello");
 
       await submit(container);
@@ -128,6 +136,7 @@ describe("InquiryForm", () => {
     it("shows the success state only when the action reports success", async () => {
       mocks.submitInquiry.mockResolvedValue({ status: "success" });
       const { container } = render(<InquiryForm locale="et" />);
+      fillRequired();
 
       await submit(container);
 
@@ -142,6 +151,7 @@ describe("InquiryForm", () => {
         values: { name: "Mari Maasikas", message: "Tere" },
       });
       const { container } = render(<InquiryForm locale="et" />);
+      fillRequired();
 
       await submit(container);
 
@@ -152,13 +162,53 @@ describe("InquiryForm", () => {
       expect(screen.getByLabelText("Nimi")).toHaveValue("Mari Maasikas");
     });
 
-    it("marks fields invalid and links their errors with aria-describedby", async () => {
+    it("shows the server's field errors, such as a malformed email", async () => {
       mocks.submitInquiry.mockResolvedValue({
         status: "error",
         code: "invalid",
-        fieldErrors: { name: "name-length", email: "contact-required", message: "message-required" },
-        values: {},
+        fieldErrors: { email: "email-invalid" },
+        values: { name: "Mari Maasikas", email: "mari@", message: "Tere" },
       });
+      const { container } = render(<InquiryForm locale="et" />);
+      fillRequired();
+
+      await submit(container);
+
+      expect(mocks.submitInquiry).toHaveBeenCalledTimes(1);
+      expect(screen.getByLabelText("E-post")).toHaveAttribute("aria-invalid", "true");
+      expect(screen.getByText("Sisesta korrektne e-posti aadress.")).toBeInTheDocument();
+      expect(screen.getByLabelText("Nimi")).not.toHaveAttribute("aria-invalid");
+    });
+  });
+
+  describe("an empty or half-filled form", () => {
+    it("shows the missing fields without calling the server", async () => {
+      const { container } = render(<InquiryForm locale="et" />);
+
+      await submit(container);
+
+      expect(mocks.submitInquiry).not.toHaveBeenCalled();
+      expect(screen.getByRole("alert")).toHaveTextContent("Mõni väli vajab parandamist");
+      expect(screen.getByText("Sisesta oma nimi (2–100 tähemärki).")).toBeInTheDocument();
+      expect(screen.getByText("Lisa e-post või telefon, et saaksime sulle vastata.")).toBeInTheDocument();
+      expect(screen.getByText("Kirjuta, millega saame aidata.")).toBeInTheDocument();
+      // Focus goes to the first field that needs attention.
+      expect(screen.getByLabelText("Nimi")).toHaveFocus();
+    });
+
+    it("keeps what was typed while asking for the rest", async () => {
+      const { container } = render(<InquiryForm locale="en" />);
+      fill("Message", "Need new lenses");
+
+      await submit(container);
+
+      expect(mocks.submitInquiry).not.toHaveBeenCalled();
+      expect(screen.getByLabelText("Message")).toHaveValue("Need new lenses");
+      expect(screen.getByLabelText("Message")).not.toHaveAttribute("aria-invalid");
+      expect(screen.getByLabelText("Name")).toHaveAttribute("aria-invalid", "true");
+    });
+
+    it("marks fields invalid and links their errors with aria-describedby", async () => {
       const { container } = render(<InquiryForm locale="et" />);
 
       await submit(container);

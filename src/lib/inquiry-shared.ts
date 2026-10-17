@@ -57,3 +57,20 @@ export function readInquiryValues(fd: FormData): InquiryValues {
   for (const key of valueNames) values[key] = formText(fd, key);
   return values;
 }
+
+export type RequiredFieldErrors = Partial<Record<"name" | "email" | "message", FieldErrorCode>>;
+
+/**
+ * The checks the browser makes before sending, so an empty or half-filled form gets its
+ * field errors without a round trip: a name, an email or phone number, and a message. They
+ * mirror the schema in `inquiry.ts` and never reject what it accepts; the server action
+ * still validates everything, formats included. Returns null when nothing is missing.
+ */
+export function checkRequired(fd: FormData): RequiredFieldErrors | null {
+  const text = (key: string) => formText(fd, key).trim();
+  const errors: RequiredFieldErrors = {};
+  if (text("name").length < 2) errors.name = "name-length";
+  if (!text("email") && !text("phone")) errors.email = "contact-required";
+  if (!text("message")) errors.message = "message-required";
+  return Object.keys(errors).length > 0 ? errors : null;
+}
