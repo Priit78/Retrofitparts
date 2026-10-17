@@ -36,7 +36,8 @@ export interface Product {
   stock: "in-stock" | "backorder";
   description: Localized<string>;
   specs: ProductSpec[];
-  fitment: string[];
+  /** Human-readable vehicle models this fits, one entry per vehicle, in both languages. */
+  fitment: Localized<string>[];
   warrantyYears?: number;
   featured?: boolean;
   /** Path to a real product photo, once the client supplies one. */
