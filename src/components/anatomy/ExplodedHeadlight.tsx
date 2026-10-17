@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowDown } from "lucide-react";
 import {
   motion,
   useReducedMotion,
@@ -29,15 +30,17 @@ export interface ExplodedPart {
 
 /*
  * Layout modes, decided in CSS so the server render and first paint are always right:
- * - Pinned (md and up, at least 640px tall, motion allowed): a 300vh track with a sticky
+ * - Pinned (lg and up, at least 720px tall, motion allowed): a 300vh track with a sticky
  *   stage; scrolling separates the parts. Before hydration the stage shows the assembled light.
- * - Static (below md, short landscape screens, or reduced motion): normal height, with the
- *   parts shown already separated.
+ *   Below lg the two-column stage gets too narrow for the heading, and below 720px the
+ *   content no longer fits one screen, so those get the static layout.
+ * - Static (tablets, phones, short windows, or reduced motion): normal height, with the parts
+ *   shown already separated.
  * After hydration the same media query (plus motion's useReducedMotion as a second guard)
  * switches on the scroll-linked motion values; until then, or without JS, the CSS below
  * holds the positions.
  */
-const SIZE_QUERY = "(min-width: 48rem) and (min-height: 40rem)";
+const SIZE_QUERY = "(min-width: 64rem) and (min-height: 45rem)";
 const PINNED_QUERY = `${SIZE_QUERY} and (prefers-reduced-motion: no-preference)`;
 /** Short but pinned viewports (laptops): a more compact stage. */
 const COMPACT_QUERY = `${PINNED_QUERY} and (max-height: 50rem)`;
@@ -45,10 +48,14 @@ const COMPACT_QUERY = `${PINNED_QUERY} and (max-height: 50rem)`;
 const STAGE_CSS = `
 .xh-move{transform:translate(var(--ex),var(--ey))}
 .xh-cluster{transform:translate(var(--ex),var(--ey)) scale(var(--es))}
+.xh-cue{display:none}
 @media ${PINNED_QUERY}{
 .xh-track{height:300vh}
-.xh-stage{position:sticky;top:0;display:flex;align-items:center;height:100svh;padding-top:4rem}
-.xh-figure svg{max-height:calc(100svh - 7rem)}
+.xh-stage{position:sticky;top:0;display:flex;align-items:center;align-items:safe center;height:100svh;padding-top:4rem}
+.xh-figure svg{max-height:calc(100svh - 9rem)}
+.xh-cue{display:flex}
+.xh-cue svg{animation:xh-bob 2.4s cubic-bezier(0.16,1,0.3,1) infinite}
+@keyframes xh-bob{0%,100%{transform:translateY(-2px);opacity:.5}50%{transform:translateY(3px);opacity:1}}
 .xh-move{transform:translate(var(--ax),var(--ay))}
 .xh-cluster{transform:translate(var(--ax),var(--ay)) scale(var(--as))}
 .xh-tag{opacity:0}
@@ -216,7 +223,7 @@ function PartTag({
         y={round(ty)}
         dominantBaseline="middle"
         textAnchor={tag.align}
-        className="fill-accent font-mono text-[34px] lg:text-[25px] xl:hidden"
+        className="fill-accent font-mono text-[34px] md:text-[22px] lg:text-[25px] xl:hidden"
       >
         {NUMBERS[id]}
       </text>
@@ -240,11 +247,14 @@ export function ExplodedHeadlight({
   heading,
   parts,
   figureLabel,
+  scrollHint,
 }: {
   heading: ReactNode;
   /** Front to back: lens, shroud, projector, housing. */
   parts: ExplodedPart[];
   figureLabel: string;
+  /** Short cue shown under the drawing in the pinned (scroll-driven) layout only. */
+  scrollHint: string;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const pinned = useSyncExternalStore(subscribePinned, matchesPinned, notOnServer);
@@ -253,6 +263,7 @@ export function ExplodedHeadlight({
 
   const { scrollYProgress } = useScroll({ target: trackRef, offset: ["start start", "end end"] });
   const cluster = useTransform(scrollYProgress, clusterTransform);
+  const cueOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
 
   const names = Object.fromEntries(parts.map((part) => [part.id, part.name])) as Record<LayerId, string>;
   const a = CLUSTER.assembled;
@@ -270,13 +281,13 @@ export function ExplodedHeadlight({
           className={cn(
             "xh-grid mx-auto grid w-full max-w-[1280px] gap-10 px-4 md:px-6",
             "[grid-template-areas:'head'_'figure'_'list']",
-            "md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-x-12 md:gap-y-10",
-            "md:[grid-template-areas:'head_figure'_'list_figure']",
+            "lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-x-12 lg:gap-y-10",
+            "lg:[grid-template-areas:'head_figure'_'list_figure']",
           )}
         >
-          <div className="xh-head [grid-area:head] md:self-end">{heading}</div>
+          <div className="xh-head [grid-area:head] lg:self-end">{heading}</div>
 
-          <figure className="xh-figure [grid-area:figure] md:self-center">
+          <figure className="xh-figure [grid-area:figure] md:max-lg:mx-auto md:max-lg:w-full md:max-lg:max-w-[640px] lg:self-center">
             <svg
               viewBox={`0 0 ${VIEW.w} ${VIEW.h}`}
               role="img"
@@ -309,9 +320,16 @@ export function ExplodedHeadlight({
                 </g>
               </motion.g>
             </svg>
+            <motion.p
+              className="xh-cue mt-2 items-center justify-center gap-2 font-mono text-xs tracking-[0.16em] text-muted uppercase"
+              style={enabled ? { opacity: cueOpacity } : undefined}
+            >
+              <ArrowDown aria-hidden className="size-3.5 text-accent" strokeWidth={1.75} />
+              {scrollHint}
+            </motion.p>
           </figure>
 
-          <ol className="xh-list grid gap-5 [grid-area:list] sm:grid-cols-2 md:grid-cols-1 md:gap-4 md:self-start lg:gap-5">
+          <ol className="xh-list grid gap-5 [grid-area:list] sm:grid-cols-2 lg:grid-cols-1 lg:self-start">
             {parts.map((part) => (
               <li key={part.id} className="relative pl-5">
                 <Rail id={part.id} progress={scrollYProgress} enabled={enabled} />

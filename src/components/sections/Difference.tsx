@@ -8,6 +8,9 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { difference as t } from "@/content/difference";
 import type { Locale } from "@/lib/i18n";
 
+/** The section appears once per page, so a fixed id is safe. */
+const HINT_ID = "difference-slider-hint";
+
 /** "See the difference": a before/after night-road slider plus three plain-physics facts. */
 export function Difference({ locale }: { locale: Locale }) {
   return (
@@ -32,6 +35,7 @@ export function Difference({ locale }: { locale: Locale }) {
               className="aspect-[5/4] rounded-2xl border border-line bg-bg shadow-[0_40px_120px_-40px_rgb(0_0_0/0.9)] sm:aspect-[16/10] md:aspect-[16/9] md:rounded-3xl"
               label={t.slider.label[locale]}
               valueText={t.slider.valueText[locale]}
+              describedBy={HINT_ID}
               before={
                 <RoadScene variant="before" label={t.before.scene[locale]} className="size-full" />
               }
@@ -52,7 +56,7 @@ export function Difference({ locale }: { locale: Locale }) {
               }
             />
             <figcaption className="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-1.5 font-mono text-xs text-muted">
-              <span>{t.slider.hint[locale]}</span>
+              <span id={HINT_ID}>{t.slider.hint[locale]}</span>
               <span>{t.slider.note[locale]}</span>
             </figcaption>
           </figure>

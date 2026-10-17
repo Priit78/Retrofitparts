@@ -74,8 +74,8 @@ export const difference = {
       id: "temperature",
       title: { et: "Värvustemperatuur", en: "Colour temperature" },
       body: {
-        et: "Halogeenpirn helendab umbes 3200 K juures, soojas kollakas toonis. LED-projektori valgus on umbes 5500–6000 K, päevavalgusele lähedane valge, milles värvid ja teekattemärgised paistavad loomulikumad.",
-        en: "A halogen bulb glows at about 3200 K, a warm yellowish tone. An LED projector shines at about 5500–6000 K, a white close to daylight, in which colours and road markings look more natural.",
+        et: "Halogeenpirn helendab umbes 3200 K juures, soojas kollakas toonis. LED-projektori valgus on umbes 5500–6000 K: valge ja päevavalgusele palju lähemal.",
+        en: "A halogen bulb glows at about 3200 K, a warm yellowish tone. An LED projector shines at about 5500–6000 K: a white that is much closer to daylight.",
       },
       before: { et: "≈ 3200 K", en: "≈ 3200 K" },
       after: { et: "≈ 5500–6000 K", en: "≈ 5500–6000 K" },
@@ -84,8 +84,8 @@ export const difference = {
       id: "cutoff",
       title: { et: "Valguspiir", en: "Cutoff line" },
       body: {
-        et: "Projektoris koondab lääts valguse varjestuse servale ja see joonistab terava, astmelise lähitule piiri: vastassuunavöönd jääb pimedaks, sinu poolne teeäär on valgustatud kaugemale. Kulunud tulel on piir hägune ja osa valgust pimestab vastutulijaid.",
-        en: "In a projector, the lens focuses the light on the edge of a shield, which draws a sharp, stepped low-beam cutoff: the oncoming lane stays dark while your side of the road is lit further ahead. In a worn light the cutoff blurs, and some of the light dazzles oncoming drivers.",
+        et: "Projektoris koondab lääts valguse varjestuse servale ja see joonistab terava, astmelise lähitule piiri: vastassuunarada valgustatakse vähem kaugele, sinu poolne teeäär kaugemale. Kulunud tulel on piir hägune ja osa valgust pimestab vastutulijaid.",
+        en: "In a projector, the lens focuses the light on the edge of a shield, which draws a sharp, stepped low-beam cutoff: the oncoming lane is lit less far ahead, your side of the road further. In a worn light the cutoff blurs, and some of the light dazzles oncoming drivers.",
       },
       before: { et: "Hägune", en: "Blurred" },
       after: { et: "Terav, astmega", en: "Sharp, stepped" },

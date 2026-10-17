@@ -22,6 +22,7 @@ export function Anatomy({ locale }: { locale: Locale }) {
     <section id="anatomy" className="relative overflow-x-clip border-b border-line py-24 md:py-32">
       <ExplodedHeadlight
         figureLabel={t.figureLabel[locale]}
+        scrollHint={t.scrollHint[locale]}
         parts={t.parts.map((part) => ({ id: part.id, name: part.name[locale], body: part.body[locale] }))}
         heading={
           <SectionHeading eyebrow={t.eyebrow[locale]} title={t.title[locale]} intro={t.intro[locale]} />

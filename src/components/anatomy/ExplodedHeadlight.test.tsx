@@ -10,15 +10,39 @@ vi.mock("motion/react", async (importOriginal) => ({
   useReducedMotion: () => motionPreference.reduce,
 }));
 
-/** Stubs matchMedia for a viewport that does or does not fit the pinned stage. */
-function mockMedia({ fits, reduce }: { fits: boolean; reduce: boolean }) {
-  motionPreference.reduce = reduce;
+interface Viewport {
+  width: number;
+  height: number;
+  reduce?: boolean;
+}
+
+/** Evaluates the media queries the component uses against a given viewport (1rem = 16px). */
+function evaluate(query: string, { width, height, reduce = false }: Viewport): boolean {
+  return query.split(" and ").every((part) => {
+    const feature = part.trim().replace(/^\(|\)$/g, "");
+    const [name, raw] = feature.split(":").map((x) => x.trim());
+    const px = raw?.endsWith("rem") ? parseFloat(raw) * 16 : parseFloat(raw);
+    switch (name) {
+      case "min-width":
+        return width >= px;
+      case "min-height":
+        return height >= px;
+      case "max-height":
+        return height <= px;
+      case "prefers-reduced-motion":
+        return raw === "reduce" ? reduce : !reduce;
+      default:
+        throw new Error(`Unhandled media feature in test: ${feature}`);
+    }
+  });
+}
+
+function mockViewport(viewport: Viewport) {
+  motionPreference.reduce = viewport.reduce ?? false;
   vi.stubGlobal(
     "matchMedia",
     vi.fn((query: string) => ({
-      matches: query.includes("prefers-reduced-motion: reduce")
-        ? reduce
-        : (!query.includes("min-width") || fits) && (!query.includes("no-preference") || !reduce),
+      matches: evaluate(query, viewport),
       media: query,
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
@@ -36,13 +60,14 @@ function mockMedia({ fits, reduce }: { fits: boolean; reduce: boolean }) {
 }
 
 const cluster = () => document.querySelector<SVGGElement>(".xh-cluster");
+const isScrollDriven = () => /translate\(.+\) scale\(/.test(cluster()?.style.transform ?? "");
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe("Anatomy", () => {
   it("lists all four parts with a name and an explanation, in both languages", () => {
     for (const locale of ["et", "en"] as const) {
-      mockMedia({ fits: false, reduce: false });
+      mockViewport({ width: 390, height: 844 });
       const { unmount } = render(<Anatomy locale={locale} />);
       const items = screen.getAllByRole("listitem").filter((li) => li.closest("ol"));
       expect(items).toHaveLength(4);
@@ -55,27 +80,54 @@ describe("Anatomy", () => {
     }
   });
 
-  it("keeps the static exploded layout (no inline motion) on small screens", () => {
-    mockMedia({ fits: false, reduce: false });
+  it("keeps the static exploded layout (no inline motion) on phones", () => {
+    mockViewport({ width: 390, height: 844 });
     render(<Anatomy locale="et" />);
     expect(cluster()?.style.transform).toBe("");
     expect(cluster()?.style.getPropertyValue("--ex")).not.toBe("");
   });
 
+  it.each([
+    { width: 768, height: 1024, why: "portrait tablet: the two-column stage is too narrow" },
+    { width: 800, height: 700, why: "small window" },
+    { width: 1280, height: 650, why: "short laptop: the stage would not fit one screen" },
+    { width: 844, height: 390, why: "landscape phone" },
+  ])("uses the static layout at $width×$height ($why)", ({ width, height }) => {
+    mockViewport({ width, height });
+    render(<Anatomy locale="et" />);
+    expect(isScrollDriven()).toBe(false);
+  });
+
+  it.each([
+    { width: 1024, height: 768 },
+    { width: 1280, height: 720 },
+    { width: 1440, height: 900 },
+  ])("drives the parts from scroll at $width×$height", ({ width, height }) => {
+    mockViewport({ width, height });
+    render(<Anatomy locale="et" />);
+    expect(isScrollDriven()).toBe(true);
+  });
+
   it("keeps the static exploded layout under reduced motion, even on a large screen", () => {
-    mockMedia({ fits: true, reduce: true });
+    mockViewport({ width: 1440, height: 900, reduce: true });
     render(<Anatomy locale="et" />);
     expect(cluster()?.style.transform).toBe("");
   });
 
-  it("drives the parts from scroll on a large screen with motion allowed", () => {
-    mockMedia({ fits: true, reduce: false });
-    render(<Anatomy locale="et" />);
-    expect(cluster()?.style.transform).toMatch(/translate\(.+\) scale\(/);
+  it("pins only from lg and 720px tall in CSS too, so the first paint matches", () => {
+    mockViewport({ width: 390, height: 844 });
+    const { container } = render(<Anatomy locale="et" />);
+    const css = container.querySelector("style")?.textContent ?? "";
+    expect(css).toContain(
+      "@media (min-width: 64rem) and (min-height: 45rem) and (prefers-reduced-motion: no-preference)",
+    );
+    // The scroll cue only exists in that layout.
+    expect(css).toMatch(/\.xh-cue\{display:none\}/);
+    expect(screen.getByText(anatomy.scrollHint.et)).toHaveClass("xh-cue");
   });
 
   it("explains that polishing is temporary and replacement lasts", () => {
-    mockMedia({ fits: false, reduce: false });
+    mockViewport({ width: 390, height: 844 });
     render(<Anatomy locale="en" />);
     expect(screen.getByText("Polish or replace?")).toBeInTheDocument();
     expect(screen.getByText("Afterwards the lens surface is far more vulnerable to damage")).toBeInTheDocument();

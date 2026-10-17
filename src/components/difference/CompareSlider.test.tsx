@@ -101,6 +101,71 @@ describe("CompareSlider", () => {
     expect(slider.value).toBe("75");
   });
 
+  describe("touch", () => {
+    function setup() {
+      mockReducedMotion(true);
+      mockIntersection();
+      const slider = renderSlider();
+      const root = slider.parentElement as HTMLElement;
+      root.getBoundingClientRect = () =>
+        ({ left: 0, width: 400, top: 0, height: 300, right: 400, bottom: 300 }) as DOMRect;
+      const touch = (type: "pointerDown" | "pointerMove" | "pointerUp" | "pointerCancel", x: number, y: number) =>
+        fireEvent[type](root, { pointerId: 7, pointerType: "touch", clientX: x, clientY: y });
+      return { slider, touch };
+    }
+
+    it("moves the handle to a tap, as a single-pointer alternative to dragging", () => {
+      const { slider, touch } = setup();
+      touch("pointerDown", 100, 150);
+      expect(slider.value).toBe("50"); // nothing happens until the finger lifts or moves sideways
+      touch("pointerUp", 102, 151);
+      expect(slider.value).toBe("25");
+    });
+
+    it("drags once the finger moves sideways", () => {
+      const { slider, touch } = setup();
+      touch("pointerDown", 200, 150);
+      touch("pointerMove", 300, 152);
+      expect(slider.value).toBe("75");
+      touch("pointerUp", 300, 152);
+      expect(slider.value).toBe("75");
+    });
+
+    it("leaves the handle alone when the finger scrolls the page", () => {
+      const { slider, touch } = setup();
+      touch("pointerDown", 100, 150);
+      touch("pointerMove", 102, 110); // mostly vertical: not a drag
+      touch("pointerUp", 102, 60); // and too far to be a tap
+      expect(slider.value).toBe("50");
+      touch("pointerDown", 100, 150);
+      touch("pointerCancel", 100, 150); // the browser took over the scroll
+      expect(slider.value).toBe("50");
+    });
+
+    it("allows vertical panning and pinch-zoom on the scene", () => {
+      const { slider } = setup();
+      expect(slider.parentElement).toHaveClass("touch-pan-y", "touch-pinch-zoom");
+    });
+  });
+
+  it("is described by the visible hint", () => {
+    mockReducedMotion(true);
+    mockIntersection();
+    render(
+      <>
+        <CompareSlider
+          before={null}
+          after={null}
+          label="Compare"
+          valueText="{before}/{after}"
+          describedBy="hint"
+        />
+        <span id="hint">Drag the handle or use the arrow keys</span>
+      </>,
+    );
+    expect(screen.getByRole("slider")).toHaveAccessibleDescription("Drag the handle or use the arrow keys");
+  });
+
   it("parks at 15% before coming into view, and user input takes over from the intro", () => {
     mockReducedMotion(false);
     const callbacks = mockIntersection();

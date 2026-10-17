@@ -15,6 +15,8 @@ import { cn } from "@/lib/cn";
 const START = 50;
 const INTRO_FROM = 15;
 const KEY_STEP = 5;
+/** Touch moves (px) below this count as a tap; a sideways move beyond it starts a drag. */
+const TAP_SLOP = 6;
 const PAGE_STEP = 10;
 
 const clamp = (value: number) => Math.min(100, Math.max(0, value));
@@ -40,6 +42,7 @@ export function CompareSlider({
   afterLabel,
   label,
   valueText,
+  describedBy,
   className,
 }: {
   before: ReactNode;
@@ -52,6 +55,8 @@ export function CompareSlider({
   label: string;
   /** Template for `aria-valuetext`, with `{before}` and `{after}` placeholders. */
   valueText: string;
+  /** Id of visible help text describing how to operate the slider. */
+  describedBy?: string;
   className?: string;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -122,7 +127,8 @@ export function CompareSlider({
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
     takeOver();
-    // Touch only engages once the finger moves sideways, so vertical page scrolls pass through.
+    // Touch only engages once the finger moves sideways, so vertical page scrolls pass through;
+    // a tap without movement jumps to that spot (see onPointerUp).
     const engaged = event.pointerType !== "touch";
     drag.current = { id: event.pointerId, engaged, x: event.clientX, y: event.clientY };
     event.currentTarget.setPointerCapture?.(event.pointerId);
@@ -139,7 +145,7 @@ export function CompareSlider({
     if (!current.engaged) {
       const dx = Math.abs(event.clientX - current.x);
       const dy = Math.abs(event.clientY - current.y);
-      if (dx < 6 || dx < dy) return;
+      if (dx < TAP_SLOP || dx < dy) return;
       current.engaged = true;
     }
     positionFromPointer(event.clientX);
@@ -147,6 +153,16 @@ export function CompareSlider({
 
   const endDrag = (event: PointerEvent<HTMLDivElement>) => {
     if (drag.current?.id === event.pointerId) drag.current = null;
+  };
+
+  /** A touch tap (no real movement) moves the handle there: a single-pointer alternative to dragging. */
+  const onPointerUp = (event: PointerEvent<HTMLDivElement>) => {
+    const current = drag.current;
+    if (current?.id === event.pointerId && !current.engaged) {
+      const moved = Math.max(Math.abs(event.clientX - current.x), Math.abs(event.clientY - current.y));
+      if (moved < TAP_SLOP) positionFromPointer(current.x);
+    }
+    endDrag(event);
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -171,12 +187,12 @@ export function CompareSlider({
     <div
       ref={rootRef}
       className={cn(
-        "group/compare relative isolate cursor-ew-resize touch-pan-y overflow-hidden select-none",
+        "group/compare relative isolate cursor-ew-resize touch-pan-y touch-pinch-zoom overflow-hidden select-none",
         className,
       )}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
-      onPointerUp={endDrag}
+      onPointerUp={onPointerUp}
       onPointerCancel={endDrag}
       onLostPointerCapture={endDrag}
     >
@@ -200,6 +216,7 @@ export function CompareSlider({
         value={value}
         aria-label={label}
         aria-valuetext={formatValue(valueText, value)}
+        aria-describedby={describedBy}
         onKeyDown={onKeyDown}
         onChange={(event) => {
           takeOver();
