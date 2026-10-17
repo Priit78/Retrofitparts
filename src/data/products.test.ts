@@ -126,6 +126,29 @@ describe("products", () => {
     }
   });
 
+  it("gives every fitment entry non-empty text in both locales", () => {
+    for (const product of products) {
+      for (const entry of product.fitment) {
+        for (const locale of locales) {
+          expect(typeof entry[locale], `${product.slug} fitment ${locale}`).toBe("string");
+          expect(entry[locale].trim(), `${product.slug} fitment ${locale}`).not.toBe("");
+        }
+      }
+    }
+  });
+
+  it("uses English model naming in the English fitment text", () => {
+    for (const product of products) {
+      for (const entry of product.fitment) {
+        expect(entry.en, product.slug).not.toMatch(/seeria|klass|põlvkond|generatsioon|kupee|sedaan|\bja\b/);
+      }
+    }
+    const f10 = products.find((p) => p.slug === "tuleklaasid-f10");
+    expect(f10?.fitment).toEqual([
+      { et: "BMW 5. seeria F10/F11", en: "BMW 5 Series F10/F11" },
+    ]);
+  });
+
   it("keeps the BMW range findable through the make filter", () => {
     const bmw = products.filter((p) => p.makes.includes("BMW"));
     expect(bmw.length).toBeGreaterThan(15);

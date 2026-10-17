@@ -8,8 +8,23 @@ import {
   getProduct,
   getRelated,
   parseFilters,
+  sorts,
   type CatalogFilters,
+  type CatalogSort,
 } from "./catalog";
+
+describe("sorts", () => {
+  it("lists the sort options for the catalog UI, default first", () => {
+    const list: readonly CatalogSort[] = sorts;
+    expect(list).toEqual(["featured", "price-asc", "price-desc"]);
+  });
+
+  it("are all accepted by parseFilters", () => {
+    for (const sort of sorts) {
+      expect(parseFilters({ sort })).toEqual({ sort });
+    }
+  });
+});
 
 describe("parseFilters", () => {
   it("drops unknown categories and sorts but keeps a free-text make", () => {
@@ -158,6 +173,19 @@ describe("filterProducts", () => {
         "koito-bi-led",
       ]);
       expect(filterProducts(products, { q: "mondeo mk3" }, "et").length).toBeGreaterThan(0);
+    });
+
+    it("searches the fitment text in both languages without leaking object markup", () => {
+      const slugs = (q: string) =>
+        filterProducts(products, { q }, "en").map((p) => p.slug);
+      // These words are only in the fitment text, not in either name.
+      expect(slugs("e-class w211 2003")).toEqual(["hella-5dd-008-319-50-suutaja"]);
+      expect(slugs("e-klass w211 2003")).toEqual(["hella-5dd-008-319-50-suutaja"]);
+      expect(slugs("e55 gen. 4")).toEqual(["hella-e55-afs-adapterid"]);
+      expect(slugs("e55 generatsioon")).toEqual(["hella-e55-afs-adapterid"]);
+      expect(slugs("japanese cars")).toEqual(["koito-bi-led"]);
+      expect(slugs("jaapani autod")).toEqual(["koito-bi-led"]);
+      expect(slugs("object")).toEqual([]);
     });
 
     it("requires every word to match", () => {

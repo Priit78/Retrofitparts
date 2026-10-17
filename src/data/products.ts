@@ -10,9 +10,9 @@ import type { Category, Product, ProductSpec } from "./types";
  *   ("backorder").
  * - `makes` only holds values from `site.vehicleMakes`; it is derived from the product name
  *   or the fitment text. Universal parts have none.
- * - `fitment` is model text from the old site's fitment lists, one string per vehicle, in
- *   the Estonian model naming ("3. seeria"). `Product.fitment` is not localized. Model
- *   years are only given where the old site stated them.
+ * - `fitment` is model text from the old site's fitment lists, one entry per vehicle, in
+ *   both languages ("3. seeria" / "3 Series"). Entries that are only model codes use the
+ *   same text in both. Model years are only given where the old site stated them.
  * - Brands are normalised for the brand filter ("Hella (replica)" and "Hella (OEM)" are
  *   both "Hella"; the replica/OEM distinction stays in the product name).
  * - Products are listed in category display order, which is also the catalog's default
@@ -170,7 +170,7 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the BMW 3 Series E90/E91. Suits cars with xenon headlights. ${lensInstall.en}`,
     },
     specs: [modelYears("2005–2011"), lensPair],
-    fitment: ["BMW 3. seeria E90/E91 (xenon)"],
+    fitment: [{ et: "BMW 3. seeria E90/E91 (xenon)", en: "BMW 3 Series E90/E91 (xenon)" }],
     featured: true,
   },
   {
@@ -188,7 +188,12 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the BMW 3 Series E90/E91. Suits cars with halogen headlights. ${lensInstall.en}`,
     },
     specs: [modelYears("2005–2011"), lensPair],
-    fitment: ["BMW 3. seeria E90/E91 (halogeen)"],
+    fitment: [
+      {
+        et: "BMW 3. seeria E90/E91 (halogeen)",
+        en: "BMW 3 Series E90/E91 (halogen)",
+      },
+    ],
   },
   {
     slug: "tuleklaasid-e46-kupee",
@@ -205,7 +210,12 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the BMW 3 Series E46 coupe and convertible. ${lensInstall.en}`,
     },
     specs: [modelYears("1998–2002"), lensPair],
-    fitment: ["BMW 3. seeria E46 Coupe/Cabrio"],
+    fitment: [
+      {
+        et: "BMW 3. seeria E46 kupee ja kabriolett",
+        en: "BMW 3 Series E46 coupe & convertible",
+      },
+    ],
   },
   {
     slug: "tuleklaasid-e46-sedaan-touring",
@@ -222,7 +232,12 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the BMW 3 Series E46 sedan and touring. ${lensInstall.en}`,
     },
     specs: [modelYears("1997–2001"), lensPair],
-    fitment: ["BMW 3. seeria E46 Sedan/Touring"],
+    fitment: [
+      {
+        et: "BMW 3. seeria E46 sedaan ja touring",
+        en: "BMW 3 Series E46 sedan & touring",
+      },
+    ],
   },
   {
     slug: "tuleklaasid-e46-fl-sedaan-touring",
@@ -239,7 +254,12 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the BMW 3 Series E46 facelift sedan and touring. ${lensInstall.en}`,
     },
     specs: [modelYears("2001–2006"), lensPair],
-    fitment: ["BMW 3. seeria E46 facelift Sedan/Touring"],
+    fitment: [
+      {
+        et: "BMW 3. seeria E46 facelift sedaan ja touring",
+        en: "BMW 3 Series E46 facelift sedan & touring",
+      },
+    ],
   },
   {
     slug: "tuleklaasid-e46-fl-kupee",
@@ -256,7 +276,12 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the BMW 3 Series E46 facelift coupe and convertible. ${lensInstall.en}`,
     },
     specs: [modelYears("2003–2006"), lensPair],
-    fitment: ["BMW 3. seeria E46 facelift Coupe/Cabrio"],
+    fitment: [
+      {
+        et: "BMW 3. seeria E46 facelift kupee ja kabriolett",
+        en: "BMW 3 Series E46 facelift coupe & convertible",
+      },
+    ],
   },
   {
     slug: "tuleklaasid-e39-fl",
@@ -273,7 +298,7 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the BMW 5 Series E39 facelift. ${lensInstall.en}`,
     },
     specs: [modelYears("2001–2003"), lensPair],
-    fitment: ["BMW 5. seeria E39 facelift"],
+    fitment: [{ et: "BMW 5. seeria E39 facelift", en: "BMW 5 Series E39 facelift" }],
   },
   {
     slug: "tuleklaasid-e60",
@@ -290,7 +315,7 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the BMW 5 Series E60/E61. ${lensInstall.en}`,
     },
     specs: [modelYears("2003–2010"), lensPair],
-    fitment: ["BMW 5. seeria E60/E61"],
+    fitment: [{ et: "BMW 5. seeria E60/E61", en: "BMW 5 Series E60/E61" }],
   },
   {
     slug: "tuleklaasid-f10",
@@ -307,7 +332,7 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the BMW 5 Series F10/F11. ${lensInstall.en}`,
     },
     specs: [modelYears("2009–2016"), lensPair, singleLens(45.74)],
-    fitment: ["BMW 5. seeria F10/F11"],
+    fitment: [{ et: "BMW 5. seeria F10/F11", en: "BMW 5 Series F10/F11" }],
   },
   {
     slug: "tuleklaasid-f07-gt",
@@ -324,7 +349,7 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the BMW 5 Series F07 GT. Suitable for xenon headlights; not suitable for Full Adaptive LED headlights. ${lensInstall.en}`,
     },
     specs: [modelYears("2009–2016"), lensPair, singleLens(70.13)],
-    fitment: ["BMW 5. seeria F07 GT (xenon)"],
+    fitment: [{ et: "BMW 5. seeria F07 GT (xenon)", en: "BMW 5 Series F07 GT (xenon)" }],
   },
   {
     slug: "tuleklaasid-e65-fl",
@@ -341,7 +366,7 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the BMW 7 Series E65 facelift. ${lensInstall.en}`,
     },
     specs: [modelYears("2005–2008"), lensPair],
-    fitment: ["BMW 7. seeria E65 facelift"],
+    fitment: [{ et: "BMW 7. seeria E65 facelift", en: "BMW 7 Series E65 facelift" }],
   },
   {
     slug: "tuleklaasid-bmw-7-seeria-f01-f02",
@@ -358,7 +383,12 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the BMW 7 Series F01/F02. Suits both the xenon and the LED headlight versions. ${lensInstall.en}`,
     },
     specs: [modelYears("2007–2015"), lensPair],
-    fitment: ["BMW 7. seeria F01/F02 (xenon ja LED)"],
+    fitment: [
+      {
+        et: "BMW 7. seeria F01/F02 (xenon ja LED)",
+        en: "BMW 7 Series F01/F02 (xenon and LED)",
+      },
+    ],
   },
   {
     slug: "tuleklaasid-e70-x5",
@@ -375,7 +405,7 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the BMW X5 E70. ${lensInstall.en}`,
     },
     specs: [modelYears("2006–2013"), lensPair, singleLens(66.07)],
-    fitment: ["BMW X5 E70"],
+    fitment: [same("BMW X5 E70")],
   },
   {
     slug: "tuleklaasid-e53-x5-pre-fl",
@@ -392,7 +422,7 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the BMW X5 E53 pre-facelift. ${lensInstall.en}`,
     },
     specs: [modelYears("1999–2003"), lensPair],
-    fitment: ["BMW X5 E53 pre-facelift"],
+    fitment: [same("BMW X5 E53 pre-facelift")],
   },
   {
     slug: "tuleklaasid-e53-x5-fl",
@@ -409,7 +439,7 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the BMW X5 E53 facelift. ${lensInstall.en}`,
     },
     specs: [modelYears("2004–2006"), lensPair],
-    fitment: ["BMW X5 E53 facelift"],
+    fitment: [same("BMW X5 E53 facelift")],
   },
   {
     slug: "tuleklaasid-e71-x6",
@@ -426,7 +456,7 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the BMW X6 E71. ${lensInstall.en}`,
     },
     specs: [modelYears("2008–2014"), lensPair, singleLens(76.23)],
-    fitment: ["BMW X6 E71"],
+    fitment: [same("BMW X6 E71")],
   },
   {
     slug: "tuleklaasid-e84-x1",
@@ -443,7 +473,7 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the BMW X1 E84. ${lensInstall.en}`,
     },
     specs: [modelYears("2008–2015"), lensPair],
-    fitment: ["BMW X1 E84"],
+    fitment: [same("BMW X1 E84")],
   },
   {
     slug: "tuleklaasid-golf-7",
@@ -460,7 +490,7 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the Volkswagen Golf 7. ${lensInstall.en}`,
     },
     specs: [modelYears("2013–2020"), lensPair],
-    fitment: ["Volkswagen Golf 7"],
+    fitment: [same("Volkswagen Golf 7")],
   },
   {
     slug: "tuleklaasid-a6-c6-4f",
@@ -477,7 +507,7 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the Audi A6 C6 (4F). ${lensInstall.en}`,
     },
     specs: [modelYears("2004–2011"), lensPair],
-    fitment: ["Audi A6 C6 (4F)"],
+    fitment: [same("Audi A6 C6 (4F)")],
   },
   {
     slug: "tuleklaasid-a6-c7-pre-facelift",
@@ -494,7 +524,7 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the Audi A6 C7 (4G) pre-facelift. ${lensInstall.en}`,
     },
     specs: [modelYears("2011–2014"), lensPair],
-    fitment: ["Audi A6 C7 (4G) pre-facelift"],
+    fitment: [same("Audi A6 C7 (4G) pre-facelift")],
   },
   {
     slug: "tuleklaasid-w251-pre-fl",
@@ -511,7 +541,12 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the Mercedes-Benz R-Class W251 pre-facelift. ${lensInstall.en}`,
     },
     specs: [modelYears("2006–2010"), lensPair],
-    fitment: ["Mercedes-Benz R-klass W251 pre-facelift"],
+    fitment: [
+      {
+        et: "Mercedes-Benz R-klass W251 pre-facelift",
+        en: "Mercedes-Benz R-Class W251 pre-facelift",
+      },
+    ],
   },
   {
     slug: "tuleklaasid-w211",
@@ -528,7 +563,7 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the Mercedes-Benz E-Class W211. ${lensInstall.en}`,
     },
     specs: [lensPair],
-    fitment: ["Mercedes-Benz E-klass W211"],
+    fitment: [{ et: "Mercedes-Benz E-klass W211", en: "Mercedes-Benz E-Class W211" }],
   },
   {
     slug: "tuleklaasid-crv-gen-3",
@@ -545,7 +580,7 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the third-generation Honda CR-V. ${lensInstall.en}`,
     },
     specs: [modelYears("2007–2011"), lensPair],
-    fitment: ["Honda CR-V 3. põlvkond"],
+    fitment: [{ et: "Honda CR-V 3. põlvkond", en: "Honda CR-V Gen 3" }],
   },
   {
     slug: "tuleklaasid-rx",
@@ -562,7 +597,7 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the Lexus RX XU30. ${lensInstall.en}`,
     },
     specs: [modelYears("2003–2008"), lensPair],
-    fitment: ["Lexus RX XU30"],
+    fitment: [same("Lexus RX XU30")],
   },
   {
     slug: "tuleklaasid-s60-iii",
@@ -579,7 +614,7 @@ export const products: Product[] = [
       en: `Set of new replacement headlight lenses (left and right) for the Volvo S60 III. ${lensInstall.en}`,
     },
     specs: [modelYears("2019+"), lensPair],
-    fitment: ["Volvo S60 III"],
+    fitment: [same("Volvo S60 III")],
   },
 
   // ---------------------------------------------------------------------------------------
@@ -592,7 +627,7 @@ export const products: Product[] = [
     category: "led-projectors",
     brand: "Koito",
     makes: [],
-    price: 284.59,
+    price: 284.59, // price unconfirmed: one category snapshot showed €330
     stock: "backorder",
     description: {
       et: "Integreeritud juhtplokiga 3-tolline bi-LED projektor, mis annab nii lähi- kui ka kaugtule ning lisaks päevatule (DRL) režiimi. Komplektis kaks projektorit. Sobib paljudele Jaapani päritolu sõidukitele alates 2015. aastast.",
@@ -609,7 +644,7 @@ export const products: Product[] = [
       spec(label.dimensions, same("90 × 115 × 120 mm")),
       spec(label.contents, { et: "2 projektorit", en: "2 projectors" }),
     ],
-    fitment: ["Jaapani autod 2015+ / Japanese cars 2015+"],
+    fitment: [{ et: "Jaapani autod 2015+", en: "Japanese cars 2015+" }],
     warrantyYears: 2,
     featured: true,
   },
@@ -760,7 +795,7 @@ export const products: Product[] = [
     name: { et: "LED rõngad lõikega BMW-le", en: "LED rings with cut-out for BMW" },
     category: "led-lights",
     makes: ["BMW"],
-    price: 79.28,
+    price: 79.28, // price unconfirmed: one snapshot showed €78
     stock: "backorder",
     description: {
       et: "Kvaliteetsed LED rõngad (nn angel eyes), mis sobivad erinevatele BMW mudelitele. Piimjas kate ja ühtlane 6000 K valge valgus. Komplektis neli 131 mm rõngast, ühenduskomplekt ja paigaldustarvikud.",
@@ -774,7 +809,7 @@ export const products: Product[] = [
         en: "4 LED rings (131 mm), connection kit, fitting accessories",
       }),
     ],
-    fitment: ["BMW"],
+    fitment: [same("BMW")],
   },
 
   // ---------------------------------------------------------------------------------------
@@ -808,7 +843,7 @@ export const products: Product[] = [
     category: "xenon-bulbs",
     brand: "Yeaky",
     makes: [],
-    price: 36.59,
+    price: 36.59, // price unconfirmed: one snapshot showed €36
     stock: "backorder",
     description: {
       et: "D2S xenon-lambid värvustemperatuuriga 6000 K. Valgusvoog 3800 lm, eluiga 2500 h, võimsus 35 W.",
@@ -948,7 +983,7 @@ export const products: Product[] = [
       en: "An affordable replica of the original Hella 5DV 009 xenon ballast. Works with both D1S and D1R bulbs and fits many BMW, VW, Škoda and other cars.",
     },
     specs: [spec(label.bulbs, same("D1S, D1R"))],
-    fitment: ["BMW", "Volkswagen", "Škoda"],
+    fitment: [same("BMW"), same("Volkswagen"), same("Škoda")],
   },
   {
     slug: "hella-5dd-008-319-50-suutaja",
@@ -968,9 +1003,12 @@ export const products: Product[] = [
     },
     specs: [spec(label.bulbs, same("D1S, D2S"))],
     fitment: [
-      "Mercedes-Benz E-klass W211 (2003–2006)",
-      "Mercedes-Benz ML W164",
-      "BMW",
+      {
+        et: "Mercedes-Benz E-klass W211 (2003–2006)",
+        en: "Mercedes-Benz E-Class W211 (2003–2006)",
+      },
+      same("Mercedes-Benz ML W164"),
+      same("BMW"),
     ],
   },
   {
@@ -1157,7 +1195,7 @@ export const products: Product[] = [
       en: "Adapters for fitting Hella 5R projectors into ZKW third-generation (G3) AFS headlights.",
     },
     specs: [],
-    fitment: ["ZKW G3 AFS"],
+    fitment: [same("ZKW G3 AFS")],
   },
   {
     slug: "al-bosch-afs-adapterid",
@@ -1177,7 +1215,7 @@ export const products: Product[] = [
         en: "All adapters and fixings",
       }),
     ],
-    fitment: ['AL/Bosch AFS, 3"'],
+    fitment: [same('AL/Bosch AFS, 3"')],
   },
   {
     slug: "hella-e55-afs-adapterid",
@@ -1191,7 +1229,12 @@ export const products: Product[] = [
       en: "For replacing the common Hella gen. 2 and gen. 4 projectors with Hella 5R projectors in AFS headlights.",
     },
     specs: [],
-    fitment: ["Hella E55 AFS (gen 2 / gen 4)"],
+    fitment: [
+      {
+        et: "Hella E55 AFS (2. ja 4. generatsioon)",
+        en: "Hella E55 AFS (gen. 2 and gen. 4)",
+      },
+    ],
   },
   {
     slug: "bosch-25-xenon-lahitulede-adapterid",
@@ -1215,11 +1258,11 @@ export const products: Product[] = [
       }),
     ],
     fitment: [
-      "Audi A4 B5",
-      "BMW E38",
-      "BMW E46",
-      "Ford Mondeo MK3",
-      "Mazda 6 GG1",
+      same("Audi A4 B5"),
+      same("BMW E38"),
+      same("BMW E46"),
+      same("Ford Mondeo MK3"),
+      same("Mazda 6 GG1"),
     ],
   },
   {
@@ -1234,7 +1277,7 @@ export const products: Product[] = [
       en: "Projector adapters for Lexus RX330 AFS headlights.",
     },
     specs: [],
-    fitment: ["Lexus RX330 AFS"],
+    fitment: [same("Lexus RX330 AFS")],
   },
   {
     slug: "bmw-e36-adapterid",
@@ -1249,7 +1292,7 @@ export const products: Product[] = [
       en: "Projector retrofit adapters for BMW E36 headlights.",
     },
     specs: [],
-    fitment: ["BMW E36"],
+    fitment: [same("BMW E36")],
   },
   {
     slug: "ford-mondeo-mk4",
@@ -1263,7 +1306,7 @@ export const products: Product[] = [
       en: "Adapters for replacing the factory bi-xenon projectors of the Ford Mondeo MK4 (2007–2014) with Hella 5R projectors.",
     },
     specs: [],
-    fitment: ["Ford Mondeo MK4 (2007–2014)"],
+    fitment: [same("Ford Mondeo MK4 (2007–2014)")],
   },
 
   // ---------------------------------------------------------------------------------------

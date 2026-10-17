@@ -2,7 +2,10 @@ import { categories, products } from "@/data/products";
 import type { CategoryId, Product } from "@/data/types";
 import type { Locale } from "@/lib/i18n";
 
-type CatalogSort = "featured" | "price-asc" | "price-desc";
+/** Sort options for the catalog UI; the first one is the default. */
+export const sorts = ["featured", "price-asc", "price-desc"] as const;
+
+export type CatalogSort = (typeof sorts)[number];
 
 export interface CatalogFilters {
   category?: CategoryId;
@@ -11,8 +14,6 @@ export interface CatalogFilters {
   q?: string;
   sort?: CatalogSort;
 }
-
-const sorts: readonly CatalogSort[] = ["featured", "price-asc", "price-desc"];
 
 type RawParams = URLSearchParams | Record<string, string | string[] | undefined>;
 
@@ -76,7 +77,9 @@ function normalize(text: string): string {
 
 function searchText(p: Product): string {
   return normalize(
-    [p.name.et, p.name.en, p.brand, p.sku, ...p.fitment].filter(Boolean).join(" "),
+    [p.name.et, p.name.en, p.brand, p.sku, ...p.fitment.flatMap((f) => [f.et, f.en])]
+      .filter(Boolean)
+      .join(" "),
   );
 }
 
