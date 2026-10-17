@@ -25,7 +25,7 @@ memory of Next.js APIs.
 - Sections are `export function Name({ locale }: { locale: Locale })` in
   `src/components/sections/`. Each is self-contained.
 - Colors come from theme tokens only (`bg`, `surface`, `surface-2`, `line`, `fg`, `muted`, `light`,
-  `accent`, `halogen`), defined in `src/app/globals.css`. Fonts: `font-display` (Archivo, expanded),
+  `accent`, `halogen`, `danger` for errors), defined in `src/app/globals.css`. Fonts: `font-display` (Archivo, expanded),
   `font-sans` (Inter), `font-mono` (JetBrains Mono).
 - Animation uses `motion/react` and CSS. Every animation respects `prefers-reduced-motion`, and no
   content may stay hidden if JS or animation doesn't run. Use `Reveal` for simple scroll entrances.
