@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { usePrefersReducedMotion } from "@/components/ui/usePrefersReducedMotion";
 import { catalog } from "@/content/catalog";
 import { categories, products } from "@/data/products";
-import type { CategoryId, Product } from "@/data/types";
+import type { Product } from "@/data/types";
 import {
   filterProducts,
   filtersToQuery,
@@ -17,32 +17,20 @@ import {
   parseFilters,
   type CatalogFilters,
 } from "@/lib/catalog";
+import { facetCounts } from "@/lib/catalog-ui";
 import type { Locale } from "@/lib/i18n";
-import {
-  clearFilters,
-  FilterBar,
-  FilterSidebar,
-  ResultsHeader,
-  type FacetCounts,
-} from "./FilterBar";
+import { clearFilters, FilterBar, FilterSidebar, ResultsHeader } from "./FilterBar";
 import { InquiryDrawer, type InquiryRequest } from "./InquiryDrawer";
 import { ProductCard } from "./ProductCard";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 const brands = getBrands(products);
 const makes = getMakes(products);
+const categoryIds = categories.map((c) => c.id);
 const noFilters: CatalogFilters = {};
 
 /** Cards that stay on screen when the filters change don't re-render (props are stable). */
 const GridCard = memo(ProductCard);
-
-/** Counts per category for everything else that is filtered, so the chips show what they'd give. */
-function facetCounts(filters: CatalogFilters, locale: Locale): FacetCounts {
-  const base = filterProducts(products, { ...filters, category: undefined, sort: undefined }, locale);
-  const byCategory = Object.fromEntries(categories.map((c) => [c.id, 0])) as Record<CategoryId, number>;
-  for (const product of base) byCategory[product.category] += 1;
-  return { all: base.length, byCategory };
-}
 
 function EmptyState({
   locale,
@@ -114,8 +102,14 @@ function CatalogView({
   const resultsRef = useRef<HTMLDivElement>(null);
   const [request, setRequest] = useState<InquiryRequest | null>(null);
 
+  // Bumped by every Clear, so the search boxes also drop a query still waiting to be applied.
+  const [searchReset, setSearchReset] = useState(0);
+
   const list = useMemo(() => filterProducts(products, filters, locale), [filters, locale]);
-  const counts = useMemo(() => facetCounts(filters, locale), [filters, locale]);
+  const counts = useMemo(
+    () => facetCounts(products, categoryIds, filters, locale),
+    [filters, locale],
+  );
 
   /** Scrolls back up to the results when a filter changes while they are scrolled past. */
   const reveal = useCallback(() => {
@@ -132,12 +126,29 @@ function CatalogView({
     [onFiltersChange, reveal],
   );
 
+  const clear = useCallback(
+    (options?: { reveal?: boolean }) => {
+      setSearchReset((n) => n + 1);
+      change(clearFilters, options);
+    },
+    [change],
+  );
+
   const inquire = useCallback(
     (product: Product) => setRequest({ key: product.slug, product }),
     [],
   );
 
-  const facetProps = { locale, filters, onChange: change, counts, brands, makes };
+  const facetProps = {
+    locale,
+    filters,
+    onChange: change,
+    onClear: clear,
+    searchReset,
+    counts,
+    brands,
+    makes,
+  };
 
   return (
     <div className="lg:grid lg:grid-cols-[15.5rem_minmax(0,1fr)] lg:gap-10 xl:grid-cols-[16.5rem_minmax(0,1fr)] xl:gap-14">
@@ -147,7 +158,14 @@ function CatalogView({
         <FilterBar {...facetProps} resultCount={list.length} onReveal={reveal} />
 
         <div ref={resultsRef} className="scroll-mt-36 lg:scroll-mt-28">
-          <ResultsHeader locale={locale} filters={filters} onChange={change} resultCount={list.length} />
+          <ResultsHeader
+            locale={locale}
+            filters={filters}
+            onChange={change}
+            brands={brands}
+            makes={makes}
+            resultCount={list.length}
+          />
           <h2 className="sr-only">{catalog.results.heading[locale]}</h2>
 
           {list.length > 0 ? (
@@ -172,7 +190,7 @@ function CatalogView({
             <EmptyState
               locale={locale}
               reduceMotion={reduceMotion}
-              onReset={() => change(clearFilters)}
+              onReset={() => clear()}
               onInquire={() => setRequest({ key: "general" })}
             />
           )}

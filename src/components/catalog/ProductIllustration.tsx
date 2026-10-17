@@ -1,3 +1,5 @@
+"use client";
+
 import type { CategoryId } from "@/data/types";
 import { cn } from "@/lib/cn";
 
@@ -12,6 +14,11 @@ import { cn } from "@/lib/cn";
  * every illustration is a single element using it. Inline SVGs would put roughly 7,000 extra
  * nodes in the catalog's DOM and make every filter change re-create them. No SVG filters
  * either: glows are radial gradients.
+ *
+ * It is a client component on purpose. Rendered from a Server Component, every instance's
+ * `<style>` text would travel in the RSC payload (the DOM still holds one per shot), so a page
+ * with 14 renders carried 14 copies. As a client leaf, the payload only holds
+ * `{ category, className }` and the style text is built from this module's code.
  */
 
 /**

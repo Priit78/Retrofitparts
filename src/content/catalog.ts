@@ -88,6 +88,11 @@ export const catalog = {
       et: (label: string) => `Eemalda filter: ${label}`,
       en: (label: string) => `Remove filter: ${label}`,
     },
+    /** The search text on its filter pill, in each language's quotation marks. */
+    queryPill: {
+      et: (q: string) => `„${q}“`,
+      en: (q: string) => `“${q}”`,
+    },
     /** Announced to screen readers when the result list changes. */
     results: productCount,
   },
@@ -163,8 +168,8 @@ export const catalog = {
     specs: { et: "Tehnilised andmed", en: "Specifications" },
     fitment: { et: "Sobivus sõidukile", en: "Vehicle fitment" },
     fitmentNone: {
-      et: "Universaalne toode. Kirjuta meile oma auto mark ja mudel, ja kontrollime sobivuse üle.",
-      en: "A universal part. Send us your car's make and model and we'll check that it fits.",
+      et: "Ei ole seotud kindla automudeliga. Kirjuta meile oma auto mark ja mudel, ja kontrollime sobivuse üle.",
+      en: "Not tied to a specific car model. Send us your car's make and model and we'll check that it fits.",
     },
     inquiryEyebrow: { et: "Päring", en: "Inquiry" },
     inquiryTitle: { et: "Küsi sellele tootele pakkumist", en: "Request an offer for this product" },

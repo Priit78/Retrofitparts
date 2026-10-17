@@ -19,6 +19,7 @@ import { site } from "@/content/site";
 import { products } from "@/data/products";
 import type { Product } from "@/data/types";
 import { getProduct, getRelated } from "@/lib/catalog";
+import { clamp } from "@/lib/catalog-ui";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
 import { absoluteUrl, alternates } from "@/lib/seo";
 
@@ -31,13 +32,6 @@ export function generateStaticParams() {
 }
 
 const mono = "font-mono text-[11px] tracking-[0.16em] uppercase";
-
-/** Shortens text to at most `max` characters at a word boundary. */
-function clamp(text: string, max: number) {
-  if (text.length <= max) return text;
-  const cut = text.slice(0, max - 1);
-  return `${cut.slice(0, cut.lastIndexOf(" ")).replace(/[\s,.;:–-]+$/, "")}…`;
-}
 
 export async function generateMetadata({
   params,
@@ -222,7 +216,7 @@ export default async function ProductPage({ params }: PageProps<"/[locale]/catal
                   aria-hidden
                   className="pointer-events-none absolute inset-x-12 top-0 h-px bg-linear-to-r from-transparent via-white/20 to-transparent"
                 />
-                <figcaption className={`${mono} absolute right-4 bottom-3.5 text-muted/80 md:right-5 md:bottom-4`}>
+                <figcaption className={`${mono} absolute right-4 bottom-3.5 text-muted md:right-5 md:bottom-4`}>
                   {t.illustration[locale]}
                 </figcaption>
               </figure>

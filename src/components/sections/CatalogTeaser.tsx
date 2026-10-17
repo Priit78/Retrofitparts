@@ -89,13 +89,17 @@ export function CatalogTeaser({ locale }: { locale: Locale }) {
         </ul>
 
         <div className="mt-20 md:mt-24">
+          {/* A label, not a heading: the cards below carry their own h3s. */}
           <Reveal>
-            <h3 className={`${mono} flex items-center gap-3 text-muted`}>
+            <p id="featured-products-label" className={`${mono} flex items-center gap-3 text-muted`}>
               <span aria-hidden className="size-1.5 rounded-full bg-accent shadow-[0_0_8px_var(--color-accent)]" />
               {t.featured[locale]}
-            </h3>
+            </p>
           </Reveal>
-          <ul className="mt-6 grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4">
+          <ul
+            aria-labelledby="featured-products-label"
+            className="mt-6 grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4"
+          >
             {featured.map((product, index) => (
               <Reveal as="li" key={product.slug} delay={index * 0.06} className="min-w-0">
                 <ProductCard product={product} locale={locale} inquireHref="#contact" />

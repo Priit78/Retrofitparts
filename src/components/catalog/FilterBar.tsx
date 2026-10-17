@@ -17,6 +17,7 @@ import { catalog } from "@/content/catalog";
 import { categories } from "@/data/products";
 import type { CategoryId } from "@/data/types";
 import { sorts, type CatalogFilters, type CatalogSort } from "@/lib/catalog";
+import { selectOptions, type FacetCounts } from "@/lib/catalog-ui";
 import { cn } from "@/lib/cn";
 import type { Locale } from "@/lib/i18n";
 import { Button } from "@/components/ui/Button";
@@ -30,12 +31,6 @@ const labelClass = "font-mono text-[11px] font-medium tracking-[0.16em] text-mut
 const controlClass =
   "block h-11 w-full rounded-xl border border-fg/40 bg-surface-2/70 text-[15px] text-fg transition-[border-color,background-color,box-shadow] duration-300 ease-out-expo hover:border-fg/60 focus:border-accent focus:bg-surface-2 focus:ring-4 focus:ring-accent/15";
 
-export interface FacetCounts {
-  /** Products matching everything but the category. */
-  all: number;
-  byCategory: Record<CategoryId, number>;
-}
-
 export interface FilterProps {
   locale: Locale;
   filters: CatalogFilters;
@@ -44,25 +39,13 @@ export interface FilterProps {
    * `reveal` asks the catalog to bring the results into view.
    */
   onChange: (patch: Partial<CatalogFilters>, options?: { reveal?: boolean }) => void;
+  /** Clears every filter (keeping the sort) and anything still being typed in the search. */
+  onClear: (options?: { reveal?: boolean }) => void;
+  /** Changes on every Clear, so search boxes drop a pending, debounced query. */
+  searchReset: number;
   counts: FacetCounts;
   brands: string[];
   makes: string[];
-}
-
-/** Case- and accent-insensitive match, as the catalog filter itself compares. */
-function sameText(a: string, b: string) {
-  return a.localeCompare(b, undefined, { sensitivity: "base" }) === 0;
-}
-
-/**
- * Options for a select, with the current value mapped onto its canonical spelling
- * (`?make=bmw` selects "BMW") or, for a value from a hand-edited link that isn't listed
- * (`?make=Tesla`), added as an extra option so the select shows what is being filtered.
- */
-function selectOptions(options: string[], value: string | undefined) {
-  if (!value) return { options, selected: "" };
-  const match = options.find((option) => sameText(option, value));
-  return match ? { options, selected: match } : { options: [...options, value], selected: value };
 }
 
 const noSubscription = () => () => {};
@@ -97,18 +80,21 @@ export function hasFilters(f: CatalogFilters) {
 
 /**
  * Search box. Typing updates the results after a 200 ms pause (Enter applies at once); the
- * box only adopts the URL's value when it changes from elsewhere (Clear, a pill, a link), so
- * a slow URL update never eats characters typed in the meantime.
+ * box only adopts the URL's value when it changes from elsewhere (a pill, a link), so a slow
+ * URL update never eats characters typed in the meantime. Clear (`resetSignal`) empties it and
+ * cancels a query that is still waiting out the pause.
  */
-function SearchField({
+export function SearchField({
   locale,
   query,
   onSearch,
+  resetSignal,
   className,
 }: {
   locale: Locale;
   query: string;
   onSearch: (q: string) => void;
+  resetSignal: number;
   className?: string;
 }) {
   const t = catalog.filters;
@@ -117,11 +103,19 @@ function SearchField({
   const [draft, setDraft] = useState(query);
   const [seen, setSeen] = useState(query);
   const [pushed, setPushed] = useState<string | null>(null);
+  const [seenReset, setSeenReset] = useState(resetSignal);
 
   // A new URL value: our own push landing (keep what is typed since) or a change from elsewhere.
   if (query !== seen) {
     setSeen(query);
     if (query !== pushed) setDraft(query);
+    setPushed(null);
+  }
+
+  // Clear: an empty draft matches the cleared URL, so the pending timer is cancelled below.
+  if (resetSignal !== seenReset) {
+    setSeenReset(resetSignal);
+    setDraft("");
     setPushed(null);
   }
 
@@ -262,6 +256,9 @@ function CategoryOptions({
       <ul className={variant === "list" ? "-mx-3 flex flex-col" : "flex flex-wrap gap-2"}>
         {options.map((option) => {
           const active = filters.category === option.id;
+          // Empty categories stay clickable and readable: in the sheet their label drops from
+          // `fg` to `muted` (5.9:1); in the list every inactive row is already `muted` (6.2:1).
+          // No opacity dimming, which took them below AA.
           const empty = option.count === 0 && !active;
           return (
             <li key={option.id ?? "all"}>
@@ -283,8 +280,10 @@ function CategoryOptions({
                   variant === "chips" &&
                     (active
                       ? "border-light bg-light text-bg"
-                      : "border-line bg-white/[0.03] text-fg hover:border-accent/50"),
-                  empty && "opacity-50",
+                      : cn(
+                          "border-line bg-white/[0.03] hover:border-accent/50",
+                          empty ? "text-muted" : "text-fg",
+                        )),
                 )}
               >
                 {variant === "list" ? (
@@ -346,16 +345,16 @@ function BrandAndMake({
 function ClearButton({
   locale,
   filters,
-  onChange,
+  onClear,
   className,
-}: Pick<FilterProps, "locale" | "filters" | "onChange"> & { className?: string }) {
+}: Pick<FilterProps, "locale" | "filters" | "onClear"> & { className?: string }) {
   const active = hasFilters(filters);
   return (
     // aria-disabled rather than disabled: a keyboard user's focus stays here after clearing.
     <button
       type="button"
       aria-disabled={!active}
-      onClick={() => active && onChange(clearFilters, { reveal: true })}
+      onClick={() => active && onClear({ reveal: true })}
       className={cn(
         "inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-line px-5 text-sm font-medium text-fg transition-[background-color,border-color,opacity] duration-300 hover:border-accent/50 hover:bg-white/[0.06] aria-disabled:cursor-default aria-disabled:opacity-40 aria-disabled:hover:border-line aria-disabled:hover:bg-transparent",
         className,
@@ -371,7 +370,7 @@ function ClearButton({
 
 /** Desktop filters: a sticky column next to the grid (hidden below `lg`). */
 export function FilterSidebar(props: FilterProps) {
-  const { locale, filters, onChange } = props;
+  const { locale, filters, onChange, onClear, searchReset } = props;
   return (
     <aside aria-label={catalog.filters.title[locale]} className="hidden lg:block">
       <div className="sticky top-24 flex flex-col gap-7 pb-10">
@@ -379,12 +378,13 @@ export function FilterSidebar(props: FilterProps) {
           locale={locale}
           query={filters.q ?? ""}
           onSearch={(q) => onChange({ q: q || undefined })}
+          resetSignal={searchReset}
         />
         <CategoryOptions {...props} variant="list" />
         <div className="flex flex-col gap-5">
           <BrandAndMake {...props} reveal />
         </div>
-        <ClearButton locale={locale} filters={filters} onChange={onChange} className="self-start" />
+        <ClearButton locale={locale} filters={filters} onClear={onClear} className="self-start" />
       </div>
     </aside>
   );
@@ -401,7 +401,7 @@ export function FilterBar(
     onReveal: () => void;
   },
 ) {
-  const { locale, filters, onChange, resultCount, onReveal } = props;
+  const { locale, filters, onChange, onClear, searchReset, resultCount, onReveal } = props;
   const t = catalog.filters;
   const [open, setOpen] = useState(false);
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -431,6 +431,7 @@ export function FilterBar(
           locale={locale}
           query={filters.q ?? ""}
           onSearch={(q) => onChange({ q: q || undefined })}
+          resetSignal={searchReset}
           className="min-w-0 flex-1"
         />
         <button
@@ -509,7 +510,7 @@ export function FilterBar(
               </div>
 
               <div className="flex shrink-0 gap-3 border-t border-line bg-surface px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-7">
-                <ClearButton locale={locale} filters={filters} onChange={onChange} />
+                <ClearButton locale={locale} filters={filters} onClear={onClear} />
                 <Button
                   className="flex-1"
                   onClick={() => {
@@ -536,16 +537,31 @@ export function ResultsHeader({
   locale,
   filters,
   onChange,
+  brands,
+  makes,
   resultCount,
-}: Pick<FilterProps, "locale" | "filters" | "onChange"> & { resultCount: number }) {
+}: Pick<FilterProps, "locale" | "filters" | "onChange" | "brands" | "makes"> & {
+  resultCount: number;
+}) {
   const t = catalog.filters;
   const sortId = useId();
   const category = categories.find((c) => c.id === filters.category);
   const pills: { key: keyof CatalogFilters; label: ReactNode; text: string }[] = [];
-  if (category) pills.push({ key: "category", label: category.name[locale], text: category.name[locale] });
-  if (filters.make) pills.push({ key: "make", label: filters.make, text: filters.make });
-  if (filters.brand) pills.push({ key: "brand", label: filters.brand, text: filters.brand });
-  if (filters.q) pills.push({ key: "q", label: `“${filters.q}”`, text: filters.q });
+  if (category) {
+    pills.push({ key: "category", label: category.name[locale], text: category.name[locale] });
+  }
+  // The same spelling as the selects show (`?make=bmw` reads "BMW").
+  if (filters.make) {
+    const make = selectOptions(makes, filters.make).selected;
+    pills.push({ key: "make", label: make, text: make });
+  }
+  if (filters.brand) {
+    const brand = selectOptions(brands, filters.brand).selected;
+    pills.push({ key: "brand", label: brand, text: brand });
+  }
+  if (filters.q) {
+    pills.push({ key: "q", label: t.queryPill[locale](filters.q), text: filters.q });
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-3 pt-3 pb-5 lg:pt-0 lg:pb-6">
