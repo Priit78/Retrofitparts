@@ -7,7 +7,8 @@ import { useEffect } from "react";
 export function SmoothScroll() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const lenis = new Lenis({ autoRaf: true, anchors: { offset: -80 }, lerp: 0.1 });
+    // Anchor offset comes from the global `scroll-margin-top` on sections, which Lenis honours.
+    const lenis = new Lenis({ autoRaf: true, anchors: true, lerp: 0.1 });
     return () => lenis.destroy();
   }, []);
 

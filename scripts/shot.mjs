@@ -23,7 +23,7 @@ const errors = [];
 page.on("pageerror", (err) => errors.push(err.message));
 page.on("console", (msg) => msg.type() === "error" && errors.push(msg.text()));
 
-await page.goto(url, { waitUntil: "networkidle" });
+await page.goto(url, { waitUntil: "load" });
 
 if (flags.has("--full")) {
   // Scroll through the page so scroll-triggered reveals run before the capture.
