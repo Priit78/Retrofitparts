@@ -21,7 +21,8 @@ export const difference = {
   eyebrow: { et: "Vaata vahet", en: "See the difference" },
   title: {
     et: "Sama tee. Hoopis teine valgus.",
-    en: "Same road. A completely different light.",
+    // A no-break space, so "A" never ends a line on its own.
+    en: "Same road. A\u00a0completely different light.",
   },
   intro: {
     et: "Aastatega tuhmunud tuleklaas ja kulunud reflektor annavad kollaka, hajusa valguse, mis lõpeb liiga vara. Uus projektor selge klaasi taga viib valguse kaugele ja terava piiriga. Lohista liugurit ja võrdle.",

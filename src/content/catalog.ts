@@ -110,8 +110,8 @@ export const catalog = {
     },
     reset: { et: "Tühjenda filtrid", en: "Clear filters" },
     anyCar: {
-      et: "Teeme töid pea kõikidele autodele",
-      en: "We fit almost any car",
+      et: "Töötame pea kõigi automarkidega",
+      en: "We work with almost every make",
     },
     anyCarBody: {
       et: "Kirjuta oma auto mark ja mudel ning saadame pakkumise.",

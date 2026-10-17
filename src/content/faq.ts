@@ -23,8 +23,8 @@ export const faq = {
         en: "How do I know a product fits my car?",
       },
       answer: {
-        et: "Iga toote juures on kirjas autod, millele see sobib. Kui sa oma autot nimekirjast ei leia, kirjuta meile aadressil {email} ja vastame esimesel võimalusel.",
-        en: "Every product lists the cars it fits. If yours isn't on the list, email us at {email} and we'll reply as soon as we can.",
+        et: "Toodete juures on välja toodud autod, millele toode sobib. Kui sa oma autot nimekirjast ei leia, kirjuta meile aadressil {email} ja vastame esimesel võimalusel.",
+        en: "The product pages list the cars a product fits. If yours isn't on the list, email us at {email} and we'll reply as soon as we can.",
       },
     },
     {

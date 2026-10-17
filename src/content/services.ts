@@ -40,7 +40,7 @@ export const services = {
     caption: { et: "Projektorite paigaldus", en: "Projector installation" },
     vatBadge: { et: "sh käibemaks", en: "incl. VAT" },
     colVehicle: { et: "Sõiduk", en: "Vehicle" },
-    colDuration: { et: "Tööaeg", en: "Turnaround" },
+    colDuration: { et: "Valmimisaeg", en: "Turnaround" },
     colPrice: { et: "Hind", en: "Price" },
     from: { et: "alates", en: "from" },
     /** Shown when site.pricing has no stated turnaround. */
@@ -61,15 +61,15 @@ export const services = {
       id: "projector-retrofit",
       title: { et: "Projektorite paigaldus", en: "Projector retrofit" },
       body: {
-        et: "Paigaldame bi-LED-, bi-xenon- ja halogeenprojektoreid nii reflektor- kui ka projektortuledesse. Projektor annab ühtlase valgusvihu ja terava valguspiiri.",
-        en: "We fit bi-LED, bi-xenon and halogen projectors into reflector and projector headlights alike, for an even beam with a sharp cutoff.",
+        et: "Paigaldame bi-LED-, bi-xenon- ja halogeenprojektoreid nii reflektor- kui ka projektortuledesse. Projektor annab terava valguspiiri.",
+        en: "We fit bi-LED, bi-xenon and halogen projectors into reflector and projector headlights alike, for a beam with a sharp cutoff.",
       },
     },
     {
       id: "lens-replacement",
       title: { et: "Tuleklaaside vahetus", en: "Lens replacement" },
       body: {
-        et: "Kollaseks tõmbunud või kriimuline tuleklaas asendub uuega. Poleerimine on ajutine lahendus, uus klaas annab pimedas oluliselt parema nähtavuse.",
+        et: "Kollaseks tõmbunud või kriimuline tuleklaas asendatakse uuega. Poleerimine on ajutine lahendus, uus klaas annab pimedas oluliselt parema nähtavuse.",
         en: "A yellowed or scratched lens is replaced with a new one. Polishing only buys time; a new lens gives much better visibility in the dark.",
       },
     },
@@ -101,7 +101,7 @@ export const services = {
       id: "resealing",
       title: { et: "Tihendamine ja niiskus", en: "Resealing and moisture" },
       body: {
-        et: "Kui tule sisse koguneb niiskus, tihendame korpuse uuesti butüüliga ja paigaldame vajadusel õhuti, mis hoiab kondensi eemal.",
+        et: "Kui tule sisse koguneb niiskus, tihendame korpuse uuesti butüüliga ja paigaldame vajadusel õhuti, mis hoiab kondensatsiooni eemal.",
         en: "If moisture gets into a headlight, we reseal the housing with butyl and fit a breather vent where needed to keep condensation out.",
       },
     },
@@ -109,8 +109,8 @@ export const services = {
       id: "xenon-repair",
       title: { et: "Xenon-süsteemi remont", en: "Xenon repair" },
       body: {
-        et: "Xenon vilgub või ei sütti? Vahetame ballasti, süüturi või pirni. Kasutame Hella, Philipsi, Osrami ja Hyluxi osi.",
-        en: "Xenon flickering or refusing to ignite? We replace the ballast, igniter or bulb, using parts from Hella, Philips, Osram and Hylux.",
+        et: "Xenon-süsteemi rike? Vahetame ballasti, süüturi või pirni. Kasutame Hella, Philipsi, Osrami ja Hyluxi osi.",
+        en: "A fault in the xenon system? We replace the ballast, igniter or bulb, using parts from Hella, Philips, Osram and Hylux.",
       },
     },
     {

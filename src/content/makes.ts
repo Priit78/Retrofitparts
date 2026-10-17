@@ -21,8 +21,8 @@ export const makes = {
   },
 
   anyCar: {
-    et: "Teeme töid pea kõikidele autodele – küsi julgelt",
-    en: "We fit almost any car — just ask",
+    et: "Töötame pea kõigi automarkidega – küsi julgelt",
+    en: "We work with almost every make — just ask",
   },
   anyCarBody: {
     et: "Olenemata auto päritolust, vanusest või tulede ehitusest.",

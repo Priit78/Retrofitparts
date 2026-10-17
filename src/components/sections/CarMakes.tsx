@@ -42,6 +42,8 @@ export function CarMakes({ locale }: { locale: Locale }) {
                 >
                   <Link
                     href={catalogHref(locale, make)}
+                    // Nine links to the same page: prefetching each one only wastes requests.
+                    prefetch={false}
                     className="group/make @container relative flex h-full min-h-24 items-center justify-between gap-4 overflow-hidden px-6 py-6 transition-colors duration-500 hover:bg-surface focus-visible:outline-offset-[-2px] sm:min-h-40 sm:flex-col sm:items-stretch md:min-h-44 md:p-8"
                   >
                     {/* A sweep of light across the tile on hover. */}
@@ -62,7 +64,7 @@ export function CarMakes({ locale }: { locale: Locale }) {
                           className="size-5 transition-transform duration-500 ease-out-expo group-hover/make:translate-x-0.5 group-hover/make:-translate-y-0.5 sm:size-4"
                         />
                       </span>
-                      <span aria-hidden className="hidden font-mono text-xs text-muted/70 sm:block">
+                      <span aria-hidden className="hidden font-mono text-xs text-muted sm:block">
                         {String(index + 1).padStart(2, "0")}
                       </span>
                     </span>

@@ -3,6 +3,7 @@
 import { ArrowDown } from "lucide-react";
 import {
   motion,
+  useInView,
   useReducedMotion,
   useScroll,
   useTransform,
@@ -54,8 +55,9 @@ const STAGE_CSS = `
 .xh-stage{position:sticky;top:0;display:flex;align-items:center;align-items:safe center;height:100svh;padding-top:4rem}
 .xh-figure svg{max-height:calc(100svh - 9rem)}
 .xh-cue{display:flex}
-.xh-cue svg{animation:xh-bob 2.4s cubic-bezier(0.16,1,0.3,1) infinite}
-@keyframes xh-bob{0%,100%{transform:translateY(-2px);opacity:.5}50%{transform:translateY(3px);opacity:1}}
+.xh-cue svg{animation:xh-bob 1.6s cubic-bezier(0.16,1,0.3,1) 3 paused}
+.xh-cue[data-seen] svg{animation-play-state:running}
+@keyframes xh-bob{0%,100%{transform:none;opacity:1}50%{transform:translateY(4px);opacity:.5}}
 .xh-move{transform:translate(var(--ax),var(--ay))}
 .xh-cluster{transform:translate(var(--ax),var(--ay)) scale(var(--as))}
 .xh-tag{opacity:0}
@@ -264,6 +266,9 @@ export function ExplodedHeadlight({
   const { scrollYProgress } = useScroll({ target: trackRef, offset: ["start start", "end end"] });
   const cluster = useTransform(scrollYProgress, clusterTransform);
   const cueOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
+  // The cue bobs three times (under 5 s, WCAG 2.2.2), starting once it is on screen.
+  const cueRef = useRef<HTMLParagraphElement>(null);
+  const cueSeen = useInView(cueRef, { once: true });
 
   const names = Object.fromEntries(parts.map((part) => [part.id, part.name])) as Record<LayerId, string>;
   const a = CLUSTER.assembled;
@@ -321,6 +326,8 @@ export function ExplodedHeadlight({
               </motion.g>
             </svg>
             <motion.p
+              ref={cueRef}
+              data-seen={cueSeen ? "" : undefined}
               className="xh-cue mt-2 items-center justify-center gap-2 font-mono text-xs tracking-[0.16em] text-muted uppercase"
               style={enabled ? { opacity: cueOpacity } : undefined}
             >

@@ -18,6 +18,8 @@ const BEAM_ALPHA = 0.5;
 const GLOW_ALPHA = 0.09;
 /** After the ignition the dust only needs 30 fps. */
 const IDLE_FRAME_MS = 1000 / 30;
+/** While a resize goes on, the cone is only recomputed once the size has held this long. */
+const CONE_REBUILD_MS = 150;
 
 type RGB = [number, number, number];
 
@@ -243,12 +245,16 @@ export function BeamCanvas({ className }: { className?: string }) {
     let lastDraw = 0;
     let inView = true;
     let pageVisible = document.visibilityState !== "hidden";
+    let coneTimer = 0;
 
-    /** Reads the layout (only on resize) and rebuilds the cone and the dust if it changed. */
-    const measure = () => {
+    /**
+     * Reads the layout (only on resize) and, if it changed, resizes the canvas and respawns
+     * the dust. Returns whether it changed: resizing clears the canvas, so the caller redraws.
+     */
+    const measure = (): boolean => {
       const origin = host.querySelector<HTMLElement>("[data-beam-origin]");
       const box = canvas.getBoundingClientRect();
-      if (!origin || box.width === 0 || box.height === 0) return;
+      if (!origin || box.width === 0 || box.height === 0) return false;
       const o = origin.getBoundingClientRect();
       const deg = parseFloat(getComputedStyle(origin).getPropertyValue("--beam-angle")) || 180;
       const rad = (deg * Math.PI) / 180;
@@ -285,13 +291,20 @@ export function BeamCanvas({ className }: { className?: string }) {
         (["w", "h", "ox", "oy", "ap"] as const).every((key) => Math.abs(prev[key] - next[key]) < 0.5) &&
         Math.abs(prev.dx - next.dx) < 1e-3 &&
         Math.abs(prev.dy - next.dy) < 1e-3;
-      if (same) return;
+      if (same) return false;
 
       geometry = next;
       dpr = nextDpr;
       canvas.width = Math.round(box.width * dpr);
       canvas.height = Math.round(box.height * dpr);
-      renderCone(cone, next, light, accent);
+      // The first cone is computed at once. During a continuous resize the previous one is
+      // stretched to the new size, and the costly recompute waits until the size settles.
+      window.clearTimeout(coneTimer);
+      if (prev === null) {
+        renderCone(cone, next, light, accent);
+      } else {
+        coneTimer = window.setTimeout(rebuildCone, CONE_REBUILD_MS);
+      }
 
       // 60–120 motes, scaled by area.
       const count = Math.round(Math.min(120, Math.max(60, (box.width * box.height) / 14000)));
@@ -301,6 +314,7 @@ export function BeamCanvas({ className }: { className?: string }) {
         spawn(p, next, true);
         particles.push(p);
       }
+      return true;
     };
 
     const draw = (now: number, dt: number) => {
@@ -372,12 +386,17 @@ export function BeamCanvas({ className }: { className?: string }) {
 
     let pending = 0;
     let disposed = false;
+    const rebuildCone = () => {
+      if (disposed || !geometry) return;
+      renderCone(cone, geometry, light, accent);
+      if (!frame) drawStatic();
+    };
     const onResize = () => {
       if (disposed) return;
       cancelAnimationFrame(pending);
       pending = requestAnimationFrame(() => {
-        measure();
-        if (!frame) drawStatic();
+        // A resized canvas is blank: redraw now, not on the next (throttled) animation tick.
+        if (measure() || !frame) drawStatic();
       });
     };
 
@@ -394,8 +413,9 @@ export function BeamCanvas({ className }: { className?: string }) {
     const io =
       typeof IntersectionObserver === "undefined"
         ? null
-        : new IntersectionObserver(([entry]) => {
-            inView = entry.isIntersecting;
+        : new IntersectionObserver((entries) => {
+            // Entries are queued oldest first; only the latest reflects the current state.
+            inView = entries[entries.length - 1].isIntersecting;
             run();
           });
     io?.observe(canvas);
@@ -416,6 +436,7 @@ export function BeamCanvas({ className }: { className?: string }) {
       disposed = true;
       stop();
       cancelAnimationFrame(pending);
+      window.clearTimeout(coneTimer);
       resizeObserver?.disconnect();
       io?.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);

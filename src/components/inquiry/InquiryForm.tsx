@@ -440,7 +440,12 @@ function InquiryFormBody({
       ) : null}
 
       <div className="flex flex-col gap-4 @lg:flex-row @lg:items-center">
-        <Button type="submit" size="lg" disabled={pending} className="w-full @lg:w-auto">
+        <Button
+          type="submit"
+          size="lg"
+          disabled={pending}
+          className="w-full shrink-0 whitespace-nowrap @lg:w-auto"
+        >
           {pending ? (
             <>
               <LoaderCircle aria-hidden className="size-5 animate-spin" />

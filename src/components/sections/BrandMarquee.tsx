@@ -6,12 +6,16 @@ import { cn } from "@/lib/cn";
 import type { Locale } from "@/lib/i18n";
 
 /*
- * A CSS-only marquee: the track holds the list twice and slides by half its width, so the
- * loop is seamless. It pauses on hover and with the pause toggle (a checkbox, so it works
- * without JS). Under reduced motion it is a static, wrapped row.
+ * A CSS-only marquee: the track holds the list three times and slides by one copy, so the
+ * loop is seamless. The two copies after the visible one always cover the viewport: one list
+ * is about 2,100–2,750 px wide, and never narrower than half the viewport (`min-w-[50vw]`).
+ * It pauses on hover and with the pause toggle (a checkbox, so it works without JS). Under
+ * reduced motion it is a static, wrapped row.
  */
+const COPIES = 3;
+
 const CSS = `
-@keyframes brand-marquee { to { transform: translate3d(-50%, 0, 0); } }
+@keyframes brand-marquee { to { transform: translate3d(calc(-100% / ${COPIES}), 0, 0); } }
 .brand-track { animation: brand-marquee 52s linear infinite; }
 .brand-marquee:hover .brand-track,
 .brand-marquee:has(.brand-pause:checked) .brand-track { animation-play-state: paused; }
@@ -27,11 +31,13 @@ const brands = [
 
 function BrandList({ locale, duplicate = false }: { locale: Locale; duplicate?: boolean }) {
   return (
+    // role="list": Safari drops list semantics from a `list-style: none` list.
     <ul
+      role="list"
       aria-hidden={duplicate || undefined}
       aria-labelledby={duplicate ? undefined : "brands-title"}
       className={cn(
-        "flex shrink-0 items-center",
+        "flex min-w-[50vw] shrink-0 items-center",
         "motion-reduce:w-full motion-reduce:flex-wrap motion-reduce:justify-center motion-reduce:gap-x-10 motion-reduce:gap-y-5",
         duplicate && "motion-reduce:hidden",
       )}
@@ -98,7 +104,9 @@ export function BrandMarquee({ locale }: { locale: Locale }) {
       <div className="relative overflow-hidden [mask-image:linear-gradient(90deg,transparent,var(--color-bg)_12%,var(--color-bg)_88%,transparent)] motion-reduce:[mask-image:none]">
         <div className="brand-track flex w-max motion-reduce:w-full motion-reduce:px-4">
           <BrandList locale={locale} />
-          <BrandList locale={locale} duplicate />
+          {Array.from({ length: COPIES - 1 }, (_, i) => (
+            <BrandList key={i} locale={locale} duplicate />
+          ))}
         </div>
       </div>
     </section>
