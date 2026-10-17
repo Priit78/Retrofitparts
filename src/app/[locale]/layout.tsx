@@ -11,7 +11,7 @@ import { seoCopy, titleTemplate } from "@/content/seo";
 import { site } from "@/content/site";
 import { cn } from "@/lib/cn";
 import { isLocale, locales } from "@/lib/i18n";
-import { alternates, isIndexable, siteUrl } from "@/lib/seo";
+import { alternates, isIndexable, metadataRobots, siteUrl } from "@/lib/seo";
 
 const archivo = Archivo({
   subsets: ["latin", "latin-ext"],
@@ -46,6 +46,8 @@ export const viewport: Viewport = {
 /**
  * Defaults for every page. Metadata merges shallowly, so a page that sets `alternates` or
  * `openGraph` replaces the whole object and must repeat what it needs (canonical, locale).
+ * `openGraph` and `twitter` carry no title or description on purpose: Next fills them from each
+ * page's own title and description, so child pages never inherit the home page's.
  */
 export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Promise<Metadata> {
   const { locale } = await params;
@@ -64,12 +66,10 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
       siteName: site.name,
       locale: copy.ogLocale,
       alternateLocale: otherLocale ? seoCopy[otherLocale].ogLocale : undefined,
-      title: copy.title,
-      description: copy.description,
     },
-    twitter: { card: "summary_large_image", title: copy.title, description: copy.description },
+    twitter: { card: "summary_large_image" },
     // Previews must not compete with the live site in search results.
-    robots: isIndexable ? undefined : { index: false, follow: false },
+    robots: metadataRobots(isIndexable),
   };
 }
 

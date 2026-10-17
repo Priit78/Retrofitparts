@@ -1,4 +1,4 @@
-import type { MetadataRoute } from "next";
+import type { Metadata, MetadataRoute } from "next";
 import { seoCopy } from "@/content/seo";
 import { site, type OpeningHours } from "@/content/site";
 import { defaultLocale, localePath, locales, type Locale } from "./i18n";
@@ -38,6 +38,11 @@ export function robotsRules(indexable: boolean): MetadataRoute.Robots {
     rules: { userAgent: "*", allow: "/" },
     sitemap: absoluteUrl("/sitemap.xml"),
   };
+}
+
+/** `<meta name="robots">` for the layout: default (indexable) on the live site, noindex on previews. */
+export function metadataRobots(indexable: boolean): Metadata["robots"] {
+  return indexable ? undefined : { index: false, follow: false };
 }
 
 /** Every public page in every locale: home, catalog and one page per product. */
@@ -86,7 +91,7 @@ export function autoRepairJsonLd(locale: Locale) {
   return {
     "@context": "https://schema.org",
     "@type": "AutoRepair",
-    "@id": absoluteUrl("/#autorepair"),
+    "@id": `${absoluteUrl(localePath(locale))}#autorepair`,
     name: site.name,
     legalName: site.legalName,
     description: seoCopy[locale].description,
@@ -102,8 +107,7 @@ export function autoRepairJsonLd(locale: Locale) {
     },
     hasMap: site.mapsUrl,
     openingHoursSpecification: openingHoursSpecification(),
-    priceRange: "€€",
-    areaServed: { "@type": "Country", name: "Estonia" },
+    areaServed: { "@type": "Country", name: site.address.country.en },
     sameAs: [site.facebook],
     foundingDate: String(site.founded),
     vatID: site.vat,

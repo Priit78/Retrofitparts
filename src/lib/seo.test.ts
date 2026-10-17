@@ -56,7 +56,27 @@ describe("robotsRules", () => {
   });
 });
 
+describe("metadataRobots", () => {
+  it("leaves the default (indexable) robots meta alone once the site is indexable", async () => {
+    const { metadataRobots } = await loadSeo(noSiteEnv);
+    expect(metadataRobots(true)).toBeUndefined();
+  });
+
+  it("marks previews noindex and nofollow", async () => {
+    const { metadataRobots } = await loadSeo(noSiteEnv);
+    expect(metadataRobots(false)).toEqual({ index: false, follow: false });
+  });
+});
+
 describe("sitemapEntries", () => {
+  it("covers every real product page in both locales exactly once", async () => {
+    const { sitemapEntries } = await loadSeo(noSiteEnv);
+    const { products } = await import("@/data/products");
+    const entries = sitemapEntries(products.map((product) => product.slug));
+    expect(entries).toHaveLength(2 * (2 + products.length));
+    expect(new Set(entries.map((entry) => entry.url)).size).toBe(entries.length);
+  });
+
   it("lists home, catalog and every product in both locales", async () => {
     const { sitemapEntries } = await loadSeo(noSiteEnv);
     const urls = sitemapEntries(["a-1", "b-2"]).map((entry) => entry.url);
@@ -130,8 +150,8 @@ describe("autoRepairJsonLd", () => {
       addressCountry: "EE",
     });
     expect(ld.sameAs).toEqual([site.facebook]);
-    expect(ld.priceRange).toBe("€€");
-    expect(ld.areaServed).toEqual({ "@type": "Country", name: "Estonia" });
+    expect(ld).not.toHaveProperty("priceRange");
+    expect(ld.areaServed).toEqual({ "@type": "Country", name: site.address.country.en });
     expect(ld.openingHoursSpecification).toEqual([
       {
         "@type": "OpeningHoursSpecification",
@@ -142,10 +162,11 @@ describe("autoRepairJsonLd", () => {
     ]);
   });
 
-  it("points the url at the requested locale and shares one @id", async () => {
+  it("points url and @id at the locale's own page, not the redirecting root", async () => {
     const { autoRepairJsonLd } = await loadSeo(noSiteEnv);
     expect(autoRepairJsonLd("et").url).toBe("https://www.retrofitparts.ee/et");
-    expect(autoRepairJsonLd("et")["@id"]).toBe(autoRepairJsonLd("en")["@id"]);
+    expect(autoRepairJsonLd("et")["@id"]).toBe("https://www.retrofitparts.ee/et#autorepair");
+    expect(autoRepairJsonLd("en")["@id"]).toBe("https://www.retrofitparts.ee/en#autorepair");
   });
 });
 

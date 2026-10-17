@@ -124,7 +124,7 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
                 boxShadow: "0 0 16px 3px rgba(76,195,255,0.7)",
               }}
             />
-            <div style={{ marginLeft: 18, fontSize: 26, letterSpacing: 7 }}>RETROFIT PARTS</div>
+            <div style={{ marginLeft: 18, fontSize: 26, letterSpacing: 7 }}>{site.name.toUpperCase()}</div>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column" }}>
