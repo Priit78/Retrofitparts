@@ -19,7 +19,15 @@ export function Anatomy({ locale }: { locale: Locale }) {
   ];
 
   return (
-    <section id="anatomy" className="relative overflow-x-clip border-b border-line py-24 md:py-32">
+    <section
+      id="anatomy"
+      className={cn(
+        "relative overflow-x-clip border-b border-line py-24 md:py-32",
+        // In the pinned layout (ExplodedHeadlight's PINNED_QUERY) the full-height stage centres
+        // its content, which already gives the section its top spacing.
+        "[@media(min-width:64rem)_and_(min-height:45rem)_and_(prefers-reduced-motion:no-preference)]:pt-0",
+      )}
+    >
       <ExplodedHeadlight
         figureLabel={t.figureLabel[locale]}
         scrollHint={t.scrollHint[locale]}

@@ -24,3 +24,14 @@ export function formatPrice(value: number | null, locale: Locale): string | null
   if (value === null) return null;
   return formatterFor(locale).format(value);
 }
+
+/**
+ * Joins numbers to the word they belong to with no-break spaces, so a product name never
+ * wraps between them: a value and its unit ("60 W", "12 V"), a series and its number
+ * ("3. seeria", "3 Series"), a generation ("3. põlvkond", "Gen 3").
+ */
+export function keepNumbersTogether(text: string): string {
+  return text
+    .replace(/(\d\.?) (?=(?:W|V|seeria|Series|põlvkond)(?![\p{L}\d]))/gu, "$1 ")
+    .replace(/\bGen (?=\d)/g, "Gen ");
+}

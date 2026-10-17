@@ -1,5 +1,6 @@
 import { ArrowRight, Check, ChevronRight, Clock, Mail, Phone, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { InquiryForm } from "@/components/inquiry/InquiryForm";
@@ -20,6 +21,7 @@ import { products } from "@/data/products";
 import type { Product } from "@/data/types";
 import { getProduct, getRelated } from "@/lib/catalog";
 import { clamp } from "@/lib/catalog-ui";
+import { keepNumbersTogether } from "@/lib/format";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
 import { absoluteUrl, alternates } from "@/lib/seo";
 
@@ -208,17 +210,32 @@ export default async function ProductPage({ params }: PageProps<"/[locale]/catal
           <Breadcrumb product={product} locale={locale} />
 
           <div className="mt-6 grid gap-8 md:mt-8 lg:grid-cols-12 lg:gap-14">
-            {/* The render */}
+            {/* The photo once there is one (`Product.image`), else the category render */}
             <div className="lg:col-span-7">
               <figure className="relative overflow-hidden rounded-3xl border border-line bg-bg lg:sticky lg:top-28">
-                <ProductIllustration category={product.category} className="aspect-[4/3] w-full" />
+                {product.image ? (
+                  <div className="relative aspect-[4/3] w-full">
+                    <Image
+                      src={product.image}
+                      alt={product.name[locale]}
+                      fill
+                      priority
+                      sizes="(min-width: 1280px) 720px, (min-width: 1024px) 56vw, 100vw"
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <ProductIllustration category={product.category} className="aspect-[4/3] w-full" />
+                )}
                 <span
                   aria-hidden
-                  className="pointer-events-none absolute inset-x-12 top-0 h-px bg-linear-to-r from-transparent via-white/20 to-transparent"
+                  className="pointer-events-none absolute inset-x-12 top-0 h-px bg-linear-to-r from-transparent via-light/25 to-transparent"
                 />
-                <figcaption className={`${mono} absolute right-4 bottom-3.5 text-muted md:right-5 md:bottom-4`}>
-                  {t.illustration[locale]}
-                </figcaption>
+                {product.image ? null : (
+                  <figcaption className={`${mono} absolute right-4 bottom-3.5 text-muted md:right-5 md:bottom-4`}>
+                    {t.illustration[locale]}
+                  </figcaption>
+                )}
               </figure>
             </div>
 
@@ -228,7 +245,7 @@ export default async function ProductPage({ params }: PageProps<"/[locale]/catal
                 {[product.brand, categoryName(product, locale)].filter(Boolean).join(" · ")}
               </p>
               <h1 className="mt-3 text-[1.75rem] leading-[1.08] font-semibold tracking-tight text-pretty text-fg sm:text-4xl lg:text-[2.5rem]">
-                {product.name[locale]}
+                {keepNumbersTogether(product.name[locale])}
               </h1>
 
               <div className="mt-5 flex flex-wrap items-center gap-2">
