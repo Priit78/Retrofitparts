@@ -113,7 +113,9 @@ export function Hero({ locale }: { locale: Locale }) {
           </div>
         </div>
 
+        {/* role="list": Safari drops list semantics from a `list-style: none` list. */}
         <ul
+          role="list"
           aria-label={hero.trustLabel[locale]}
           className="hero-fade relative z-10 mt-12 grid grid-cols-2 gap-x-4 gap-y-6 border-t border-line pt-6 lg:mt-10 lg:grid-cols-4 lg:gap-x-0 lg:divide-x lg:divide-line"
           style={delay(0.55)}

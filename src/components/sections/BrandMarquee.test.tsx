@@ -21,13 +21,19 @@ describe("BrandMarquee", () => {
     }
   });
 
-  it("duplicates the list for the loop, hidden from assistive tech", () => {
+  it("repeats the list for the loop, with the copies hidden from assistive tech", () => {
     const { container } = render(<BrandMarquee locale="en" />);
     const lists = container.querySelectorAll(".brand-track > ul");
-    expect(lists).toHaveLength(2);
+    // Three copies, so the track still covers the viewport on very wide screens.
+    expect(lists).toHaveLength(3);
     expect(lists[0]).not.toHaveAttribute("aria-hidden");
-    expect(lists[1]).toHaveAttribute("aria-hidden", "true");
-    expect(lists[1].textContent).toBe(lists[0].textContent);
+    for (const copy of [...lists].slice(1)) {
+      expect(copy).toHaveAttribute("aria-hidden", "true");
+      expect(copy.textContent).toBe(lists[0].textContent);
+    }
+    // The track slides by exactly one copy.
+    const css = container.querySelector("style")?.textContent ?? "";
+    expect(css).toContain("translate3d(calc(-100% / 3), 0, 0)");
   });
 
   it("offers a labelled pause control and becomes static under reduced motion", () => {

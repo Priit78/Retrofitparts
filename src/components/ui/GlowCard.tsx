@@ -52,7 +52,7 @@ export function GlowCard({ children, className }: { children: ReactNode; classNa
       {/* Resting highlight along the top edge, as if lit from above. */}
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-x-6 -top-px h-px bg-linear-to-r from-transparent via-white/15 to-transparent"
+        className="pointer-events-none absolute inset-x-6 -top-px h-px bg-linear-to-r from-transparent via-light/20 to-transparent"
       />
       <span
         aria-hidden

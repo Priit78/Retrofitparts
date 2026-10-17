@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Archivo, Inter } from "next/font/google";
+import { Archivo, Inter, JetBrains_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 import { common } from "@/content/common";
@@ -13,6 +13,8 @@ const archivo = Archivo({
   variable: "--font-archivo",
 });
 const inter = Inter({ subsets: ["latin", "latin-ext"], variable: "--font-inter" });
+// For the mono "404" label, as in the [locale] layout.
+const jetbrains = JetBrains_Mono({ subsets: ["latin", "latin-ext"], variable: "--font-jetbrains" });
 
 export const metadata: Metadata = {
   title: `404 – ${site.name}`,
@@ -23,7 +25,7 @@ export const metadata: Metadata = {
 // page is bilingual and self-contained.
 export default function GlobalNotFound() {
   return (
-    <html lang="et" className={cn(archivo.variable, inter.variable)}>
+    <html lang="et" className={cn(archivo.variable, inter.variable, jetbrains.variable)}>
       <body>
         <main className="mx-auto flex min-h-svh max-w-[1280px] flex-col items-start justify-center gap-6 px-4 md:px-6">
           <p className="font-mono text-xs tracking-[0.2em] text-accent uppercase">404</p>

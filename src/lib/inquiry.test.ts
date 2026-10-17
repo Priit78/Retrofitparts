@@ -6,6 +6,7 @@ import {
   readInquiryValues,
   type InquiryInput,
 } from "./inquiry";
+import { checkRequired } from "./inquiry-shared";
 
 const valid: InquiryInput = {
   name: "Mari Maasikas",
@@ -155,6 +156,46 @@ describe("parseInquiry", () => {
   it("does not fail validation when the honeypot is filled", () => {
     const result = parseInquiry(formData({ website: "https://spam.example" }));
     expect(result.ok).toBe(true);
+  });
+});
+
+describe("checkRequired (the browser's own check before sending)", () => {
+  it("reports what an empty form is missing, with the schema's codes", () => {
+    const fd = new FormData();
+    expect(checkRequired(fd)).toEqual({
+      name: "name-length",
+      email: "contact-required",
+      message: "message-required",
+    });
+    expect(parseInquiry(formData({ name: "", email: "", phone: "", message: "" }))).toEqual({
+      ok: false,
+      fieldErrors: { name: "name-length", email: "contact-required", message: "message-required" },
+    });
+  });
+
+  it("treats whitespace as missing, as the schema does", () => {
+    expect(checkRequired(formData({ name: " M ", email: " ", phone: "\t", message: "\n" }))).toEqual({
+      name: "name-length",
+      email: "contact-required",
+      message: "message-required",
+    });
+  });
+
+  it("never rejects what the schema accepts", () => {
+    const accepted: Record<string, string>[] = [
+      {},
+      { email: "", phone: "+372 5667 0631" },
+      { name: "Al", message: "?" },
+      { name: "  Mari  ", email: " mari@example.com " },
+    ];
+    for (const overrides of accepted) {
+      expect(parseInquiry(formData(overrides)).ok, JSON.stringify(overrides)).toBe(true);
+      expect(checkRequired(formData(overrides)), JSON.stringify(overrides)).toBeNull();
+    }
+  });
+
+  it("leaves formats to the server", () => {
+    expect(checkRequired(formData({ email: "not-an-email" }))).toBeNull();
   });
 });
 

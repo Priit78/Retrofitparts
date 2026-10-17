@@ -2,7 +2,10 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MobileMenu } from "./MobileMenu";
 
-vi.mock("next/navigation", () => ({ usePathname: () => "/et" }));
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/et",
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 beforeEach(() => {
   // Reduced motion makes the sheet appear and leave without animation.

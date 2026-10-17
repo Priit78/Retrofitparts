@@ -81,7 +81,9 @@ export function ProcessTimeline({ steps }: { steps: TimelineStep[] }) {
   const litCount = reduce ? steps.length : reached;
 
   return (
-    <ol ref={listRef} className="relative">
+    // The rail sits beside the list, not in it: an <ol> may only contain <li>s. Both share the
+    // wrapper's top edge, so the node positions measured on the list apply to the rail as-is.
+    <div className="relative">
       {/* The rail, and the beam that fills it. */}
       <div
         ref={trackRef}
@@ -106,47 +108,49 @@ export function ProcessTimeline({ steps }: { steps: TimelineStep[] }) {
         )}
       </div>
 
-      {steps.map((step, index) => {
-        const lit = index < litCount;
-        return (
-          <li
-            key={step.id}
-            data-lit={lit ? "" : undefined}
-            className="group/step relative grid grid-cols-[2.5rem_1fr] gap-x-6 pb-16 last:pb-0 md:gap-x-10 md:pb-24"
-          >
-            <span
-              ref={(node) => {
-                nodeRefs.current[index] = node;
-              }}
-              aria-hidden
-              className={cn(
-                "relative z-10 grid size-10 place-items-center rounded-full border bg-bg font-mono text-xs transition-[border-color,color,box-shadow] duration-700 ease-out-expo",
-                lit
-                  ? "border-accent/70 text-light shadow-[0_0_0_5px_color-mix(in_oklab,var(--color-accent)_10%,transparent),0_0_28px_color-mix(in_oklab,var(--color-accent)_45%,transparent)]"
-                  : "border-line text-muted",
-              )}
+      <ol ref={listRef} className="relative">
+        {steps.map((step, index) => {
+          const lit = index < litCount;
+          return (
+            <li
+              key={step.id}
+              data-lit={lit ? "" : undefined}
+              className="group/step relative grid grid-cols-[2.5rem_1fr] gap-x-6 pb-16 last:pb-0 md:gap-x-10 md:pb-24"
             >
-              {String(index + 1).padStart(2, "0")}
-            </span>
-            <div className="min-w-0 pt-1">
-              <p
+              <span
+                ref={(node) => {
+                  nodeRefs.current[index] = node;
+                }}
+                aria-hidden
                 className={cn(
-                  "font-mono text-[11px] tracking-[0.18em] uppercase transition-colors duration-700 [overflow-wrap:anywhere]",
-                  lit ? "text-accent" : "text-muted",
+                  "relative z-10 grid size-10 place-items-center rounded-full border bg-bg font-mono text-xs transition-[border-color,color,box-shadow] duration-700 ease-out-expo",
+                  lit
+                    ? "border-accent/70 text-light shadow-[0_0_0_5px_color-mix(in_oklab,var(--color-accent)_10%,transparent),0_0_28px_color-mix(in_oklab,var(--color-accent)_45%,transparent)]"
+                    : "border-line text-muted",
                 )}
               >
-                {step.tag}
-              </p>
-              <h3 className="mt-3 text-2xl leading-tight font-semibold text-fg md:text-4xl">
-                {step.title}
-              </h3>
-              <p className="mt-4 max-w-lg text-base leading-relaxed text-muted md:text-lg">
-                {step.body}
-              </p>
-            </div>
-          </li>
-        );
-      })}
-    </ol>
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <div className="min-w-0 pt-1">
+                <p
+                  className={cn(
+                    "font-mono text-[11px] tracking-[0.18em] uppercase transition-colors duration-700 [overflow-wrap:anywhere]",
+                    lit ? "text-accent" : "text-muted",
+                  )}
+                >
+                  {step.tag}
+                </p>
+                <h3 className="mt-3 text-2xl leading-tight font-semibold text-fg md:text-4xl">
+                  {step.title}
+                </h3>
+                <p className="mt-4 max-w-lg text-base leading-relaxed text-muted md:text-lg">
+                  {step.body}
+                </p>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
   );
 }

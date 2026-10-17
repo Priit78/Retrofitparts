@@ -3,7 +3,8 @@ import type { Localized } from "@/lib/i18n";
 export const about = {
   eyebrow: { et: "Meist", en: "About us" },
   title: {
-    et: "Hobist ettevõtteks – südamega asja juures",
+    // A no-break space, so the dash never starts a line.
+    et: "Hobist ettevõtteks\u00a0– südamega asja juures",
     en: "From hobby to company, with heart in the work",
   },
   /** `{founded}` is replaced with site.founded. */

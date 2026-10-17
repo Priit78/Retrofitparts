@@ -18,7 +18,7 @@ import type { Locale } from "@/lib/i18n";
 // Types only from `inquiry` (erased at build time) and the values from the zod-free
 // `inquiry-shared`, so the validation library stays out of the browser bundle.
 import type { InquiryInput, InquiryState } from "@/lib/inquiry";
-import { inquiryLimits, readInquiryValues } from "@/lib/inquiry-shared";
+import { checkRequired, inquiryLimits, readInquiryValues } from "@/lib/inquiry-shared";
 
 const initialState: InquiryState = { status: "idle" };
 
@@ -27,8 +27,14 @@ const initialState: InquiryState = { status: "idle" };
  * turned into the same `send-failed` result as a delivery failure. Left alone, a rejected
  * action is rethrown while rendering: the page errors out, the typed message is lost and
  * the phone and email fallback never shows.
+ *
+ * Missing required fields are reported straight away, without calling the server.
  */
 async function submit(prev: InquiryState, fd: FormData): Promise<InquiryState> {
+  const missing = checkRequired(fd);
+  if (missing) {
+    return { status: "error", code: "invalid", fieldErrors: missing, values: readInquiryValues(fd) };
+  }
   try {
     return await submitInquiry(prev, fd);
   } catch {
@@ -440,7 +446,12 @@ function InquiryFormBody({
       ) : null}
 
       <div className="flex flex-col gap-4 @lg:flex-row @lg:items-center">
-        <Button type="submit" size="lg" disabled={pending} className="w-full @lg:w-auto">
+        <Button
+          type="submit"
+          size="lg"
+          disabled={pending}
+          className="w-full shrink-0 whitespace-nowrap @lg:w-auto"
+        >
           {pending ? (
             <>
               <LoaderCircle aria-hidden className="size-5 animate-spin" />

@@ -238,8 +238,9 @@ export function ProjectorLens({ className, style }: { className?: string; style?
     const observer =
       typeof IntersectionObserver === "undefined"
         ? null
-        : new IntersectionObserver(([entry]) => {
-            inView = entry.isIntersecting;
+        : new IntersectionObserver((entries) => {
+            // Entries are queued oldest first; only the latest reflects the current state.
+            inView = entries[entries.length - 1].isIntersecting;
             update();
           });
     observer?.observe(root);

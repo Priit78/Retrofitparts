@@ -43,7 +43,7 @@ export const hero = {
       },
       detail: {
         et: "esitulede taastamisel",
-        en: "in headlight work",
+        en: "in headlight restoration",
       },
     },
     {
@@ -92,7 +92,7 @@ export const hero = {
     },
     pause: {
       et: "Peata brändide liikumine",
-      en: "Pause the moving brand list",
+      en: "Pause brand scrolling",
     },
   } satisfies Record<string, Localized<string>>,
 };

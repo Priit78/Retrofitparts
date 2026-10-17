@@ -124,6 +124,10 @@ describe("Anatomy", () => {
     // The scroll cue only exists in that layout.
     expect(css).toMatch(/\.xh-cue\{display:none\}/);
     expect(screen.getByText(anatomy.scrollHint.et)).toHaveClass("xh-cue");
+    // Its bob is finite and short (WCAG 2.2.2), and waits until the cue is on screen.
+    expect(css).toContain(".xh-cue svg{animation:xh-bob 1.6s cubic-bezier(0.16,1,0.3,1) 3 paused}");
+    expect(css).toContain(".xh-cue[data-seen] svg{animation-play-state:running}");
+    expect(css).not.toContain("infinite");
   });
 
   it("explains that polishing is temporary and replacement lasts", () => {

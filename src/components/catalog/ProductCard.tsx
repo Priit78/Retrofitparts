@@ -5,7 +5,7 @@ import { catalog } from "@/content/catalog";
 import { categories } from "@/data/products";
 import type { Product } from "@/data/types";
 import { cn } from "@/lib/cn";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, keepNumbersTogether } from "@/lib/format";
 import { localePath, type Locale } from "@/lib/i18n";
 import { IntentLink } from "./IntentLink";
 import { ProductIllustration } from "./ProductIllustration";
@@ -165,7 +165,7 @@ export function ProductCard({
               href={productHref(locale, product)}
               className="rounded-sm outline-none after:absolute after:inset-0 after:z-0 after:rounded-2xl after:content-[''] hover:text-light focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-accent"
             >
-              {product.name[locale]}
+              {keepNumbersTogether(product.name[locale])}
             </IntentLink>
           </h3>
 
