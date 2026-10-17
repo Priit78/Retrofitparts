@@ -1,3 +1,4 @@
+import type { Metadata, Viewport } from "next";
 import { Archivo, Inter, JetBrains_Mono } from "next/font/google";
 import { notFound } from "next/navigation";
 import "lenis/dist/lenis.css";
@@ -6,8 +7,11 @@ import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { SmoothScroll } from "@/components/providers/SmoothScroll";
 import { common } from "@/content/common";
+import { seoCopy, titleTemplate } from "@/content/seo";
+import { site } from "@/content/site";
 import { cn } from "@/lib/cn";
 import { isLocale, locales } from "@/lib/i18n";
+import { alternates, isIndexable, siteUrl } from "@/lib/seo";
 
 const archivo = Archivo({
   subsets: ["latin", "latin-ext"],
@@ -32,6 +36,41 @@ export const dynamicParams = false;
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
+}
+
+export const viewport: Viewport = {
+  // Matches the `bg` token, so mobile browser chrome blends into the page.
+  themeColor: "#050607",
+};
+
+/**
+ * Defaults for every page. Metadata merges shallowly, so a page that sets `alternates` or
+ * `openGraph` replaces the whole object and must repeat what it needs (canonical, locale).
+ */
+export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+  const copy = seoCopy[locale];
+  const otherLocale = locales.find((l) => l !== locale);
+
+  return {
+    metadataBase: new URL(siteUrl),
+    title: { default: copy.title, template: titleTemplate },
+    description: copy.description,
+    applicationName: site.name,
+    alternates: alternates("", locale),
+    openGraph: {
+      type: "website",
+      siteName: site.name,
+      locale: copy.ogLocale,
+      alternateLocale: otherLocale ? seoCopy[otherLocale].ogLocale : undefined,
+      title: copy.title,
+      description: copy.description,
+    },
+    twitter: { card: "summary_large_image", title: copy.title, description: copy.description },
+    // Previews must not compete with the live site in search results.
+    robots: isIndexable ? undefined : { index: false, follow: false },
+  };
 }
 
 export default async function LocaleLayout({ children, params }: LayoutProps<"/[locale]">) {
