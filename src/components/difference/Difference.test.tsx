@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ComponentProps } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Difference } from "@/components/sections/Difference";
@@ -128,6 +128,18 @@ describe("Difference", () => {
     expect(slider).toHaveAccessibleDescription(
       `${story.difference.scrollHint.en} ${difference.slider.hint.en}`,
     );
+  });
+
+  it("goes back to the drag hint once the visitor takes over, as scrolling no longer moves the slider", () => {
+    mockBrowser({ pinned: true });
+    render(<Difference locale="en" />);
+    const slider = screen.getByRole("slider") as HTMLInputElement;
+    expect(screen.getByText(story.difference.scrollHint.en)).toBeVisible();
+
+    fireEvent.keyDown(slider, { key: "ArrowRight" });
+    expect(screen.queryByText(story.difference.scrollHint.en)).not.toBeInTheDocument();
+    expect(screen.getByText(difference.slider.hint.en)).toBeVisible();
+    expect(slider).toHaveAccessibleDescription(difference.slider.hint.en);
   });
 
   describe("scroll drives the slider", () => {

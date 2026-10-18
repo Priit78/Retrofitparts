@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { RoadPhoto } from "@/components/difference/RoadPhoto";
-import { ScrollDrivenSlider, SliderHint } from "@/components/difference/ScrollDrivenSlider";
+import { ScrollDrivenSlider, SliderFigure, SliderHint } from "@/components/difference/ScrollDrivenSlider";
 import { ScrollChapter } from "@/components/story/ScrollChapter";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
@@ -35,6 +35,7 @@ export function Difference({ locale }: { locale: Locale }) {
         id="difference"
         labelledBy={HEADING_ID}
         length={{ base: 200, md: 240 }}
+        // Pinned, the stage starts at the very top of the viewport, so the hairline would sit under the header.
         className="border-t border-line pinned:border-t-0"
         stageClassName="pinned:flex pinned:flex-col pinned:justify-center"
       >
@@ -67,7 +68,7 @@ export function Difference({ locale }: { locale: Locale }) {
               {/* The frame keeps its own shape: 4:3 on phones, 3:2 from md. Pinned, it is sized to
                   fit the screen under the heading (and never cropped to fill it): the width is
                   (screen height − the space the rest of the stage needs) × the aspect ratio. */}
-              <figure className="pinned:mx-auto pinned:w-[min(100%,calc((100svh-370px)*1.3333))] pinned:md:w-[min(100%,calc((100svh-290px)*1.5))]">
+              <SliderFigure className="pinned:mx-auto pinned:w-[min(100%,calc((100svh-370px)*1.3333))] pinned:md:w-[min(100%,calc((100svh-290px)*1.5))]">
                 <ScrollDrivenSlider
                   className="aspect-[4/3] rounded-[2px] bg-surface md:aspect-[3/2]"
                   label={t.slider.label[locale]}
@@ -82,7 +83,7 @@ export function Difference({ locale }: { locale: Locale }) {
                   <span>{t.slider.note[locale]}</span>
                   <SliderHint id={HINT_ID} scroll={story.difference.scrollHint[locale]} drag={t.slider.hint[locale]} />
                 </figcaption>
-              </figure>
+              </SliderFigure>
             </Reveal>
           </div>
         </Container>

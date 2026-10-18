@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { motionValue } from "motion/react";
+import { Profiler, type ComponentProps } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CompareSlider } from "./CompareSlider";
 
@@ -43,7 +44,10 @@ function renderSlider() {
   return screen.getByRole("slider", { name: "Compare the light" }) as HTMLInputElement;
 }
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
 
 describe("CompareSlider", () => {
   it("starts at 50% under reduced motion and never runs the intro", () => {
@@ -74,15 +78,17 @@ describe("CompareSlider", () => {
     expect(slider.value).toBe("100");
   });
 
-  it("keeps the handle in sync with the slider value", async () => {
+  it("keeps the handle in sync with the slider value, moving it by transform", async () => {
     mockReducedMotion(true);
     mockIntersection();
     const slider = renderSlider();
     const handle = document.querySelector<HTMLElement>("[aria-hidden].pointer-events-none");
-    expect(handle?.style.left).toBe("50%");
+    expect(handle?.style.transform).toContain("translateX(50%)");
     fireEvent.keyDown(slider, { key: "ArrowRight" });
     // motion writes styles on the next animation frame.
-    await waitFor(() => expect(handle?.style.left).toBe("55%"));
+    await waitFor(() => expect(handle?.style.transform).toContain("translateX(55%)"));
+    // A layout property never animates.
+    expect(handle?.style.left).toBe("");
   });
 
   it("follows a mouse drag", () => {
@@ -182,14 +188,17 @@ describe("CompareSlider", () => {
   });
 
   describe("driven by a motion value", () => {
-    function renderDriven(drivenBy?: ReturnType<typeof motionValue<number>>) {
-      const ui = (value?: ReturnType<typeof motionValue<number>>) => (
+    type Driver = ReturnType<typeof motionValue<number>>;
+
+    function renderDriven(drivenBy?: Driver, extra: Partial<ComponentProps<typeof CompareSlider>> = {}) {
+      const ui = (value?: Driver) => (
         <CompareSlider
           before={<div>before scene</div>}
           after={<div>after scene</div>}
           label="Compare the light"
           valueText="Before {before}%, after {after}%"
           drivenBy={value}
+          {...extra}
         />
       );
       const view = render(ui(drivenBy));
@@ -197,7 +206,7 @@ describe("CompareSlider", () => {
       const root = slider.parentElement as HTMLElement;
       root.getBoundingClientRect = () =>
         ({ left: 0, width: 400, top: 0, height: 300, right: 400, bottom: 300 }) as DOMRect;
-      return { slider, root, rerender: (value?: ReturnType<typeof motionValue<number>>) => view.rerender(ui(value)) };
+      return { slider, root, rerender: (value?: Driver) => view.rerender(ui(value)) };
     }
 
     it("follows the driving value, and skips the intro sweep", () => {
@@ -214,15 +223,52 @@ describe("CompareSlider", () => {
       expect(slider).toHaveAttribute("aria-valuetext", "Before 70%, after 30%");
     });
 
-    it("moves the handle with the driving value", async () => {
+    it("moves the handle with the driving value, by transform", async () => {
       mockReducedMotion(true);
       mockIntersection();
       const driver = motionValue(30);
       renderDriven(driver);
       const handle = document.querySelector<HTMLElement>("[aria-hidden].pointer-events-none");
-      await waitFor(() => expect(handle?.style.left).toBe("30%"));
+      await waitFor(() => expect(handle?.style.transform).toContain("translateX(30%)"));
       act(() => driver.set(80));
-      await waitFor(() => expect(handle?.style.left).toBe("80%"));
+      await waitFor(() => expect(handle?.style.transform).toContain("translateX(80%)"));
+      expect(handle?.style.left).toBe("");
+    });
+
+    it("does not re-render React while the driver moves the handle", () => {
+      mockReducedMotion(true);
+      mockIntersection();
+      const driver = motionValue(10);
+      let commits = 0;
+      render(
+        <Profiler id="slider" onRender={() => void (commits += 1)}>
+          <CompareSlider
+            before={<div>before scene</div>}
+            after={<div>after scene</div>}
+            label="Compare the light"
+            valueText="Before {before}%, after {after}%"
+            drivenBy={driver}
+          />
+        </Profiler>,
+      );
+      const slider = screen.getByRole("slider", { name: "Compare the light" }) as HTMLInputElement;
+      expect(slider.value).toBe("10");
+      const settled = commits;
+
+      for (let v = 11; v <= 90; v += 1) act(() => driver.set(v));
+      expect(slider.value).toBe("90");
+      expect(slider).toHaveAttribute("aria-valuetext", "Before 90%, after 10%");
+      expect(commits).toBe(settled);
+    });
+
+    it("writes the exact value, not one snapped to the key step", () => {
+      mockReducedMotion(true);
+      mockIntersection();
+      const driver = motionValue(10);
+      const { slider } = renderDriven(driver);
+      act(() => driver.set(17));
+      expect(slider.value).toBe("17");
+      expect(slider).toHaveAttribute("aria-valuetext", "Before 17%, after 83%");
     });
 
     it("stays within 0 to 100", () => {
@@ -289,6 +335,136 @@ describe("CompareSlider", () => {
       expect(slider.value).toBe("75");
       act(() => driver.set(10));
       expect(slider.value).toBe("75");
+    });
+
+    it("does not claim on a jittery near-vertical touch that the browser then takes for a scroll", () => {
+      mockReducedMotion(true);
+      mockIntersection();
+      const driver = motionValue(30);
+      const onClaimChange = vi.fn();
+      const { slider, root } = renderDriven(driver, { onClaimChange });
+      fireEvent.pointerDown(root, { pointerId: 7, pointerType: "touch", clientX: 100, clientY: 250 });
+      fireEvent.pointerMove(root, { pointerId: 7, pointerType: "touch", clientX: 108, clientY: 243 });
+      fireEvent.pointerCancel(root, { pointerId: 7, pointerType: "touch", clientX: 108, clientY: 243 });
+      expect(slider.value).toBe("30");
+      act(() => driver.set(60));
+      expect(slider.value).toBe("60");
+      expect(onClaimChange).not.toHaveBeenCalled();
+    });
+
+    it("needs a clearly sideways touch to engage: 10 px, and more than 1.5 times the vertical move", () => {
+      mockReducedMotion(true);
+      mockIntersection();
+      const driver = motionValue(30);
+      const { slider, root } = renderDriven(driver);
+      // 12 px across but 10 px down: not sideways enough.
+      fireEvent.pointerDown(root, { pointerId: 7, pointerType: "touch", clientX: 100, clientY: 250 });
+      fireEvent.pointerMove(root, { pointerId: 7, pointerType: "touch", clientX: 112, clientY: 240 });
+      expect(slider.value).toBe("30");
+      // 40 px across, 10 px down: a drag.
+      fireEvent.pointerMove(root, { pointerId: 7, pointerType: "touch", clientX: 140, clientY: 240 });
+      expect(slider.value).toBe("35");
+    });
+
+    it("gives the claim back when the browser cancels a touch drag it had started, and returns to the driver", () => {
+      mockReducedMotion(true);
+      mockIntersection();
+      const driver = motionValue(30);
+      const onClaimChange = vi.fn();
+      const { slider, root } = renderDriven(driver, { onClaimChange });
+      fireEvent.pointerDown(root, { pointerId: 7, pointerType: "touch", clientX: 200, clientY: 150 });
+      fireEvent.pointerMove(root, { pointerId: 7, pointerType: "touch", clientX: 300, clientY: 152 });
+      expect(slider.value).toBe("75");
+      expect(onClaimChange).toHaveBeenLastCalledWith(true);
+
+      fireEvent.pointerCancel(root, { pointerId: 7, pointerType: "touch", clientX: 300, clientY: 152 });
+      expect(onClaimChange).toHaveBeenLastCalledWith(false);
+      expect(slider.value).toBe("30");
+      act(() => driver.set(60));
+      expect(slider.value).toBe("60");
+    });
+
+    it("keeps an earlier claim when a later touch is cancelled", () => {
+      mockReducedMotion(true);
+      mockIntersection();
+      const driver = motionValue(30);
+      const { slider, root } = renderDriven(driver);
+      fireEvent.keyDown(slider, { key: "ArrowRight" });
+      expect(slider.value).toBe("35");
+      fireEvent.pointerDown(root, { pointerId: 7, pointerType: "touch", clientX: 200, clientY: 150 });
+      fireEvent.pointerMove(root, { pointerId: 7, pointerType: "touch", clientX: 300, clientY: 152 });
+      fireEvent.pointerCancel(root, { pointerId: 7, pointerType: "touch", clientX: 300, clientY: 152 });
+      act(() => driver.set(90));
+      expect(slider.value).toBe("75");
+    });
+
+    it("tells its owner once when the visitor takes over", () => {
+      mockReducedMotion(true);
+      mockIntersection();
+      const onClaimChange = vi.fn();
+      const { slider } = renderDriven(motionValue(30), { onClaimChange });
+      fireEvent.keyDown(slider, { key: "ArrowRight" });
+      fireEvent.keyDown(slider, { key: "ArrowRight" });
+      expect(onClaimChange).toHaveBeenCalledTimes(1);
+      expect(onClaimChange).toHaveBeenCalledWith(true);
+    });
+
+    describe("side tags", () => {
+      /** A 400 px frame; the BEFORE tag spans 12 to 82 px and the AFTER tag 318 to 388 px. */
+      function mockGeometry() {
+        const box = (el: HTMLElement) =>
+          el.textContent === "BEFORE"
+            ? { left: 12, width: 70 }
+            : el.textContent === "AFTER"
+              ? { left: 318, width: 70 }
+              : { left: 0, width: 400 };
+        vi.spyOn(Element.prototype, "clientWidth", "get").mockReturnValue(400);
+        vi.spyOn(HTMLElement.prototype, "offsetLeft", "get").mockImplementation(function (this: HTMLElement) {
+          return box(this).left;
+        });
+        vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockImplementation(function (this: HTMLElement) {
+          return box(this).width;
+        });
+      }
+
+      function renderTags(position: number) {
+        mockReducedMotion(true);
+        mockIntersection();
+        mockGeometry();
+        const driver = motionValue(position);
+        renderDriven(driver, { beforeLabel: <span>BEFORE</span>, afterLabel: <span>AFTER</span> });
+        const opacity = (name: string) =>
+          parseFloat((screen.getByText(name).parentElement as HTMLElement).style.opacity || "1");
+        return { driver, before: () => opacity("BEFORE"), after: () => opacity("AFTER") };
+      }
+
+      it("shows both tags when the split is clear of them", async () => {
+        const { before, after } = renderTags(50);
+        await waitFor(() => expect(before()).toBe(1));
+        expect(after()).toBe(1);
+      });
+
+      it("fades the before tag out before the split reaches it, so it is never cut", async () => {
+        const { before, after } = renderTags(10);
+        await waitFor(() => expect(before()).toBe(0));
+        expect(after()).toBe(1);
+      });
+
+      it("fades the after tag out the same way from the other side", async () => {
+        const { before, after } = renderTags(90);
+        await waitFor(() => expect(after()).toBe(0));
+        expect(before()).toBe(1);
+      });
+
+      it("fades in between, from the same motion value", async () => {
+        const { driver, before } = renderTags(10);
+        // The before tag ends at 20.5 % of the frame; the fade takes 16 px (4 %) after that.
+        act(() => driver.set(22.5));
+        await waitFor(() => expect(before()).toBeGreaterThan(0));
+        expect(before()).toBeLessThan(1);
+        act(() => driver.set(26));
+        await waitFor(() => expect(before()).toBe(1));
+      });
     });
 
     it("starts following when the driver arrives later, and rests at 50% when it goes", () => {
