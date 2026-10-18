@@ -2,9 +2,10 @@ import type { Localized } from "@/lib/i18n";
 import { site } from "@/content/site";
 
 /**
- * Copy for the "Polishing is a temporary fix" section. The polishing story follows the old
- * site's KKK and Teenused pages (research brief): polishing is temporary, the surface is more
- * vulnerable afterwards, dirt inside stays, and new parts give factory-or-better output.
+ * The polishing story, told by the landing page's problem and fix chapters
+ * (components/story/ProblemChapter.tsx and AnatomyChapter.tsx). It follows the old site's KKK and
+ * Teenused pages (research brief): polishing is temporary, the surface is more vulnerable
+ * afterwards, dirt inside stays, and new parts give factory-or-better output.
  */
 
 type PolishPartId = "lens" | "shroud" | "projector" | "housing";
@@ -16,19 +17,9 @@ interface PolishPart {
 }
 
 export const polish = {
-  eyebrow: { et: "Miks mitte poleerida", en: "Why not just polish" },
-  title: {
-    et: "Poleerimine on ajutine lahendus",
-    en: "Polishing is a temporary fix",
-  },
-  intro: {
-    et: "See on odavaim lahendus, kuid valgust see sageli juurde ei anna. Meie vahetame kahjustatud osad välja: ette uue tuleklaasi, sisse uue projektori.",
-    en: "It is the cheapest fix, but it often adds no light at all. We replace the damaged parts instead: a new lens in front, a new projector inside.",
-  },
-
   /**
    * The same headlight before and after polishing (a matched pair supplied by the project
-   * owner), then the client's retrofit photo. Neither says where it was taken or who did it.
+   * owner). Neither says where it was taken or who did it.
    */
   photos: {
     unpolished: {
@@ -45,17 +36,9 @@ export const polish = {
       },
       caption: { et: "Pärast poleerimist", en: "After polishing" },
     },
-    retrofit: {
-      alt: {
-        et: "Esituli autol, mille kaitseraud on eemaldatud: korpuses on uus projektor ja kere on kaitstud maalriteibiga",
-        en: "A headlight on a car with the bumper removed: a new projector sits in the housing, and the bodywork is protected with masking tape",
-      },
-      caption: { et: "Projektori paigaldus", en: "Projector retrofit" },
-    },
   },
 
   partsHeading: { et: "Millest esituli koosneb", en: "What a headlight is made of" },
-  partsNote: { et: "Eest taha", en: "Front to back" },
 
   /** Front to back. */
   parts: [
