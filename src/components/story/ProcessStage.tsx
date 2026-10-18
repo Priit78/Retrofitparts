@@ -24,20 +24,28 @@ const bg = (alpha: number) => `color-mix(in oklab, var(--color-bg) ${alpha}%, tr
  * The bottom scrim over a pinned step photo, so every word on it meets AA. It is the design's
  * gradient (bg/97 at 0 %, bg/82 at 38 %, bg/20 at 75 %, bg/55 at the top), strengthened: the
  * dense part reaches at least `--scrim-dense` from the bottom, which covers the text block's
- * height at each breakpoint (`scrimStops`), and only then clears. Each step carries its own
- * scrim, so a crossfade between two steps keeps the same darkness.
+ * height in each layout (`scrimStops`), and only then clears. Each step carries its own scrim, so
+ * a crossfade between two steps keeps the same darkness.
+ *
+ * The stops are measured from the copy in content/process.ts: whenever that copy (or the type
+ * sizes here) changes, re-measure the block and re-run the per-word AA probe over the photos.
  */
 const scrimStyle: CSSProperties = {
   backgroundImage: `linear-gradient(0deg, ${bg(97)} 0%, ${bg(85)} max(38%, var(--scrim-dense)), ${bg(20)} max(75%, var(--scrim-clear)), ${bg(55)} 100%)`,
 };
 
 /**
- * The pinned text block's height (measured at 360–1440 px in both locales: up to 505 px on
- * phones, 567 px on tablets and 460 px from `lg`, where the heading sits beside the step), plus a
- * margin, then 10 rem to clear.
+ * The pinned text block's height plus a margin, then 10 rem to clear. Measured in both locales
+ * from 360×512 to 1920×1080: stacked, up to 505 px on phones, 567 px on portrait tablets and
+ * 630 px on portrait screens from `lg`; side by side (landscape from `md`, see ProcessChapter), up
+ * to 460 px.
  */
 const scrimStops =
-  "[--scrim-dense:33rem] [--scrim-clear:43rem] md:[--scrim-dense:37rem] md:[--scrim-clear:47rem] lg:[--scrim-dense:30rem] lg:[--scrim-clear:40rem]";
+  "[--scrim-dense:33rem] [--scrim-clear:43rem] md:[--scrim-dense:37rem] md:[--scrim-clear:47rem] lg:portrait:[--scrim-dense:41rem] lg:portrait:[--scrim-clear:51rem] md:landscape:[--scrim-dense:30rem] md:landscape:[--scrim-clear:40rem]";
+
+/** The static list is two columns from `md`: reduced motion, or a viewport too short to pin. */
+const photoSizes =
+  "(prefers-reduced-motion: reduce) and (min-width: 48rem) 50vw, (min-width: 48rem) and (max-height: 31.99rem) 50vw, 100vw";
 
 /** How far a step's text sits below (next steps) or above (past steps) its place, in px. */
 const LIFT = 16;
@@ -69,7 +77,7 @@ export function ProcessStage({ steps }: { steps: ProcessStageStep[] }) {
 
   return (
     <>
-      <ol className="mt-12 grid gap-14 md:mt-16 md:grid-cols-2 md:gap-x-8 lg:gap-x-12 pinned:mt-6 pinned:grid-cols-1 pinned:gap-0 pinned:md:mt-8 pinned:lg:col-span-7 pinned:lg:mt-0">
+      <ol className="mt-12 grid gap-14 md:mt-16 md:grid-cols-2 md:gap-x-8 lg:gap-x-12 pinned:mt-6 pinned:grid-cols-1 pinned:gap-0 pinned:max-md:[@media(max-height:36rem)]:mt-4 pinned:md:mt-8 pinned:md:landscape:col-span-7 pinned:md:landscape:mt-0">
         {steps.map((step, index) => {
           const current = index === active;
           const y = index < active ? -LIFT : index > active ? LIFT : 0;
@@ -97,7 +105,7 @@ export function ProcessStage({ steps }: { steps: ProcessStageStep[] }) {
                   src={step.photo}
                   alt=""
                   fill
-                  sizes="100vw"
+                  sizes={photoSizes}
                   // Step 1 shows as soon as the chapter pins; the others load as it comes near.
                   loading={index === 0 ? "eager" : "lazy"}
                   className="object-cover"
@@ -112,7 +120,9 @@ export function ProcessStage({ steps }: { steps: ProcessStageStep[] }) {
               >
                 <span
                   aria-hidden
-                  className="block text-[56px] leading-none font-light tracking-[-0.04em] text-fg pinned:text-[clamp(64px,10vw,128px)]"
+                  // A short phone (up to 576 px tall) gets a smaller number, so the stacked block
+                  // stays below the header.
+                  className="block text-[56px] leading-none font-light tracking-[-0.04em] text-fg pinned:text-[clamp(64px,10vw,128px)] pinned:max-md:[@media(max-height:36rem)]:text-[48px]"
                 >
                   {String(index + 1).padStart(2, "0")}
                 </span>
@@ -122,7 +132,9 @@ export function ProcessStage({ steps }: { steps: ProcessStageStep[] }) {
                 <p className="mt-2 max-w-[46ch] text-base leading-relaxed text-pretty text-soft md:text-[17px]">
                   {step.body}
                 </p>
-                <p className={cn(monoLabel, "mt-3 [overflow-wrap:anywhere]")}>{step.tag}</p>
+                <p className={cn(monoLabel, "mt-3 [overflow-wrap:anywhere] pinned:max-md:[@media(max-height:36rem)]:mt-2")}>
+                  {step.tag}
+                </p>
               </div>
             </li>
           );
@@ -132,7 +144,7 @@ export function ProcessStage({ steps }: { steps: ProcessStageStep[] }) {
       <div
         aria-hidden
         data-process-progress
-        className="relative z-10 mt-6 hidden grid-cols-4 gap-1.5 pinned:grid pinned:md:mt-8 pinned:lg:col-span-12"
+        className="relative z-10 mt-6 hidden grid-cols-4 gap-1.5 pinned:grid pinned:max-md:[@media(max-height:36rem)]:mt-4 pinned:md:mt-8 pinned:md:landscape:col-span-12"
       >
         {steps.map((step, index) => (
           <span key={step.id} className="relative h-0.5 overflow-hidden bg-fg/20">

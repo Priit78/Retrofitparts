@@ -7,11 +7,11 @@ import retrofitInProgress from "@/assets/photos/retrofit-in-progress.jpg";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { fillTemplate, fillText } from "@/components/ui/fillTemplate";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import { textLink } from "@/components/ui/styles";
+import { monoLabel, textLink } from "@/components/ui/styles";
 import { common } from "@/content/common";
 import { processCopy, type ProcessStep } from "@/content/process";
 import { site } from "@/content/site";
+import { cn } from "@/lib/cn";
 import type { Locale } from "@/lib/i18n";
 import { ProcessStage, type ProcessStageStep } from "./ProcessStage";
 import { ScrollChapter } from "./ScrollChapter";
@@ -54,29 +54,42 @@ export function ProcessChapter({ locale }: { locale: Locale }) {
       labelledBy="process-title"
       length={{ base: 300, md: 360 }}
       className="border-t border-line"
-      stageClassName="py-18 md:py-30 pinned:flex pinned:flex-col pinned:justify-end pinned:pt-20 pinned:pb-8 pinned:md:pt-24 pinned:md:pb-12"
+      stageClassName="py-18 md:py-30 pinned:flex pinned:flex-col pinned:justify-end pinned:pt-20 pinned:pb-8 pinned:max-md:[@media(max-height:36rem)]:pb-6 pinned:md:pt-24 pinned:md:pb-12"
     >
       {/*
-        Pinned, the text sits at the bottom of the stage over the step photos: stacked below `lg`,
-        and from `lg` the heading beside the step, so the block stays low on a 720 px laptop. The
-        container must stay unpositioned: the step photos inside it fill the stage.
+        Pinned, the text sits at the bottom of the stage over the step photos, in one of two
+        layouts. Stacked on phones and on portrait screens, which are always at least as tall as
+        they are wide, so the block fits (a short phone gets tighter spacing). Side by side, the
+        heading beside the step, on landscape screens from `md`: they can be as short as 512 px,
+        and only that block (about 460 px) fits under the header there.
+        The container must stay unpositioned: the step photos inside it fill the stage.
       */}
-      <Container className="pinned:lg:grid pinned:lg:grid-cols-12 pinned:lg:items-end pinned:lg:gap-x-12">
-        <SectionHeading
-          id="process-title"
-          eyebrow={processCopy.eyebrow[locale]}
-          title={processCopy.title[locale]}
-          intro={processCopy.intro[locale]}
-          className="relative z-10 pinned:lg:col-span-5"
-        />
+      <Container className="pinned:md:landscape:grid pinned:md:landscape:grid-cols-12 pinned:md:landscape:items-end pinned:md:landscape:gap-x-12">
+        {/* SectionHeading's markup, with the pinned variants it has no props for. */}
+        <div className="relative z-10 max-w-3xl pinned:md:landscape:col-span-5">
+          <p className={cn(monoLabel, "mb-4 pinned:max-md:[@media(max-height:36rem)]:mb-3")}>
+            {processCopy.eyebrow[locale]}
+          </p>
+          <h2
+            id="process-title"
+            // Smaller where the pinned block is tight: a short phone, a narrow side-by-side
+            // column, a short landscape screen.
+            className="text-[32px] leading-[1.05] font-semibold tracking-[-0.025em] text-balance text-fg md:text-[52px] pinned:max-md:[@media(max-height:36rem)]:text-[28px] pinned:md:landscape:max-lg:text-[40px] pinned:md:landscape:[@media(max-height:36rem)]:text-[40px]"
+          >
+            {processCopy.title[locale]}
+          </h2>
+          <p className="mt-5 max-w-[44ch] text-base leading-relaxed text-pretty text-soft md:text-[17px] pinned:max-md:[@media(max-height:36rem)]:mt-3">
+            {processCopy.intro[locale]}
+          </p>
+        </div>
 
         <ProcessStage steps={processSteps(locale)} />
 
         {/*
-          Pinned below `lg` the stage has no room for it, so it shows only in the static layout and
-          on desktop. The header (or its menu) has the same button.
+          Only the side-by-side layout has room for it when pinned; the stacked one leaves it to
+          the header (or its menu), which has the same button.
         */}
-        <div className="relative z-10 mt-12 pinned:max-lg:hidden pinned:lg:col-span-12 pinned:lg:mt-8">
+        <div className="relative z-10 mt-12 pinned:hidden pinned:md:landscape:col-span-12 pinned:md:landscape:mt-8 pinned:md:landscape:block">
           <Button href="#contact" size="lg">
             {common.requestOffer[locale]}
             <ArrowRight aria-hidden className="size-4" />

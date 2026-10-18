@@ -169,7 +169,12 @@ describe("ProcessStage", () => {
     stepItems().forEach((item, index) => expect(item).toContainElement(photos[index]));
     for (const photo of photos) {
       expect(photo).toHaveAttribute("alt", "");
-      expect(photo).toHaveAttribute("sizes", "100vw");
+      // Full-bleed when pinned; half width in the static two-column list from md (reduced
+      // motion, or a viewport too short to pin).
+      expect(photo).toHaveAttribute(
+        "sizes",
+        "(prefers-reduced-motion: reduce) and (min-width: 48rem) 50vw, (min-width: 48rem) and (max-height: 31.99rem) 50vw, 100vw",
+      );
     }
     expect(photos.map((photo) => photo.getAttribute("loading"))).toEqual(["eager", "lazy", "lazy", "lazy"]);
   });
