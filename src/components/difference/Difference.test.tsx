@@ -26,15 +26,22 @@ function mockBrowser() {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("Difference", () => {
-  it("renders the slider, both labelled scenes and three facts", () => {
+  it.each(locales)("renders the slider over two versions of the photo, and three facts (%s)", (locale) => {
     mockBrowser();
-    render(<Difference locale="et" />);
-    expect(screen.getByRole("slider", { name: difference.slider.label.et })).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: difference.before.scene.et })).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: difference.after.scene.et })).toBeInTheDocument();
-    expect(screen.getByText("Enne", { selector: "p" })).toBeInTheDocument();
-    expect(screen.getByText("Pärast", { selector: "p" })).toBeInTheDocument();
-    expect(screen.getByRole("list", { name: difference.factsLabel.et }).children).toHaveLength(3);
+    render(<Difference locale={locale} />);
+    const slider = screen.getByRole("slider", { name: difference.slider.label[locale] });
+    expect(slider).toHaveAccessibleDescription(difference.slider.hint[locale]);
+
+    const before = screen.getByRole("img", { name: difference.before.photo[locale] });
+    const after = screen.getByRole("img", { name: difference.after.photo[locale] });
+    expect(before.getAttribute("src")).toBe(after.getAttribute("src"));
+    expect(before.style.filter).toContain("sepia");
+    expect(after.style.filter).not.toContain("sepia");
+
+    expect(screen.getByText(difference.before.label[locale], { selector: "span" })).toBeInTheDocument();
+    expect(screen.getByText(difference.after.label[locale], { selector: "span" })).toBeInTheDocument();
+    expect(screen.getByText(difference.slider.note[locale])).toBeInTheDocument();
+    expect(screen.getByRole("list", { name: difference.factsLabel[locale] }).children).toHaveLength(3);
   });
 
   it("states only general physics: no percentages or 'times brighter' claims", () => {

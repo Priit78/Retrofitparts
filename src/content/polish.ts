@@ -2,37 +2,49 @@ import type { Localized } from "@/lib/i18n";
 import { site } from "@/content/site";
 
 /**
- * Copy for the "Headlight anatomy" section. The polishing story follows the old site's
- * KKK and Teenused pages (research brief): polishing is temporary, the surface is more
+ * Copy for the "Polishing is a temporary fix" section. The polishing story follows the old
+ * site's KKK and Teenused pages (research brief): polishing is temporary, the surface is more
  * vulnerable afterwards, dirt inside stays, and new parts give factory-or-better output.
  */
 
-export type AnatomyPartId = "lens" | "shroud" | "projector" | "housing";
+type PolishPartId = "lens" | "shroud" | "projector" | "housing";
 
-export interface AnatomyPart {
-  id: AnatomyPartId;
+interface PolishPart {
+  id: PolishPartId;
   name: Localized<string>;
   body: Localized<string>;
 }
 
-export const anatomy = {
-  eyebrow: { et: "Esitule anatoomia", en: "Headlight anatomy" },
+export const polish = {
+  eyebrow: { et: "Miks mitte poleerida", en: "Why not just polish" },
   title: {
-    et: "Miks poleerimine ei aita kauaks",
-    en: "Why polishing doesn’t last",
+    et: "Poleerimine on ajutine lahendus",
+    en: "Polishing is a temporary fix",
   },
   intro: {
-    et: "Poleerimine on odavaim, kuid ajutine lahendus ja sageli ei anna see valgust juurde. Meie vahetame kahjustatud osad välja: ette uue tuleklaasi, sisse uue projektori.",
-    en: "Polishing is the cheapest fix, but a temporary one, and it often adds no light at all. We replace the damaged parts instead: a new lens in front, a new projector inside.",
+    et: "See on odavaim lahendus, kuid valgust see sageli juurde ei anna. Meie vahetame kahjustatud osad välja: ette uue tuleklaasi, sisse uue projektori.",
+    en: "It is the cheapest fix, but it often adds no light at all. We replace the damaged parts instead: a new lens in front, a new projector inside.",
   },
-  scrollHint: {
-    et: "Keri alla ja vaata, millest esituli koosneb",
-    en: "Scroll down to see what a headlight is made of",
+
+  photos: {
+    hazed: {
+      alt: {
+        et: "Vana auto esituli, mille klaas on tuhmunud ja kollaseks muutunud",
+        en: "An old car headlight with a hazed, yellowed lens",
+      },
+      caption: { et: "Tuhmunud klaas", en: "Hazed lens" },
+    },
+    retrofit: {
+      alt: {
+        et: "Esituli autol, mille kaitseraud on eemaldatud: korpuses on uus projektor ja kere on kaitstud maalriteibiga",
+        en: "A headlight on a car with the bumper removed: a new projector sits in the housing, and the bodywork is protected with masking tape",
+      },
+      caption: { et: "Projektori paigaldus meie töökojas", en: "Projector retrofit in our workshop" },
+    },
   },
-  figureLabel: {
-    et: "Lahtivõetud esitule joonis: tuleklaas, projektori kate, projektor ja korpus",
-    en: "Exploded headlight drawing: outer lens, shroud, projector and housing",
-  },
+
+  partsHeading: { et: "Millest esituli koosneb", en: "What a headlight is made of" },
+  partsNote: { et: "Eest taha", en: "Front to back" },
 
   /** Front to back. */
   parts: [
@@ -68,7 +80,7 @@ export const anatomy = {
         en: "The housing stays. Over time heat damages its reflector surface, which is why a new projector goes inside.",
       },
     },
-  ] satisfies AnatomyPart[],
+  ] satisfies PolishPart[],
 
   compare: {
     heading: { et: "Poleerida või vahetada?", en: "Polish or replace?" },

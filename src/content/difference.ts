@@ -1,13 +1,14 @@
 import type { Localized } from "@/lib/i18n";
 
 /**
- * Copy for the "See the difference" section (before/after beam slider).
+ * Copy for the "See the difference" section: a before/after slider over one night photo,
+ * with the "before" side filtered to simulate a faded halogen light.
  * Facts here are general lighting physics only: no measured or invented figures.
  */
 
-export type DifferenceFactId = "temperature" | "cutoff" | "haze";
+type DifferenceFactId = "temperature" | "cutoff" | "haze";
 
-export interface DifferenceFact {
+interface DifferenceFact {
   id: DifferenceFactId;
   title: Localized<string>;
   body: Localized<string>;
@@ -44,25 +45,23 @@ export const difference = {
       en: "Drag the handle or use the arrow keys",
     },
     note: {
-      et: "Illustratsioon, mitte mõõtetulemus",
-      en: "Illustration, not a measurement",
+      et: "Simulatsioon ühe foto põhjal",
+      en: "Simulation based on one photo",
     },
   },
 
   before: {
     label: { et: "Enne", en: "Before" },
-    caption: { et: "Tuhmunud halogeentuli", en: "Faded halogen light" },
-    scene: {
-      et: "Öine maantee tuhmunud halogeentule valgel: lühike, kollakas ja hajus valgusvihk, teeäärsed postid ja liiklusmärk jäävad pimedusse.",
-      en: "A night road under a faded halogen headlight: a short, yellowish, diffuse beam, with the roadside posts and the road sign left in the dark.",
+    photo: {
+      et: "Lumine metsatee öösel, töödeldud nii, nagu valgustaks seda tuhmunud halogeentuli: kollakas, hämar ja udune pilt.",
+      en: "A snowy forest road at night, edited to look as if lit by a faded halogen headlight: yellowish, dim and blurred.",
     },
   },
   after: {
     label: { et: "Pärast", en: "After" },
-    caption: { et: "Bi-LED projektor", en: "Bi-LED projector" },
-    scene: {
-      et: "Sama tee bi-LED projektoriga: pikk, valge valgusvihk terava astmelise piiriga, mis valgustab kaugemaid teeäärseid poste ja liiklusmärki.",
-      en: "The same road with a bi-LED projector: a long, white beam with a sharp, stepped cutoff that lights up the far roadside posts and the road sign.",
+    photo: {
+      et: "Sama foto selges valges valguses, nagu uue bi-LED projektoriga: tee, lumevallid ja puutüved on teravalt näha.",
+      en: "The same photo in clear, white light, as with a new bi-LED projector: the road, the snowbanks and the tree trunks show sharply.",
     },
   },
 
