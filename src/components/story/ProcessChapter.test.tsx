@@ -4,6 +4,7 @@ import { common } from "@/content/common";
 import { processCopy } from "@/content/process";
 import { site } from "@/content/site";
 import { locales, type Locale } from "@/lib/i18n";
+import { TOO_SHORT_TO_PIN } from "./pinned";
 import { ProcessChapter, processSteps } from "./ProcessChapter";
 import { ProcessStage } from "./ProcessStage";
 import { ChapterProgressProvider } from "./ScrollChapter";
@@ -173,7 +174,7 @@ describe("ProcessStage", () => {
       // motion, or a viewport too short to pin).
       expect(photo).toHaveAttribute(
         "sizes",
-        "(prefers-reduced-motion: reduce) and (min-width: 48rem) 50vw, (min-width: 48rem) and (max-height: 31.99rem) 50vw, 100vw",
+        `(prefers-reduced-motion: reduce) and (min-width: 48rem) 50vw, (min-width: 48rem) and ${TOO_SHORT_TO_PIN} 50vw, 100vw`,
       );
     }
     expect(photos.map((photo) => photo.getAttribute("loading"))).toEqual(["eager", "lazy", "lazy", "lazy"]);

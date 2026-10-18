@@ -10,6 +10,7 @@ import { story } from "@/content/story";
 import { cn } from "@/lib/cn";
 import type { Locale } from "@/lib/i18n";
 import { Beat } from "./Beat";
+import { TOO_SHORT_TO_PIN } from "./pinned";
 import { PolishWipe } from "./PolishWipe";
 import { ScrollChapter } from "./ScrollChapter";
 
@@ -24,7 +25,7 @@ const PHOTO_SIZES = [
   "(min-width: 1280px) 690px",
   "(min-width: 1024px) 56vw",
   "(min-width: 640px) and (prefers-reduced-motion: reduce) 50vw",
-  "(min-width: 640px) and (max-height: 511px) 50vw",
+  `(min-width: 640px) and ${TOO_SHORT_TO_PIN} 50vw`,
   "(min-width: 768px) and (orientation: landscape) 50vw",
   "100vw",
 ].join(", ");

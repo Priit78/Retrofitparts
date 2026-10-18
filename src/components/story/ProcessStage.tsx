@@ -6,6 +6,7 @@ import { useCallback, useSyncExternalStore, type CSSProperties, type ReactNode }
 import { monoLabel } from "@/components/ui/styles";
 import { cn } from "@/lib/cn";
 import { activeIndex } from "@/lib/story";
+import { TOO_SHORT_TO_PIN } from "./pinned";
 import { useChapter } from "./ScrollChapter";
 
 export interface ProcessStageStep {
@@ -44,8 +45,7 @@ const scrimStops =
   "[--scrim-dense:33rem] [--scrim-clear:43rem] md:[--scrim-dense:37rem] md:[--scrim-clear:47rem] lg:portrait:[--scrim-dense:41rem] lg:portrait:[--scrim-clear:51rem] md:landscape:[--scrim-dense:30rem] md:landscape:[--scrim-clear:40rem]";
 
 /** The static list is two columns from `md`: reduced motion, or a viewport too short to pin. */
-const photoSizes =
-  "(prefers-reduced-motion: reduce) and (min-width: 48rem) 50vw, (min-width: 48rem) and (max-height: 31.99rem) 50vw, 100vw";
+const photoSizes = `(prefers-reduced-motion: reduce) and (min-width: 48rem) 50vw, (min-width: 48rem) and ${TOO_SHORT_TO_PIN} 50vw, 100vw`;
 
 /** How far a step's text sits below (next steps) or above (past steps) its place, in px. */
 const LIFT = 16;

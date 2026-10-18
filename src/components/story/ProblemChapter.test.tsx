@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { polish } from "@/content/polish";
 import { story } from "@/content/story";
 import { locales, type Locale } from "@/lib/i18n";
+import { TOO_SHORT_TO_PIN } from "./pinned";
 import { ProblemChapter, ProblemStage } from "./ProblemChapter";
 import { ChapterProgressProvider } from "./ScrollChapter";
 
@@ -131,7 +132,7 @@ describe("ProblemStage", () => {
       const sizes = screen.getByRole("img", { name: photo.alt.et }).getAttribute("sizes") ?? "";
       // 640–1023 px: side by side when static (reduced motion, or too short to pin), one frame when pinned.
       expect(sizes).toContain("(min-width: 640px) and (prefers-reduced-motion: reduce) 50vw");
-      expect(sizes).toContain("(min-width: 640px) and (max-height: 511px) 50vw");
+      expect(sizes).toContain(`(min-width: 640px) and ${TOO_SHORT_TO_PIN} 50vw`);
       // A landscape tablet pins the frame beside the beats.
       expect(sizes).toContain("(min-width: 768px) and (orientation: landscape) 50vw");
       expect(sizes.trim().endsWith("100vw")).toBe(true);

@@ -9,3 +9,9 @@
 export const PINNED_QUERY = "(prefers-reduced-motion: no-preference) and (min-height: 32rem)";
 
 export const PINNED_LG_QUERY = `${PINNED_QUERY} and (min-width: 64rem)`;
+
+/**
+ * A viewport too short to pin (just under PINNED_QUERY's 32rem), where every chapter shows its
+ * static layout: for `sizes` lists that must follow it.
+ */
+export const TOO_SHORT_TO_PIN = "(max-height: 31.99rem)";
