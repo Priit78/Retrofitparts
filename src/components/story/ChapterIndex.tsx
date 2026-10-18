@@ -83,6 +83,9 @@ function Index({ locale }: { locale: Locale }) {
                   className={cn(
                     mono,
                     "text-[11px] leading-none transition-[opacity,color] duration-300",
+                    // A chip in `bg` behind the label, in place (the negative margins cancel its
+                    // padding): the full-bleed catalog strip moves bright photos under the index.
+                    "-mx-1.5 -my-1 rounded-[2px] bg-bg/85 px-1.5 py-1",
                     active
                       ? "text-soft"
                       : "text-muted opacity-0 group-hover/index:opacity-100 group-focus-visible/tick:opacity-100",
