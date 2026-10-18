@@ -144,6 +144,19 @@ describe("InquiryForm", () => {
       expect(container.querySelector("form")).toBeNull();
     });
 
+    it("replaces the form's title with the success heading and moves focus there", async () => {
+      mocks.submitInquiry.mockResolvedValue({ status: "success" });
+      const { container } = render(<InquiryForm locale="et" title="Küsi pakkumist" />);
+      expect(screen.getByRole("heading", { name: "Küsi pakkumist" })).toBeInTheDocument();
+      fillRequired();
+
+      await submit(container);
+
+      expect(screen.queryByRole("heading", { name: "Küsi pakkumist" })).toBeNull();
+      const success = screen.getByRole("heading", { name: "Päring on saadetud" });
+      expect(success.parentElement).toHaveFocus();
+    });
+
     it("shows the not-configured banner with phone and email, not success", async () => {
       mocks.submitInquiry.mockResolvedValue({
         status: "error",

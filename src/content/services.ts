@@ -26,14 +26,18 @@ export function formatEur(locale: Locale, eur: number): string {
 }
 
 export const services = {
-  eyebrow: { et: "Hinnad", en: "Prices" },
+  /** The nav's "Teenused" / "Services" lands here, so the eyebrow names both. */
+  eyebrow: { et: "Teenused ja hinnad", en: "Services & prices" },
   title: { et: "Projektorite paigaldus", en: "Projector installation" },
+  /** The form takes no files, so photos go by email. */
   intro: {
-    et: "Hinnad sisaldavad käibemaksu ja on orienteeruvad. Täpse pakkumise teeme sinu auto põhjal: saada mark, mudel ja foto tuledest.",
-    en: "Prices include VAT and are indicative. We quote exactly for your car: send us its make, model and a photo of the headlights.",
+    et: "Hinnad sisaldavad käibemaksu ja on orienteeruvad. Täpse pakkumise teeme sinu auto põhjal: kirjuta meile mark ja mudel ning saada e-postiga foto tuledest.",
+    en: "Prices include VAT and are indicative. We quote exactly for your car: tell us its make and model, and email us a photo of the headlights.",
   },
 
   priceTable: {
+    /** Screen readers only; it must not repeat the h2. */
+    caption: { et: "Paigalduse hinnad", en: "Installation prices" },
     colVehicle: { et: "Sõiduk", en: "Vehicle" },
     colDuration: { et: "Valmimisaeg", en: "Turnaround" },
     colPrice: { et: "Hind", en: "Price" },
@@ -64,7 +68,8 @@ export const services = {
   items: [
     {
       id: "projector-retrofit",
-      title: { et: "Projektorite paigaldus", en: "Projector retrofit" },
+      // Not "Projektorite paigaldus": that is the section's h2, right above.
+      title: { et: "Projektorite retrofit", en: "Projector retrofit" },
       body: {
         et: "Paigaldame bi-LED-, bi-xenon- ja halogeenprojektoreid nii reflektor- kui ka projektortuledesse – valguspiir on terav.",
         en: "We fit bi-LED, bi-xenon and halogen projectors into reflector and projector headlights alike, for a sharp cutoff.",

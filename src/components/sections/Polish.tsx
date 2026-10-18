@@ -1,31 +1,59 @@
 import { Check, X } from "lucide-react";
-import Image from "next/image";
-import headlightHazed from "@/assets/photos/headlight-hazed.jpg";
+import Image, { type StaticImageData } from "next/image";
+import headlightPolished from "@/assets/photos/headlight-polished.jpg";
+import headlightUnpolished from "@/assets/photos/headlight-unpolished.jpg";
 import retrofitInProgress from "@/assets/photos/retrofit-in-progress.jpg";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { mono, monoLabel } from "@/components/ui/styles";
 import { polish as t } from "@/content/polish";
 import { cn } from "@/lib/cn";
-import type { Locale } from "@/lib/i18n";
+import type { Locale, Localized } from "@/lib/i18n";
 
 /** The section appears once per page, so a fixed id is safe. */
 const PARTS_ID = "polish-parts";
 
-const mono = "font-mono text-xs tracking-[0.08em] uppercase";
 /** Heading on the left, content on the right, as in the mockup's 5:7 split. */
 const split = "grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16";
 const subheading = "text-2xl leading-tight font-semibold text-fg md:text-3xl";
 
-const photos = [
-  { key: "hazed", src: headlightHazed, position: "object-center", ...t.photos.hazed },
-  // A wide 2.35:1 shot: the 4:3 crop keeps the projector near the middle and the indicator whole.
-  { key: "retrofit", src: retrofitInProgress, position: "object-[70%_50%]", ...t.photos.retrofit },
+/** The same headlight before and after polishing, unpolished first. */
+const pair = [
+  { key: "unpolished", src: headlightUnpolished, ...t.photos.unpolished },
+  { key: "polished", src: headlightPolished, ...t.photos.polished },
 ];
 
+function Photo({
+  src,
+  alt,
+  caption,
+  sizes,
+  frame,
+  locale,
+}: {
+  src: StaticImageData;
+  alt: Localized<string>;
+  caption: Localized<string>;
+  sizes: string;
+  /** Aspect ratio and crop: `object-position` on the photo. */
+  frame: { aspect: string; position: string };
+  locale: Locale;
+}) {
+  return (
+    <figure>
+      <div className={cn("relative overflow-hidden rounded-[2px] bg-surface", frame.aspect)}>
+        <Image src={src} alt={alt[locale]} fill sizes={sizes} className={cn("object-cover", frame.position)} />
+      </div>
+      <figcaption className={cn(monoLabel, "mt-3")}>{caption[locale]}</figcaption>
+    </figure>
+  );
+}
+
 /**
- * "Polishing is a temporary fix": two photos, the four parts of a headlight front to back, and
- * polishing versus replacing. The id stays `anatomy`, the section's anchor since it began.
+ * "Polishing is a temporary fix": the same headlight before and after polishing, the four parts
+ * of a headlight front to back beside a retrofit in progress, and polishing versus replacing.
+ * The id stays `anatomy`, the section's anchor since it began.
  */
 export function Polish({ locale }: { locale: Locale }) {
   const columns = [
@@ -34,27 +62,29 @@ export function Polish({ locale }: { locale: Locale }) {
   ];
 
   return (
-    <section id="anatomy" className="border-b border-line py-24 md:py-30">
+    <section id="anatomy" className="border-t border-line py-18 md:py-30">
       <Container>
         <div className={split}>
-          <Reveal>
-            <SectionHeading eyebrow={t.eyebrow[locale]} title={t.title[locale]} intro={t.intro[locale]} />
-          </Reveal>
-          <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2">
-            {photos.map((photo, index) => (
+          {/* From lg the heading stays beside the tall pair while it scrolls, as in Process. */}
+          <div>
+            <Reveal className="lg:sticky lg:top-32">
+              <SectionHeading eyebrow={t.eyebrow[locale]} title={t.title[locale]} intro={t.intro[locale]} />
+            </Reveal>
+          </div>
+          {/* One comparison: matching frames, the same crop on both, so the headlight lines up.
+              Side by side on tablets, where the pair spans the container; stacked in the
+              narrower 7/12 column from lg and on phones, so the haze stays easy to see. */}
+          <div className="grid gap-x-3 gap-y-5 sm:max-lg:grid-cols-2">
+            {pair.map((photo, index) => (
               <Reveal key={photo.key} delay={index * 0.08}>
-                <figure>
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-[2px] bg-surface">
-                    <Image
-                      src={photo.src}
-                      alt={photo.alt[locale]}
-                      fill
-                      sizes="(min-width: 1024px) 340px, (min-width: 640px) 50vw, 100vw"
-                      className={cn("object-cover", photo.position)}
-                    />
-                  </div>
-                  <figcaption className={cn(mono, "mt-3 text-muted")}>{photo.caption[locale]}</figcaption>
-                </figure>
+                <Photo
+                  src={photo.src}
+                  alt={photo.alt}
+                  caption={photo.caption}
+                  sizes="(min-width: 1280px) 690px, (min-width: 1024px) 56vw, (min-width: 640px) 50vw, 100vw"
+                  frame={{ aspect: "aspect-[32/15]", position: "object-center" }}
+                  locale={locale}
+                />
               </Reveal>
             ))}
           </div>
@@ -65,9 +95,21 @@ export function Polish({ locale }: { locale: Locale }) {
             <h3 id={PARTS_ID} className={subheading}>
               {t.partsHeading[locale]}
             </h3>
-            <p className={cn(mono, "mt-3 text-muted")}>{t.partsNote[locale]}</p>
+            <p className={cn(monoLabel, "mt-3")}>{t.partsNote[locale]}</p>
+            <div className="mt-8">
+              <Photo
+                src={retrofitInProgress}
+                alt={t.photos.retrofit.alt}
+                caption={t.photos.retrofit.caption}
+                sizes="(min-width: 1280px) 475px, (min-width: 1024px) 38vw, 100vw"
+                // A wide 2.35:1 shot: the 4:3 crop keeps the projector near the middle and the
+                // indicator whole. Tablets, where it spans the container, show a wider 2:1 slice.
+                frame={{ aspect: "aspect-[4/3] sm:max-lg:aspect-[2/1]", position: "object-[70%_50%]" }}
+                locale={locale}
+              />
+            </div>
           </Reveal>
-          <ol aria-labelledby={PARTS_ID} className="border-t border-line">
+          <ol aria-labelledby={PARTS_ID} className="border-t border-line lg:self-start">
             {t.parts.map((part, index) => (
               <Reveal
                 as="li"
@@ -75,7 +117,7 @@ export function Polish({ locale }: { locale: Locale }) {
                 delay={index * 0.06}
                 className="grid grid-cols-[2.25rem_minmax(0,1fr)] items-baseline gap-x-4 border-b border-line py-5 md:grid-cols-[2.5rem_minmax(0,10rem)_minmax(0,1fr)] md:gap-x-6 md:py-6"
               >
-                <span aria-hidden className={cn(mono, "text-muted tabular-nums")}>
+                <span aria-hidden className={cn(monoLabel, "tabular-nums")}>
                   {String(index + 1).padStart(2, "0")}
                 </span>
                 <h4 className="text-[17px] font-semibold text-fg">{part.name[locale]}</h4>

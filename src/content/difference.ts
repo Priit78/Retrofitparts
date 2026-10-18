@@ -60,7 +60,7 @@ export const difference = {
   after: {
     label: { et: "Pärast", en: "After" },
     photo: {
-      et: "Sama foto selges valges valguses, nagu uue bi-LED projektoriga: tee, lumevallid ja puutüved on teravalt näha.",
+      et: "Sama foto selges valges valguses, nagu uue bi-LED-projektoriga: tee, lumevallid ja puutüved on teravalt näha.",
       en: "The same photo in clear, white light, as with a new bi-LED projector: the road, the snowbanks and the tree trunks show sharply.",
     },
   },

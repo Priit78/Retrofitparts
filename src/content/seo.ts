@@ -23,7 +23,7 @@ export const seoCopy: Localized<SeoCopy> = {
   et: {
     title: "Retrofit Parts · Esitulede taastamine ja retrofit Tallinnas",
     description:
-      "Esitulede retrofit ja taastamine Tallinnas: bi-LED ja bi-xenon projektorid, tuleklaasid, paigaldus töökojas. Morimoto, Bimmerjakes ja Strands ametlik esindaja.",
+      "Esitulede retrofit ja taastamine Tallinnas: bi-LED- ja bi-xenon-projektorid ning tuleklaasid. Morimoto, Bimmerjakes ja Strands brändide ametlik esindaja Eestis.",
     ogLocale: "et_EE",
     ogKicker: "Esitulede retrofit · Tallinn",
   },

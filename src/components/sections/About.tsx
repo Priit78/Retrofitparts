@@ -8,6 +8,7 @@ import { Counter } from "@/components/ui/Counter";
 import { fillText } from "@/components/ui/fillTemplate";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { monoLabel } from "@/components/ui/styles";
 import { cn } from "@/lib/cn";
 import type { Locale } from "@/lib/i18n";
 
@@ -38,7 +39,7 @@ export function About({ locale }: { locale: Locale }) {
   ];
 
   return (
-    <section id="about" className="relative border-t border-line py-24 md:py-30">
+    <section id="about" className="border-t border-line py-18 md:py-30">
       <Container>
         <Reveal>
           <SectionHeading eyebrow={about.eyebrow[locale]} title={about.title[locale]} />
@@ -70,7 +71,7 @@ export function About({ locale }: { locale: Locale }) {
                   // Phones crop the wide frame to a taller one, so the projectors stay legible.
                   className="aspect-[16/10] h-auto w-full rounded-[2px] bg-surface object-cover object-[62%_50%] sm:aspect-auto"
                 />
-                <figcaption className="mt-3 font-mono text-xs tracking-[0.08em] text-muted uppercase">
+                <figcaption className={`${monoLabel} mt-3`}>
                   {about.photo.caption[locale]}
                 </figcaption>
               </figure>

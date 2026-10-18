@@ -4,23 +4,29 @@ import { processCopy } from "@/content/process";
 import { site } from "@/content/site";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
-import { fillText } from "@/components/ui/fillTemplate";
+import { fillTemplate, fillText } from "@/components/ui/fillTemplate";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { textLink } from "@/components/ui/styles";
 import type { Locale } from "@/lib/i18n";
 import { ProcessTimeline, type TimelineStep } from "./ProcessTimeline";
 
 export function Process({ locale }: { locale: Locale }) {
   const facts = { years: site.warrantyYears };
+  const email = (
+    <a href={`mailto:${site.email}`} className={`${textLink} whitespace-nowrap`}>
+      {site.email}
+    </a>
+  );
   const steps: TimelineStep[] = processCopy.steps.map((step) => ({
     id: step.id,
     title: step.title[locale],
-    body: fillText(step.body[locale], facts),
+    body: fillTemplate(step.body[locale], { ...facts, email }),
     tag: fillText(step.tag[locale], facts),
   }));
 
   return (
-    <section id="process" className="relative border-t border-line py-24 md:py-30">
+    <section id="process" className="relative border-t border-line py-18 md:py-30">
       <Container>
         <div className="grid gap-12 md:gap-16 lg:grid-cols-12">
           <div className="lg:col-span-5">

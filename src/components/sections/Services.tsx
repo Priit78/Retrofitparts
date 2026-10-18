@@ -6,18 +6,15 @@ import { Container } from "@/components/ui/Container";
 import { fillTemplate } from "@/components/ui/fillTemplate";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { monoLabel, textLink } from "@/components/ui/styles";
 import type { Locale } from "@/lib/i18n";
-
-const mono = "font-mono text-xs tracking-[0.08em] uppercase text-muted";
-const link =
-  "text-fg underline decoration-fg/35 underline-offset-4 transition-colors hover:decoration-fg";
 
 /** The installation price "menu": one hairline row per vehicle type, prices from site.ts. */
 function PriceMenu({ locale }: { locale: Locale }) {
   const t = services.priceTable;
   const cell = "py-[22px] align-baseline";
   const email = (
-    <a href={`mailto:${site.email}`} className={link}>
+    <a href={`mailto:${site.email}`} className={textLink}>
       {site.email}
     </a>
   );
@@ -25,7 +22,7 @@ function PriceMenu({ locale }: { locale: Locale }) {
   return (
     <div>
       <table className="w-full border-collapse text-left tabular-nums">
-        <caption className="sr-only">{services.title[locale]}</caption>
+        <caption className="sr-only">{t.caption[locale]}</caption>
         {/* Column names for screen readers only: the cells have no padding, so the row has no height. */}
         <thead>
           <tr>
@@ -80,7 +77,7 @@ export function Services({ locale }: { locale: Locale }) {
   const list = services.list;
 
   return (
-    <section id="services" className="relative py-24 md:py-30">
+    <section id="services" className="border-t border-line py-18 md:py-30">
       <Container>
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
           <Reveal className="lg:col-span-5">
@@ -97,7 +94,7 @@ export function Services({ locale }: { locale: Locale }) {
 
         <div className="mt-20 grid gap-10 md:mt-28 lg:grid-cols-12 lg:gap-16">
           <Reveal className="lg:col-span-5">
-            <p className={mono}>{list.eyebrow[locale]}</p>
+            <p className={monoLabel}>{list.eyebrow[locale]}</p>
             <h3 className="mt-4 max-w-[22ch] text-2xl leading-tight font-semibold tracking-[-0.02em] text-balance text-fg md:text-[28px]">
               {list.title[locale]}
             </h3>

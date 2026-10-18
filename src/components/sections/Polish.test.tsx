@@ -16,6 +16,27 @@ describe("Polish", () => {
     }
   });
 
+  it.each(locales)("opens with the unpolished/polished pair and puts the retrofit photo with the parts (%s)", (locale) => {
+    render(<Polish locale={locale} />);
+    const unpolished = screen.getByRole("img", { name: polish.photos.unpolished.alt[locale] });
+    const polished = screen.getByRole("img", { name: polish.photos.polished.alt[locale] });
+    const retrofit = screen.getByRole("img", { name: polish.photos.retrofit.alt[locale] });
+
+    // Unpolished first, and both framed and cropped the same way, so the headlight lines up.
+    expect(unpolished.compareDocumentPosition(polished) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(polished.className).toBe(unpolished.className);
+    expect(polished.parentElement?.className).toBe(unpolished.parentElement?.className);
+
+    // The pair shares the top row with the h2; the retrofit photo sits in the parts row.
+    const topRow = screen.getByRole("heading", { level: 2 }).closest("div.grid");
+    expect(topRow).toContainElement(unpolished);
+    expect(topRow).toContainElement(polished);
+    expect(topRow).not.toContainElement(retrofit);
+    const partsRow = screen.getByRole("list", { name: polish.partsHeading[locale] }).parentElement;
+    expect(partsRow).toContainElement(retrofit);
+    expect(partsRow).not.toContainElement(unpolished);
+  });
+
   it.each(locales)("lists the four headlight parts front to back, numbered (%s)", (locale) => {
     render(<Polish locale={locale} />);
     const items = within(screen.getByRole("list", { name: polish.partsHeading[locale] })).getAllByRole("listitem");

@@ -145,11 +145,13 @@ function InquiryFormBody({
   locale,
   defaultTopic,
   compact,
+  title,
   onReset,
 }: {
   locale: Locale;
   defaultTopic?: string;
   compact: boolean;
+  title?: string;
   onReset: () => void;
 }) {
   const [state, formAction, pending] = useActionState(submit, initialState);
@@ -223,259 +225,266 @@ function InquiryFormBody({
   const bannerCopy = failure ? copy.errors[failure.code] : undefined;
 
   return (
-    <form
-      ref={formRef}
-      action={formAction}
-      noValidate
-      aria-busy={pending}
-      onInput={(event) => {
-        const name = (event.target as HTMLElement).getAttribute("name");
-        if (name && !editedNames.includes(name)) {
-          setEdited({ for: state, names: [...editedNames, name] });
-        }
-      }}
-      className={cn("grid", gap)}
-    >
-      <input type="hidden" name="locale" value={locale} />
+    <>
+      {title ? <h3 className="mb-6 text-2xl font-semibold text-fg md:mb-8">{title}</h3> : null}
+      <form
+        ref={formRef}
+        action={formAction}
+        noValidate
+        aria-busy={pending}
+        onInput={(event) => {
+          const name = (event.target as HTMLElement).getAttribute("name");
+          if (name && !editedNames.includes(name)) {
+            setEdited({ for: state, names: [...editedNames, name] });
+          }
+        }}
+        className={cn("grid", gap)}
+      >
+        <input type="hidden" name="locale" value={locale} />
 
-      {/* Honeypot: invisible to people and screen readers, tempting to bots. */}
-      <div aria-hidden className="sr-only">
-        <label htmlFor={id("website")}>{copy.honeypotLabel[locale]}</label>
-        <input id={id("website")} name="website" type="text" tabIndex={-1} autoComplete="off" />
-      </div>
-
-      <Field
-        id={id("name")}
-        label={copy.labels.name[locale]}
-        error={errorFor("name")}
-        control={(props) => (
-          <input
-            {...props}
-            className={control}
-            name="name"
-            type="text"
-            autoComplete="name"
-            required
-            maxLength={inquiryLimits.name}
-            defaultValue={values?.name ?? ""}
-          />
-        )}
-      />
-
-      <div>
-        <div className={cn("grid @md:grid-cols-2", gap)}>
-          <Field
-            id={id("email")}
-            label={copy.labels.email[locale]}
-            error={emailError}
-            describedBy={contactNoteId}
-            control={(props) => (
-              <input
-                {...props}
-                aria-invalid={contactError || props["aria-invalid"] ? true : undefined}
-                className={control}
-                name="email"
-                type="email"
-                autoComplete="email"
-                maxLength={inquiryLimits.email}
-                defaultValue={values?.email ?? ""}
-              />
-            )}
-          />
-          <Field
-            id={id("phone")}
-            label={copy.labels.phone[locale]}
-            error={phoneError}
-            describedBy={contactNoteId}
-            control={(props) => (
-              <input
-                {...props}
-                aria-invalid={contactError || props["aria-invalid"] ? true : undefined}
-                className={control}
-                name="phone"
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                maxLength={inquiryLimits.phone}
-                defaultValue={values?.phone ?? ""}
-              />
-            )}
-          />
+        {/* Honeypot: invisible to people and screen readers, tempting to bots. */}
+        <div aria-hidden className="sr-only">
+          <label htmlFor={id("website")}>{copy.honeypotLabel[locale]}</label>
+          <input id={id("website")} name="website" type="text" tabIndex={-1} autoComplete="off" />
         </div>
-        {contactError ? (
-          <FieldError id={contactNoteId}>{contactError}</FieldError>
-        ) : (
-          <p id={contactNoteId} className="mt-2 text-sm leading-snug text-muted">
-            {copy.contactHint[locale]}
-          </p>
-        )}
-      </div>
 
-      <fieldset className="min-w-0">
-        <legend className="mb-3 w-full p-0">
-          <span className="flex items-baseline justify-between gap-3">
-            <span className={labelClass}>{copy.labels.car[locale]}</span>
-            <span className="font-mono text-xs text-muted">{copy.optional[locale]}</span>
-          </span>
-        </legend>
-        <div className={cn("grid grid-cols-2 @sm:grid-cols-[1fr_1fr_6.5rem]", gap)}>
         <Field
-          id={id("car-make")}
-          label={copy.labels.carMake[locale]}
-          error={errorFor("carMake")}
-          className="col-span-2 @sm:col-span-1"
+          id={id("name")}
+          label={copy.labels.name[locale]}
+          error={errorFor("name")}
           control={(props) => (
             <input
               {...props}
               className={control}
-              name="carMake"
+              name="name"
               type="text"
-              autoComplete="off"
-              placeholder={copy.placeholders.carMake[locale]}
-              maxLength={inquiryLimits.car}
-              defaultValue={values?.carMake ?? ""}
+              autoComplete="name"
+              required
+              maxLength={inquiryLimits.name}
+              defaultValue={values?.name ?? ""}
             />
           )}
         />
-        <Field
-          id={id("car-model")}
-          label={copy.labels.carModel[locale]}
-          error={errorFor("carModel")}
-          control={(props) => (
-            <input
-              {...props}
-              className={control}
-              name="carModel"
-              type="text"
-              autoComplete="off"
-              placeholder={copy.placeholders.carModel[locale]}
-              maxLength={inquiryLimits.car}
-              defaultValue={values?.carModel ?? ""}
+
+        <div>
+          <div className={cn("grid @md:grid-cols-2", gap)}>
+            <Field
+              id={id("email")}
+              label={copy.labels.email[locale]}
+              error={emailError}
+              describedBy={contactNoteId}
+              control={(props) => (
+                <input
+                  {...props}
+                  aria-invalid={contactError || props["aria-invalid"] ? true : undefined}
+                  className={control}
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  maxLength={inquiryLimits.email}
+                  defaultValue={values?.email ?? ""}
+                />
+              )}
             />
-          )}
-        />
-        <Field
-          id={id("car-year")}
-          label={copy.labels.carYear[locale]}
-          error={errorFor("carYear")}
-          control={(props) => (
-            <input
-              {...props}
-              className={control}
-              name="carYear"
-              type="text"
-              inputMode="numeric"
-              autoComplete="off"
-              placeholder={copy.placeholders.carYear[locale]}
-              maxLength={inquiryLimits.car}
-              defaultValue={values?.carYear ?? ""}
+            <Field
+              id={id("phone")}
+              label={copy.labels.phone[locale]}
+              error={phoneError}
+              describedBy={contactNoteId}
+              control={(props) => (
+                <input
+                  {...props}
+                  aria-invalid={contactError || props["aria-invalid"] ? true : undefined}
+                  className={control}
+                  name="phone"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  maxLength={inquiryLimits.phone}
+                  defaultValue={values?.phone ?? ""}
+                />
+              )}
             />
-          )}
-        />
-        </div>
-      </fieldset>
-
-      <Field
-        id={id("topic")}
-        label={copy.labels.topic[locale]}
-        optionalLabel={copy.optional[locale]}
-        error={errorFor("topic")}
-        control={(props) => (
-          <input
-            {...props}
-            className={control}
-            name="topic"
-            type="text"
-            autoComplete="off"
-            placeholder={copy.placeholders.topic[locale]}
-            maxLength={inquiryLimits.topic}
-            defaultValue={values?.topic ?? defaultTopic ?? ""}
-          />
-        )}
-      />
-
-      <Field
-        id={id("message")}
-        label={copy.labels.message[locale]}
-        error={errorFor("message")}
-        control={(props) => (
-          <textarea
-            {...props}
-            className={cn(control, "h-auto min-h-32 resize-y py-3 leading-relaxed")}
-            name="message"
-            rows={compact ? 4 : 6}
-            required
-            placeholder={copy.placeholders.message[locale]}
-            maxLength={inquiryLimits.message}
-            defaultValue={values?.message ?? ""}
-          />
-        )}
-      />
-
-      {failure && bannerCopy ? (
-        <div
-          ref={bannerRef}
-          role="alert"
-          tabIndex={-1}
-          className="rounded-[2px] border border-danger/50 bg-danger/[0.07] p-4 md:p-5"
-        >
-          <p className="flex items-start gap-2 font-medium text-danger">
-            <CircleAlert aria-hidden className="mt-0.5 size-5 shrink-0" />
-            <span>{bannerCopy.title[locale]}</span>
-          </p>
-          <p className="mt-2 text-sm leading-relaxed text-soft">{bannerCopy.body[locale]}</p>
-          {failure.code !== "invalid" ? (
-            <div className="mt-4 flex flex-wrap gap-3">
-              <Button href={site.phoneHref} variant="ghost">
-                <Phone aria-hidden className="size-4" />
-                {site.phone}
-              </Button>
-              <Button href={`mailto:${site.email}`} variant="ghost">
-                <Mail aria-hidden className="size-4" />
-                {site.email}
-              </Button>
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-
-      <div className="flex flex-col gap-4 @lg:flex-row @lg:items-center">
-        <Button
-          type="submit"
-          size="lg"
-          disabled={pending}
-          className="w-full shrink-0 whitespace-nowrap @lg:w-auto"
-        >
-          {pending ? (
-            <>
-              <LoaderCircle aria-hidden className="size-5 animate-spin" />
-              {copy.sending[locale]}
-            </>
+          </div>
+          {contactError ? (
+            <FieldError id={contactNoteId}>{contactError}</FieldError>
           ) : (
-            copy.submit[locale]
+            <p id={contactNoteId} className="mt-2 text-sm leading-snug text-muted">
+              {copy.contactHint[locale]}
+            </p>
           )}
-        </Button>
-        {compact ? null : (
-          <p className="text-sm leading-snug text-pretty text-muted">{copy.submitHint[locale]}</p>
-        )}
-      </div>
-    </form>
+        </div>
+
+        <fieldset className="min-w-0">
+          <legend className="mb-3 w-full p-0">
+            <span className="flex items-baseline justify-between gap-3">
+              <span className={labelClass}>{copy.labels.car[locale]}</span>
+              <span className="font-mono text-xs text-muted">{copy.optional[locale]}</span>
+            </span>
+          </legend>
+          <div className={cn("grid grid-cols-2 @sm:grid-cols-[1fr_1fr_6.5rem]", gap)}>
+          <Field
+            id={id("car-make")}
+            label={copy.labels.carMake[locale]}
+            error={errorFor("carMake")}
+            className="col-span-2 @sm:col-span-1"
+            control={(props) => (
+              <input
+                {...props}
+                className={control}
+                name="carMake"
+                type="text"
+                autoComplete="off"
+                placeholder={copy.placeholders.carMake[locale]}
+                maxLength={inquiryLimits.car}
+                defaultValue={values?.carMake ?? ""}
+              />
+            )}
+          />
+          <Field
+            id={id("car-model")}
+            label={copy.labels.carModel[locale]}
+            error={errorFor("carModel")}
+            control={(props) => (
+              <input
+                {...props}
+                className={control}
+                name="carModel"
+                type="text"
+                autoComplete="off"
+                placeholder={copy.placeholders.carModel[locale]}
+                maxLength={inquiryLimits.car}
+                defaultValue={values?.carModel ?? ""}
+              />
+            )}
+          />
+          <Field
+            id={id("car-year")}
+            label={copy.labels.carYear[locale]}
+            error={errorFor("carYear")}
+            control={(props) => (
+              <input
+                {...props}
+                className={control}
+                name="carYear"
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                placeholder={copy.placeholders.carYear[locale]}
+                maxLength={inquiryLimits.car}
+                defaultValue={values?.carYear ?? ""}
+              />
+            )}
+          />
+          </div>
+        </fieldset>
+
+        <Field
+          id={id("topic")}
+          label={copy.labels.topic[locale]}
+          optionalLabel={copy.optional[locale]}
+          error={errorFor("topic")}
+          control={(props) => (
+            <input
+              {...props}
+              className={control}
+              name="topic"
+              type="text"
+              autoComplete="off"
+              placeholder={copy.placeholders.topic[locale]}
+              maxLength={inquiryLimits.topic}
+              defaultValue={values?.topic ?? defaultTopic ?? ""}
+            />
+          )}
+        />
+
+        <Field
+          id={id("message")}
+          label={copy.labels.message[locale]}
+          error={errorFor("message")}
+          control={(props) => (
+            <textarea
+              {...props}
+              className={cn(control, "h-auto min-h-32 resize-y py-3 leading-relaxed")}
+              name="message"
+              rows={compact ? 4 : 6}
+              required
+              placeholder={copy.placeholders.message[locale]}
+              maxLength={inquiryLimits.message}
+              defaultValue={values?.message ?? ""}
+            />
+          )}
+        />
+
+        {failure && bannerCopy ? (
+          <div
+            ref={bannerRef}
+            role="alert"
+            tabIndex={-1}
+            className="rounded-[2px] border border-danger/50 bg-danger/[0.07] p-4 md:p-5"
+          >
+            <p className="flex items-start gap-2 font-medium text-danger">
+              <CircleAlert aria-hidden className="mt-0.5 size-5 shrink-0" />
+              <span>{bannerCopy.title[locale]}</span>
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-soft">{bannerCopy.body[locale]}</p>
+            {failure.code !== "invalid" ? (
+              <div className="mt-4 flex flex-wrap gap-3">
+                <Button href={site.phoneHref} variant="ghost">
+                  <Phone aria-hidden className="size-4" />
+                  {site.phone}
+                </Button>
+                <Button href={`mailto:${site.email}`} variant="ghost">
+                  <Mail aria-hidden className="size-4" />
+                  {site.email}
+                </Button>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
+        <div className="flex flex-col gap-4 @lg:flex-row @lg:items-center">
+          <Button
+            type="submit"
+            size="lg"
+            disabled={pending}
+            className="w-full shrink-0 whitespace-nowrap @lg:w-auto"
+          >
+            {pending ? (
+              <>
+                <LoaderCircle aria-hidden className="size-5 animate-spin" />
+                {copy.sending[locale]}
+              </>
+            ) : (
+              copy.submit[locale]
+            )}
+          </Button>
+          {compact ? null : (
+            <p className="text-sm leading-snug text-pretty text-muted">{copy.submitHint[locale]}</p>
+          )}
+        </div>
+      </form>
+    </>
   );
 }
 
 /**
  * The inquiry form. Safe to render several times on one page (ids come from `useId`).
  * `defaultTopic` pre-fills "service or product"; key the component on it if it changes
- * while the form stays mounted.
+ * while the form stays mounted. `title` is an h3 above the form; once the inquiry is sent,
+ * the success heading takes its place, so the page never reads "Request an offer" above
+ * "Your inquiry has been sent".
  */
 export function InquiryForm({
   locale,
   defaultTopic,
   compact = false,
+  title,
 }: {
   locale: Locale;
   defaultTopic?: string;
   compact?: boolean;
+  title?: string;
 }) {
   // "Send another inquiry" remounts the body, which starts a fresh action state.
   const [round, setRound] = useState(0);
@@ -487,6 +496,7 @@ export function InquiryForm({
         locale={locale}
         defaultTopic={defaultTopic}
         compact={compact}
+        title={title}
         onReset={() => setRound((n) => n + 1)}
       />
     </div>

@@ -1,14 +1,16 @@
 "use client";
 
 import { motion, useMotionValueEvent, useScroll } from "motion/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { monoLabel } from "@/components/ui/styles";
 import { usePrefersReducedMotion } from "@/components/ui/usePrefersReducedMotion";
 import { cn } from "@/lib/cn";
 
 export interface TimelineStep {
   id: string;
   title: string;
-  body: string;
+  /** May hold a link, such as the email address. */
+  body: ReactNode;
   tag: string;
 }
 
@@ -140,7 +142,7 @@ export function ProcessTimeline({ steps }: { steps: TimelineStep[] }) {
                 >
                   {step.body}
                 </p>
-                <p className="mt-4 font-mono text-xs tracking-[0.08em] text-muted uppercase [overflow-wrap:anywhere]">
+                <p className={cn(monoLabel, "mt-4 [overflow-wrap:anywhere]")}>
                   {step.tag}
                 </p>
               </div>

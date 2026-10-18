@@ -1,13 +1,13 @@
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
+import { monoLabel } from "@/components/ui/styles";
 import { layout } from "@/content/layout";
 import { site } from "@/content/site";
 import { localePath, type Locale } from "@/lib/i18n";
 import { navLinks } from "./nav";
 import { Wordmark } from "./Wordmark";
 
-const label = "font-mono text-xs tracking-[0.08em] text-muted uppercase";
 const link = "inline-block rounded-[2px] py-1 text-sm text-soft transition-colors duration-300 hover:text-fg";
 
 export function Footer({ locale }: { locale: Locale }) {
@@ -30,7 +30,7 @@ export function Footer({ locale }: { locale: Locale }) {
           </div>
 
           <nav aria-labelledby="footer-nav">
-            <h2 id="footer-nav" className={label}>
+            <h2 id="footer-nav" className={monoLabel}>
               {t.navTitle[locale]}
             </h2>
             <ul className="mt-4 grid grid-cols-2 gap-x-6 gap-y-1 md:grid-cols-1">
@@ -45,7 +45,7 @@ export function Footer({ locale }: { locale: Locale }) {
           </nav>
 
           <div>
-            <h2 className={label}>{t.contactTitle[locale]}</h2>
+            <h2 className={monoLabel}>{t.contactTitle[locale]}</h2>
             <address className="mt-4 flex flex-col items-start gap-1 not-italic">
               <a
                 href={site.mapsUrl}
@@ -72,7 +72,7 @@ export function Footer({ locale }: { locale: Locale }) {
           </div>
 
           <div>
-            <h2 className={label}>{t.hoursTitle[locale]}</h2>
+            <h2 className={monoLabel}>{t.hoursTitle[locale]}</h2>
             <dl className="mt-4 border-t border-line text-sm">
               {site.hours.map((row) => (
                 <div key={row.days.en} className="flex items-baseline justify-between gap-6 border-b border-line py-2.5">

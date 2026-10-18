@@ -4,20 +4,18 @@ import { Container } from "@/components/ui/Container";
 import { fillTemplate, fillText } from "@/components/ui/fillTemplate";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { textLink } from "@/components/ui/styles";
 import type { Locale } from "@/lib/i18n";
 import { FaqAccordion, type AccordionItem } from "./FaqAccordion";
 
-const linkClass =
-  "text-fg underline decoration-fg/35 underline-offset-4 transition-colors hover:decoration-fg";
-
 export function Faq({ locale }: { locale: Locale }) {
   const email = (
-    <a href={`mailto:${site.email}`} className={linkClass}>
+    <a href={`mailto:${site.email}`} className={textLink}>
       {site.email}
     </a>
   );
   const phone = (
-    <a href={site.phoneHref} className={`${linkClass} whitespace-nowrap`}>
+    <a href={site.phoneHref} className={`${textLink} whitespace-nowrap`}>
       {site.phone}
     </a>
   );
@@ -43,7 +41,7 @@ export function Faq({ locale }: { locale: Locale }) {
   };
 
   return (
-    <section id="faq" className="relative border-t border-line py-24 md:py-30">
+    <section id="faq" className="border-t border-line py-18 md:py-30">
       <script
         type="application/ld+json"
         // Escape "<" so the payload can never close the script tag.

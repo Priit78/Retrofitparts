@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import type { ReactNode } from "react";
+import { monoLabel } from "@/components/ui/styles";
 import { contact } from "@/content/inquiry";
 import { site } from "@/content/site";
 import type { Locale } from "@/lib/i18n";
@@ -9,7 +10,7 @@ function DetailRow({ label, children }: { label: string; children: ReactNode }) 
   // `dl`, which is what a definition list requires.
   return (
     <div className="min-w-0 border-t border-line py-5 first:border-t-0 first:pt-0">
-      <dt className="font-mono text-xs tracking-[0.08em] text-muted uppercase">{label}</dt>
+      <dt className={monoLabel}>{label}</dt>
       <dd className="mt-2">{children}</dd>
     </div>
   );

@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { monoLabel } from "./styles";
 
 export function SectionHeading({
+  id,
   eyebrow,
   title,
   intro,
@@ -9,6 +11,8 @@ export function SectionHeading({
   as: Heading = "h2",
   className,
 }: {
+  /** Id on the heading itself, for `aria-labelledby`. */
+  id?: string;
   eyebrow?: string;
   title: ReactNode;
   intro?: ReactNode;
@@ -18,10 +22,11 @@ export function SectionHeading({
 }) {
   return (
     <div className={cn("max-w-3xl", align === "center" && "mx-auto text-center", className)}>
-      {eyebrow ? (
-        <p className="mb-4 font-mono text-xs tracking-[0.08em] text-muted uppercase">{eyebrow}</p>
-      ) : null}
-      <Heading className="text-[32px] leading-[1.05] font-semibold tracking-[-0.025em] text-balance text-fg md:text-[52px]">
+      {eyebrow ? <p className={cn(monoLabel, "mb-4")}>{eyebrow}</p> : null}
+      <Heading
+        id={id}
+        className="text-[32px] leading-[1.05] font-semibold tracking-[-0.025em] text-balance text-fg md:text-[52px]"
+      >
         {title}
       </Heading>
       {intro ? (

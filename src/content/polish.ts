@@ -26,13 +26,24 @@ export const polish = {
     en: "It is the cheapest fix, but it often adds no light at all. We replace the damaged parts instead: a new lens in front, a new projector inside.",
   },
 
+  /**
+   * The same headlight before and after polishing (a matched pair supplied by the project
+   * owner), then the client's retrofit photo. Neither says where it was taken or who did it.
+   */
   photos: {
-    hazed: {
+    unpolished: {
       alt: {
-        et: "Vana auto esituli, mille klaas on tuhmunud ja kollaseks muutunud",
-        en: "An old car headlight with a hazed, yellowed lens",
+        et: "BMW 3. seeria esituli enne poleerimist: klaas on tuhm ja kolletunud",
+        en: "A BMW 3 Series headlight before polishing: the lens is hazy and yellowed",
       },
-      caption: { et: "Tuhmunud klaas", en: "Hazed lens" },
+      caption: { et: "Enne poleerimist", en: "Before polishing" },
+    },
+    polished: {
+      alt: {
+        et: "Sama esituli pärast poleerimist: klaas on jälle läbipaistev",
+        en: "The same headlight after polishing: the lens is clear again",
+      },
+      caption: { et: "Pärast poleerimist", en: "After polishing" },
     },
     retrofit: {
       alt: {

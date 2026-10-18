@@ -28,13 +28,13 @@ export const hero = {
   } satisfies Localized<string[]>,
 
   lead: {
-    et: `Paigaldame bi-LED ja bi-xenon projektoreid, vahetame tuhmunud tuleklaase ja taastame esitulesid. Oma töökojas Tallinnas, alates ${site.founded}. aastast.`,
+    et: `Paigaldame bi-LED- ja bi-xenon-projektoreid, vahetame tuhmunud tuleklaase ja taastame esitulesid. Oma töökojas Tallinnas, alates ${site.founded}. aastast.`,
     en: `We fit bi-LED and bi-xenon projectors, replace hazed lenses and restore headlights. All in our own Tallinn workshop, since ${site.founded}.`,
   } satisfies Localized<string>,
 
   photoAlt: {
-    et: "Sõiduauto põlev LED-esituli öösel",
-    en: "A car's lit LED headlight at night",
+    et: "Musta BMW LED-esituli valgete päevatuledega pimedas",
+    en: "A black BMW's LED headlight with white daytime running lights, in the dark",
   } satisfies Localized<string>,
 
   /** Accessible name for the trust row. */

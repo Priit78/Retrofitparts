@@ -3,7 +3,7 @@ import type { Localized } from "@/lib/i18n";
 export interface ProcessStep {
   id: "request" | "offer" | "installation" | "warranty";
   title: Localized<string>;
-  /** `{years}` is replaced with site.warrantyYears. */
+  /** `{years}` is replaced with site.warrantyYears, `{email}` with a link to site.email. */
   body: Localized<string>;
   /** Short fact in mono type. `{years}` comes from site.ts. */
   tag: Localized<string>;
@@ -24,8 +24,9 @@ export const processCopy = {
       id: "request",
       title: { et: "Päring", en: "Request" },
       body: {
-        et: "Saada meile auto mark, mudel ja foto tuledest – e-postiga või kontaktivormi kaudu.",
-        en: "Send us your car's make and model with a photo of the headlights, by email or through the contact form.",
+        // The form takes no files, so the photo goes by email.
+        et: "Kirjuta meile auto mark ja mudel kontaktivormi kaudu või e-postiga. Foto tuledest saada aadressil {email}.",
+        en: "Tell us your car's make and model through the contact form or by email. Send a photo of the headlights to {email}.",
       },
       tag: { et: "E-post või vorm", en: "Email or form" },
     },

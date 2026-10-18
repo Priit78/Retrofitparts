@@ -75,7 +75,7 @@ export function CatalogTeaser({ locale }: { locale: Locale }) {
   const hrefFor = (filters: CatalogFilters) => `${catalogHref}${filtersToQuery(filters)}`;
 
   return (
-    <section id="catalog-teaser" className="border-t border-line py-24 md:py-30">
+    <section id="catalog-teaser" className="border-t border-line py-18 md:py-30">
       <Container>
         <Reveal>
           <SectionHeading eyebrow={t.eyebrow[locale]} title={t.title[locale]} intro={t.intro[locale]} />
