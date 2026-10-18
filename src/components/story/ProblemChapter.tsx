@@ -31,7 +31,8 @@ const PHOTO_SIZES = [
 const beatClass = "pinned:[grid-area:1/1] pinned:self-start pinned:lg:self-center";
 const titleClass = cn(
   "mt-4 text-[32px] leading-[1.05] font-semibold tracking-[-0.025em] text-balance text-fg md:text-[52px]",
-  // Pinned on a short phone (an iPhone SE's 548 px), every beat still fits under the photo.
+  // Pinned, the large title scales with the screen's height; a short phone gets a smaller one.
+  "pinned:md:text-[clamp(2rem,6svh,3.25rem)]",
   "pinned:max-md:[@media(max-height:40rem)]:mt-2 pinned:max-md:[@media(max-height:40rem)]:text-[26px]",
 );
 
@@ -90,9 +91,8 @@ function Compare({ locale }: { locale: Locale }) {
                   key={point.en}
                   className={cn(
                     "flex gap-3 text-[15px] leading-relaxed text-pretty",
-                    // Pinned on a phone the columns sit side by side; 13 px only on a short one.
-                    "pinned:max-sm:gap-2 pinned:max-sm:text-[14px] pinned:max-sm:leading-snug",
-                    "pinned:max-md:[@media(max-height:40rem)]:text-[13px]",
+                    // Pinned on a phone the columns sit side by side, in 13 px.
+                    "pinned:max-sm:gap-2 pinned:max-sm:text-[13px] pinned:max-sm:leading-snug",
                   )}
                 >
                   <Icon
@@ -124,17 +124,21 @@ export function ProblemStage({ locale }: { locale: Locale }) {
     <Container
       className={cn(
         "grid gap-12 py-18 md:py-30 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start lg:gap-16",
-        // Pinned: one screen, under the fixed header. Photo on top on phones, beside the text from lg.
-        "pinned:h-full pinned:grid-rows-[auto_minmax(0,1fr)] pinned:content-start pinned:gap-6 pinned:pt-20 pinned:pb-6",
+        // Pinned: one screen, under the fixed header. Below lg the photo is on top and gives up
+        // height to the beats (it shrinks, keeping its shape), so a short screen never clips them.
+        "pinned:flex pinned:h-full pinned:flex-col pinned:gap-6 pinned:pt-20 pinned:pb-6",
         "pinned:max-md:[@media(max-height:40rem)]:gap-4 pinned:max-md:[@media(max-height:40rem)]:pt-[4.5rem]",
-        "pinned:lg:grid-rows-1 pinned:lg:content-center pinned:lg:items-center pinned:lg:pt-24 pinned:lg:pb-10",
+        // From lg the photo sits beside the beats; a short window gives the beats the wider column.
+        "pinned:lg:grid pinned:lg:grid-rows-1 pinned:lg:content-center-safe pinned:lg:items-center pinned:lg:pt-[5.5rem]",
+        "pinned:lg:[@media(max-height:45rem)]:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] pinned:lg:[@media(max-height:45rem)]:gap-12",
       )}
     >
       {/* The pair beside the beats from lg; it stays in view while static beats scroll past. */}
-      <div className="lg:sticky lg:top-28 lg:order-2 pinned:lg:static">
+      <div className="lg:sticky lg:top-28 lg:order-2 pinned:min-h-0 pinned:lg:static">
         <PolishWipe
-          // On a short phone the frame is capped at 20svh tall: it keeps its 32:15 shape and narrows.
-          className="pinned:max-md:[@media(max-height:40rem)]:max-h-[20svh]"
+          // Pinned below lg the frame takes the height the beats leave: it keeps its 32:15 shape
+          // and narrows.
+          className="pinned:max-h-full pinned:lg:max-h-none"
           before={
             <Image
               src={headlightUnpolished}
@@ -158,7 +162,7 @@ export function ProblemStage({ locale }: { locale: Locale }) {
         />
       </div>
 
-      <div className="grid gap-16 lg:order-1 pinned:gap-0">
+      <div className="grid gap-16 lg:order-1 pinned:shrink-0 pinned:gap-0">
         <Beat range={[0, 0.33]} className={beatClass}>
           <Kicker locale={locale} />
           <h2 className={titleClass}>{aging.title[locale]}</h2>

@@ -33,13 +33,14 @@ function offset(layer: number, e: number) {
   return { x: x + 0, y: y + 0 };
 }
 
-/** The inline opacity and transform nearest to `el`, looking up to (and including) `stop`. */
-function inlineUp(el: Element, stop: Element): { opacity: string; transform: string } {
-  const found = { opacity: "", transform: "" };
+/** The inline opacity, transform and pointer-events nearest to `el`, up to (and including) `stop`. */
+function inlineUp(el: Element, stop: Element): { opacity: string; transform: string; pointerEvents: string } {
+  const found = { opacity: "", transform: "", pointerEvents: "" };
   for (let node: Element | null = el; node; node = node.parentElement) {
     const style = (node as HTMLElement).style;
     found.opacity ||= style.opacity;
     found.transform ||= style.transform;
+    found.pointerEvents ||= style.pointerEvents;
     if (node === stop) break;
   }
   return found;
@@ -99,12 +100,16 @@ describe("AnatomyStage", () => {
       expect(name.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
       // Fading is opacity and transform only: nothing changes size while the chapter scrolls.
       const fade = inlineUp(body, items[index]);
+      // The items overlap when pinned: only the visible description takes the pointer (and so
+      // text selection); the folded ones let it through.
       if (index === 2) {
         expect(fade.opacity).not.toBe("0");
         expect(fade.transform).toBe("none");
+        expect(fade.pointerEvents).toBe("auto");
       } else {
         expect(fade.opacity).toBe("0");
         expect(fade.transform).toMatch(/^translateY\(/);
+        expect(fade.pointerEvents).toBe("none");
       }
     });
     for (const el of container.querySelectorAll<HTMLElement>("ol *")) {

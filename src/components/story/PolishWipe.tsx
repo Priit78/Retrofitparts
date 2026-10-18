@@ -59,6 +59,8 @@ export function PolishWipe({
         // Static: stacked, side by side on tablets. Pinned: one frame.
         "grid gap-x-3 gap-y-5 sm:max-lg:grid-cols-2",
         "pinned:relative pinned:block pinned:aspect-[32/15] pinned:overflow-hidden pinned:rounded-[2px] pinned:bg-surface",
+        // A container, so the caption can step aside when a short screen shrinks the frame.
+        "pinned:@container",
         className,
       )}
     >
@@ -90,7 +92,9 @@ export function PolishWipe({
         data-wipe-caption=""
         className={cn(
           mono,
-          "absolute bottom-3 left-3 hidden rounded-[2px] bg-bg/85 px-2.5 py-1.5 leading-none text-fg pinned:block",
+          "absolute bottom-3 left-3 hidden rounded-[2px] bg-bg/85 px-2.5 py-1.5 leading-none whitespace-nowrap text-fg pinned:block",
+          // In a frame too narrow for it, the caption would cover the photo: the alt texts say it.
+          "pinned:@max-[12.5rem]:hidden",
         )}
       >
         {animated && polished ? afterCaption : beforeCaption}

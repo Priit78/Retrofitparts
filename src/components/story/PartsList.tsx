@@ -51,14 +51,17 @@ export function PartsList({ parts, labelledBy, className }: { parts: Part[]; lab
             className={cn(
               "grid grid-cols-[2.25rem_minmax(0,1fr)] gap-x-4 border-b border-line py-5 transition-colors duration-500 md:grid-cols-[2.5rem_minmax(0,1fr)] md:py-6",
               "pinned:col-start-1 pinned:row-span-full pinned:grid-rows-subgrid pinned:border-b-0 pinned:py-0",
+              // Pinned, every item covers the whole list: only its row and its visible description
+              // take the pointer, so hidden text never catches clicks or selection.
+              "pinned:pointer-events-none",
               // Before hydration a pinned list shows p = 0: every part muted, no description.
               animated ? (current ? "text-fg" : "text-muted") : "text-fg pinned:text-muted",
             )}
           >
             <div
               className={cn(
-                "col-span-2 grid grid-cols-subgrid items-baseline",
-                "pinned:[grid-row:var(--part-row)] pinned:border-b pinned:border-line pinned:py-2.5 pinned:md:py-5",
+                "col-span-2 grid grid-cols-subgrid items-baseline pinned:pointer-events-auto",
+                "pinned:[grid-row:var(--part-row)] pinned:border-b pinned:border-line pinned:py-2.5 pinned:md:py-[clamp(0.5rem,2.2svh,1.25rem)]",
                 // A short phone (an iPhone SE's 548 px) gets tighter rows.
                 "pinned:max-md:[@media(max-height:40rem)]:py-2",
               )}
@@ -71,11 +74,17 @@ export function PartsList({ parts, labelledBy, className }: { parts: Part[]; lab
             <p
               className={cn(
                 "col-start-2 pt-2 text-[15px] leading-relaxed text-pretty text-soft",
-                "pinned:[grid-row:var(--slot-row)] pinned:pt-3 pinned:md:pt-4 pinned:max-md:[@media(max-height:40rem)]:pt-2",
+                "pinned:[grid-row:var(--slot-row)] pinned:pt-3 pinned:md:pt-[clamp(0.5rem,2svh,1rem)] pinned:max-md:[@media(max-height:40rem)]:pt-2",
                 "transition-[opacity,transform] duration-500 ease-out-expo",
                 !animated && "pinned:translate-y-2 pinned:opacity-0",
               )}
-              style={folded ? { opacity: 0, transform: "translateY(0.5rem)" } : animated ? { transform: "none" } : undefined}
+              style={
+                folded
+                  ? { opacity: 0, transform: "translateY(0.5rem)", pointerEvents: "none" }
+                  : animated
+                    ? { transform: "none", pointerEvents: "auto" }
+                    : undefined
+              }
             >
               {part.body}
             </p>
