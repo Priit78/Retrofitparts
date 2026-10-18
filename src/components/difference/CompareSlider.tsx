@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronsLeftRight } from "lucide-react";
-import { animate, useMotionValue, useMotionValueEvent, useTransform, motion } from "motion/react";
+import { animate, motion, useMotionValue, useMotionValueEvent, useTransform, type MotionValue } from "motion/react";
 import {
   useEffect,
   useRef,
@@ -27,24 +27,7 @@ function formatValue(template: string, value: number) {
   return template.replace("{before}", String(before)).replace("{after}", String(100 - before));
 }
 
-/**
- * Before/after comparison. `after` is laid over `before` and clipped to the right of the
- * handle. A visually hidden range input carries keyboard and screen reader support and is
- * kept in sync with the handle; pointer drag works with mouse, pen and touch.
- *
- * Renders at 50% on the server and under reduced motion. Otherwise it sweeps once from 15%
- * to 50% the first time it comes into view.
- */
-export function CompareSlider({
-  before,
-  after,
-  beforeLabel,
-  afterLabel,
-  label,
-  valueText,
-  describedBy,
-  className,
-}: {
+export interface CompareSliderProps {
   before: ReactNode;
   after: ReactNode;
   /** Shown in the top-left corner of the `before` side. */
@@ -57,16 +40,46 @@ export function CompareSlider({
   valueText: string;
   /** Id of visible help text describing how to operate the slider. */
   describedBy?: string;
+  /**
+   * A 0 to 100 position that moves the handle, such as the scroll progress of a chapter. While
+   * it is given and the visitor has not moved the handle, the handle follows it and the intro
+   * sweep does not run. The first time the visitor moves the handle (drag, tap or keys), the
+   * driver is ignored for the rest of the page view.
+   */
+  drivenBy?: MotionValue<number>;
   className?: string;
-}) {
+}
+
+/**
+ * Before/after comparison. `after` is laid over `before` and clipped to the right of the
+ * handle. A visually hidden range input carries keyboard and screen reader support and is
+ * kept in sync with the handle; pointer drag works with mouse, pen and touch.
+ *
+ * Renders at 50% on the server and under reduced motion. Otherwise it sweeps once from 15%
+ * to 50% the first time it comes into view, unless `drivenBy` moves it instead.
+ */
+export function CompareSlider({
+  before,
+  after,
+  beforeLabel,
+  afterLabel,
+  label,
+  valueText,
+  describedBy,
+  drivenBy,
+  className,
+}: CompareSliderProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const position = useMotionValue(START);
-  const [value, setValue] = useState(START);
+  const start = drivenBy ? clamp(drivenBy.get()) : START;
+  const position = useMotionValue(start);
+  const [value, setValue] = useState(Math.round(start));
   const clipPath = useTransform(position, (v) => `inset(0 0 0 ${v}%)`);
   const left = useTransform(position, (v) => `${v}%`);
 
   const touched = useRef(false);
+  /** The visitor moved the handle: a `drivenBy` value no longer moves it. */
+  const claimed = useRef(false);
   const intro = useRef<{ stop: () => void } | null>(null);
   const drag = useRef<{ id: number; engaged: boolean; x: number; y: number } | null>(null);
 
@@ -79,11 +92,32 @@ export function CompareSlider({
     intro.current = null;
   };
 
-  const setTo = (next: number) => position.set(clamp(next));
+  /**
+   * Every move by the visitor (drag, tap, keys, assistive tech) goes through here, so this is
+   * where the driver is given up. A touch that only scrolls the page never gets here.
+   */
+  const setTo = (next: number) => {
+    claimed.current = true;
+    position.set(clamp(next));
+  };
+
+  // Follow the driver until the visitor takes over, and rest at the middle again if it goes.
+  useEffect(() => {
+    if (!drivenBy) return;
+    const follow = (v: number) => {
+      if (!claimed.current) position.set(clamp(v));
+    };
+    follow(drivenBy.get());
+    const stop = drivenBy.on("change", follow);
+    return () => {
+      stop();
+      if (!claimed.current) position.set(START);
+    };
+  }, [drivenBy, position]);
 
   useEffect(() => {
     const el = rootRef.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
+    if (drivenBy || !el || typeof IntersectionObserver === "undefined") return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     // Park the handle at the intro start just before the slider scrolls into view…
@@ -116,7 +150,7 @@ export function CompareSlider({
       play.disconnect();
       intro.current?.stop();
     };
-  }, [position]);
+  }, [drivenBy, position]);
 
   const positionFromPointer = (clientX: number) => {
     const rect = rootRef.current?.getBoundingClientRect();

@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { motionValue } from "motion/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CompareSlider } from "./CompareSlider";
 
@@ -178,5 +179,132 @@ describe("CompareSlider", () => {
 
     fireEvent.keyDown(slider, { key: "ArrowRight" });
     expect(slider.value).toBe("20");
+  });
+
+  describe("driven by a motion value", () => {
+    function renderDriven(drivenBy?: ReturnType<typeof motionValue<number>>) {
+      const ui = (value?: ReturnType<typeof motionValue<number>>) => (
+        <CompareSlider
+          before={<div>before scene</div>}
+          after={<div>after scene</div>}
+          label="Compare the light"
+          valueText="Before {before}%, after {after}%"
+          drivenBy={value}
+        />
+      );
+      const view = render(ui(drivenBy));
+      const slider = screen.getByRole("slider", { name: "Compare the light" }) as HTMLInputElement;
+      const root = slider.parentElement as HTMLElement;
+      root.getBoundingClientRect = () =>
+        ({ left: 0, width: 400, top: 0, height: 300, right: 400, bottom: 300 }) as DOMRect;
+      return { slider, root, rerender: (value?: ReturnType<typeof motionValue<number>>) => view.rerender(ui(value)) };
+    }
+
+    it("follows the driving value, and skips the intro sweep", () => {
+      mockReducedMotion(false);
+      const callbacks = mockIntersection();
+      const driver = motionValue(30);
+      const { slider } = renderDriven(driver);
+      expect(slider.value).toBe("30");
+      expect(slider).toHaveAttribute("aria-valuetext", "Before 30%, after 70%");
+      expect(callbacks).toHaveLength(0);
+
+      act(() => driver.set(70));
+      expect(slider.value).toBe("70");
+      expect(slider).toHaveAttribute("aria-valuetext", "Before 70%, after 30%");
+    });
+
+    it("moves the handle with the driving value", async () => {
+      mockReducedMotion(true);
+      mockIntersection();
+      const driver = motionValue(30);
+      renderDriven(driver);
+      const handle = document.querySelector<HTMLElement>("[aria-hidden].pointer-events-none");
+      await waitFor(() => expect(handle?.style.left).toBe("30%"));
+      act(() => driver.set(80));
+      await waitFor(() => expect(handle?.style.left).toBe("80%"));
+    });
+
+    it("stays within 0 to 100", () => {
+      mockReducedMotion(true);
+      mockIntersection();
+      const driver = motionValue(120);
+      const { slider } = renderDriven(driver);
+      expect(slider.value).toBe("100");
+      act(() => driver.set(-20));
+      expect(slider.value).toBe("0");
+    });
+
+    it("lets the visitor win after a key press", () => {
+      mockReducedMotion(true);
+      mockIntersection();
+      const driver = motionValue(30);
+      const { slider } = renderDriven(driver);
+      fireEvent.keyDown(slider, { key: "ArrowRight" });
+      expect(slider.value).toBe("35");
+      act(() => driver.set(20));
+      expect(slider.value).toBe("35");
+    });
+
+    it("lets the visitor win after a mouse drag", () => {
+      mockReducedMotion(true);
+      mockIntersection();
+      const driver = motionValue(30);
+      const { slider, root } = renderDriven(driver);
+      fireEvent.pointerDown(root, { pointerId: 1, pointerType: "mouse", button: 0, clientX: 200 });
+      fireEvent.pointerUp(root, { pointerId: 1, pointerType: "mouse", clientX: 200 });
+      expect(slider.value).toBe("50");
+      act(() => driver.set(90));
+      expect(slider.value).toBe("50");
+    });
+
+    it("lets the visitor win after a touch tap", () => {
+      mockReducedMotion(true);
+      mockIntersection();
+      const driver = motionValue(30);
+      const { slider, root } = renderDriven(driver);
+      fireEvent.pointerDown(root, { pointerId: 7, pointerType: "touch", clientX: 100, clientY: 150 });
+      fireEvent.pointerUp(root, { pointerId: 7, pointerType: "touch", clientX: 101, clientY: 150 });
+      expect(slider.value).toBe("25");
+      act(() => driver.set(90));
+      expect(slider.value).toBe("25");
+    });
+
+    it("keeps following the scroll while a finger scrolls the page over the slider", () => {
+      mockReducedMotion(true);
+      mockIntersection();
+      const driver = motionValue(30);
+      const { slider, root } = renderDriven(driver);
+      // A touch that goes down on the slider and then scrolls the page is neither a tap nor a drag.
+      fireEvent.pointerDown(root, { pointerId: 7, pointerType: "touch", clientX: 100, clientY: 250 });
+      fireEvent.pointerMove(root, { pointerId: 7, pointerType: "touch", clientX: 102, clientY: 200 });
+      fireEvent.pointerCancel(root, { pointerId: 7, pointerType: "touch", clientX: 102, clientY: 200 });
+      act(() => driver.set(60));
+      expect(slider.value).toBe("60");
+
+      // A sideways drag does take over.
+      fireEvent.pointerDown(root, { pointerId: 8, pointerType: "touch", clientX: 200, clientY: 150 });
+      fireEvent.pointerMove(root, { pointerId: 8, pointerType: "touch", clientX: 300, clientY: 152 });
+      fireEvent.pointerUp(root, { pointerId: 8, pointerType: "touch", clientX: 300, clientY: 152 });
+      expect(slider.value).toBe("75");
+      act(() => driver.set(10));
+      expect(slider.value).toBe("75");
+    });
+
+    it("starts following when the driver arrives later, and rests at 50% when it goes", () => {
+      mockReducedMotion(true);
+      mockIntersection();
+      const driver = motionValue(20);
+      const { slider, rerender } = renderDriven(undefined);
+      expect(slider.value).toBe("50");
+      rerender(driver);
+      expect(slider.value).toBe("20");
+      act(() => driver.set(40));
+      expect(slider.value).toBe("40");
+      rerender(undefined);
+      expect(slider.value).toBe("50");
+      act(() => driver.set(90));
+      expect(slider.value).toBe("50");
+    });
   });
 });
