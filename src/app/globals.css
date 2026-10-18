@@ -28,6 +28,26 @@
   --font-mono: var(--font-plex), ui-monospace, monospace;
 }
 
+/* Scroll-story chapters pin only when JS has run and the visitor allows motion. `pinned:` styles
+   a chapter's pinned layout under that condition and `pinned-lg:` does the same from 1024 px (for
+   `data-pin-from="lg"` chapters), so the static layout is the unprefixed one. `:where()` keeps
+   the specificity of a plain utility. */
+@custom-variant pinned {
+  @media (prefers-reduced-motion: no-preference) {
+    &:where(html.js *) {
+      @slot;
+    }
+  }
+}
+
+@custom-variant pinned-lg {
+  @media (prefers-reduced-motion: no-preference) and (width >= 64rem) {
+    &:where(html.js *) {
+      @slot;
+    }
+  }
+}
+
 @layer base {
   html {
     background-color: var(--color-bg);
@@ -88,6 +108,60 @@
     html.js [data-reveal]:not([data-revealed]) {
       opacity: 0;
       transform: translate3d(0, var(--reveal-y, 24px), 0);
+    }
+  }
+
+  /* Scroll-story chapters (see components/story/ScrollChapter.tsx): a tall track whose stage, one
+     screen high, sticks to the top while the track scrolls past. Under the `pinned` condition
+     only; otherwise both are plain blocks and every beat reads in order. `data-pinned-hidden`
+     hides later beats until the chapter animates them, so the stage never shows them stacked
+     before hydration. */
+  .chapter:not([data-pin-from="lg"]) {
+    @variant pinned {
+      height: var(--chapter-len);
+    }
+
+    @variant pinned {
+      @variant md {
+        height: var(--chapter-len-md);
+      }
+    }
+  }
+
+  .chapter:not([data-pin-from="lg"]) > .chapter-stage {
+    @variant pinned {
+      position: sticky;
+      top: 0;
+      height: 100svh;
+      overflow: hidden;
+    }
+  }
+
+  .chapter:not([data-pin-from="lg"]) [data-pinned-hidden] {
+    @variant pinned {
+      opacity: 0;
+    }
+  }
+
+  /* The same, from 1024 px only. */
+  .chapter[data-pin-from="lg"] {
+    @variant pinned-lg {
+      height: var(--chapter-len-md);
+    }
+  }
+
+  .chapter[data-pin-from="lg"] > .chapter-stage {
+    @variant pinned-lg {
+      position: sticky;
+      top: 0;
+      height: 100svh;
+      overflow: hidden;
+    }
+  }
+
+  .chapter[data-pin-from="lg"] [data-pinned-hidden] {
+    @variant pinned-lg {
+      opacity: 0;
     }
   }
 }
