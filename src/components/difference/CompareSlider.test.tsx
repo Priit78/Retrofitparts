@@ -261,6 +261,25 @@ describe("CompareSlider", () => {
       expect(commits).toBe(settled);
     });
 
+    it("writes the input only when the rounded value changes", () => {
+      mockReducedMotion(true);
+      mockIntersection();
+      const driver = motionValue(30);
+      const { slider } = renderDriven(driver);
+      const valueText = vi.spyOn(slider, "setAttribute");
+      const value = vi.spyOn(slider, "value", "set");
+
+      for (const v of [30.1, 30.2, 30.4, 29.6]) act(() => driver.set(v));
+      expect(value).not.toHaveBeenCalled();
+      expect(valueText).not.toHaveBeenCalled();
+
+      act(() => driver.set(30.6));
+      expect(value).toHaveBeenCalledTimes(1);
+      expect(valueText).toHaveBeenCalledTimes(1);
+      expect(slider.value).toBe("31");
+      expect(slider).toHaveAttribute("aria-valuetext", "Before 31%, after 69%");
+    });
+
     it("writes the exact value, not one snapped to the key step", () => {
       mockReducedMotion(true);
       mockIntersection();

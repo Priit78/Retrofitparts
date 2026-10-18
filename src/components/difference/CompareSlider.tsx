@@ -129,14 +129,18 @@ export function CompareSlider({
   };
 
   // The range input is uncontrolled: its value and `aria-valuetext` are written straight from the
-  // position, so moving the handle never renders React.
+  // position, so moving the handle never renders React. Only when the rounded value (or the text)
+  // changes: a driver moves the position by fractions every scroll frame.
   const writeValue = useCallback(
     (v: number) => {
       const input = inputRef.current;
       if (!input) return;
       const rounded = Math.round(v);
-      input.value = String(rounded);
-      input.setAttribute("aria-valuetext", formatValue(valueText, rounded));
+      const value = String(rounded);
+      const text = formatValue(valueText, rounded);
+      if (input.value === value && input.getAttribute("aria-valuetext") === text) return;
+      input.value = value;
+      input.setAttribute("aria-valuetext", text);
     },
     [valueText],
   );
