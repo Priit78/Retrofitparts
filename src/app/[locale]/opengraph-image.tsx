@@ -20,17 +20,22 @@ const color = {
 /** `bg` at a given opacity, for the scrims over the photo. */
 const bg = (alpha: number) => `rgba(14,16,19,${alpha})`;
 
-// Read once at build time; the images are prerendered for each locale.
-const asset = (path: string) => readFile(join(process.cwd(), "src/assets", path));
+// Read once at build time; the images are prerendered for each locale. Literal paths, so the
+// output file trace lists exactly these files.
 const [photo, albert400, albert600] = await Promise.all([
-  asset("photos/hero-headlight.jpg"),
-  asset("fonts/AlbertSans-400.ttf"),
-  asset("fonts/AlbertSans-600.ttf"),
+  readFile(join(process.cwd(), "src/assets/og/hero-og.jpg")),
+  readFile(join(process.cwd(), "src/assets/fonts/AlbertSans-400.ttf")),
+  readFile(join(process.cwd(), "src/assets/fonts/AlbertSans-600.ttf")),
 ]);
 const photoSrc = `data:image/jpeg;base64,${photo.toString("base64")}`;
 
-// The hero photo (2050×1153), scaled and placed so the lit headlight sits right and low.
-const photoBox = { width: 1180, height: 664, left: 110, top: -24 };
+/*
+ * `hero-og.jpg` is `photos/hero-headlight.jpg` prepared as this 1200×630 canvas, so it is drawn
+ * 1:1: the photo scaled to 920 px wide and anchored bottom right (30 px past the edge), its top
+ * 30 % faded into `bg`, film grain softened (6 px in the dark hood, 1.3 px on the lit headlight),
+ * dimmed 22 % towards `bg`, JPEG quality 68. Made once with PIL. The raw photo's grain made the
+ * PNG about 870 KB; prepared, it stays under 300 KB.
+ */
 
 const [wordFirst, ...wordRest] = site.name.split(" ");
 
@@ -62,11 +67,11 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
         <img
           src={photoSrc}
           alt=""
-          width={photoBox.width}
-          height={photoBox.height}
-          style={{ position: "absolute", left: photoBox.left, top: photoBox.top }}
+          width={size.width}
+          height={size.height}
+          style={{ position: "absolute", left: 0, top: 0 }}
         />
-        {/* Scrims: darken the photo overall, then fade it into `bg` from the left and bottom. */}
+        {/* Scrims: fade the photo into `bg` from the left and the bottom. */}
         <div
           style={{
             position: "absolute",
@@ -77,7 +82,6 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
             backgroundImage: [
               `linear-gradient(90deg, ${bg(1)} 0%, ${bg(1)} 12%, ${bg(0.88)} 34%, ${bg(0.35)} 58%, ${bg(0)} 78%)`,
               `linear-gradient(0deg, ${bg(0.75)} 0%, ${bg(0)} 30%)`,
-              `linear-gradient(0deg, ${bg(0.12)}, ${bg(0.12)})`,
             ].join(", "),
           }}
         />

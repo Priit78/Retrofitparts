@@ -51,7 +51,7 @@ describe("Header", () => {
     expect(screen.getByRole("link", { name: "Request an offer" })).toHaveAttribute("href", "/en#contact");
   });
 
-  it("is transparent over the landing hero, and solid after 24 px of scroll", () => {
+  it("is transparent over the landing hero, solid after 24 px of scroll, and transparent again back at the top", () => {
     render(<Header locale="et" />);
     expect(backdrop()).not.toHaveAttribute("data-solid");
     expect(backdrop()).toHaveClass("opacity-0");
@@ -62,6 +62,15 @@ describe("Header", () => {
     scrollTo(25);
     expect(backdrop()).toHaveAttribute("data-solid");
     expect(backdrop()).toHaveClass("opacity-100", "bg-bg", "border-line");
+
+    scrollTo(24);
+    expect(backdrop()).not.toHaveAttribute("data-solid");
+    expect(backdrop()).toHaveClass("opacity-0");
+
+    scrollTo(600);
+    scrollTo(0);
+    expect(backdrop()).not.toHaveAttribute("data-solid");
+    expect(backdrop()).toHaveClass("opacity-0");
   });
 
   it.each(["/et/catalog", "/en/catalog/koito-bi-led", "/et/missing"])(

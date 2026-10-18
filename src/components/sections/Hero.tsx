@@ -34,24 +34,24 @@ export function Hero({ locale }: { locale: Locale }) {
       {/* The photo zone. It ends at the trust row, so the row always sits on plain `bg`. */}
       <div className="relative isolate flex flex-1 flex-col justify-end">
         {/*
-          The photo. Below `lg` it is a band anchored to the bottom of the zone, so the lit
-          headlight lands in the clear space under the buttons however long the copy runs. From
-          `lg` it fills the zone's right side and fades into `bg` on its left.
+          The photo. Below `lg` it is a band at the bottom of the zone, which clips the photo's
+          dark top: the clear photo starts 20–24 px below the buttons however long the copy runs.
+          From `lg` it fills the zone's right side and fades into `bg` on its left.
         */}
-        <div className="absolute inset-x-0 bottom-0 -z-10 h-[26rem] lg:inset-y-0 lg:left-auto lg:h-auto lg:w-[80%]">
-          <Image
-            src={heroPhoto}
-            alt={hero.photoAlt[locale]}
-            fill
-            preload
-            // Below `lg` the band is cover-cropped to about 1.9× the viewport width.
-            sizes="(min-width: 64rem) 100vw, 150vw"
-            className="object-cover object-[74%_50%] lg:object-[100%_60%]"
-          />
-          <div
-            aria-hidden
-            className="absolute inset-0 bg-linear-to-b from-bg from-10% via-bg/60 via-55% to-bg/0 to-75% lg:hidden"
-          />
+        <div className="absolute inset-x-0 bottom-0 -z-10 h-56 overflow-hidden sm:h-[18.75rem] lg:inset-y-0 lg:left-auto lg:h-auto lg:w-[80%]">
+          <div className="absolute inset-x-0 bottom-0 h-[26rem] lg:top-0 lg:h-auto">
+            <Image
+              src={heroPhoto}
+              alt={hero.photoAlt[locale]}
+              fill
+              preload
+              // Below 740 px the 26 rem box is cover-scaled to its height, so the photo renders
+              // 740 px wide; above that it spans the viewport (80 % of it from `lg`, plus crop).
+              sizes="(min-width: 46.25rem) 100vw, 740px"
+              className="object-cover object-[78%_90%] lg:object-[100%_60%]"
+            />
+          </div>
+          <div aria-hidden className="absolute inset-x-0 top-0 h-10 bg-linear-to-b from-bg to-transparent lg:hidden" />
           <div aria-hidden className="absolute inset-y-0 left-0 hidden w-2/5 bg-linear-to-r from-bg to-transparent lg:block" />
         </div>
         {/* Desktop scrim behind the text column, and a fade into the trust row at every width. */}
@@ -59,9 +59,9 @@ export function Hero({ locale }: { locale: Locale }) {
           aria-hidden
           className="absolute inset-0 -z-10 hidden bg-linear-to-r from-bg/85 via-bg/55 via-45% to-bg/0 to-75% lg:block"
         />
-        <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-16 bg-linear-to-t from-bg to-transparent lg:h-1/3" />
+        <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-12 bg-linear-to-t from-bg to-transparent lg:h-1/3" />
 
-        <Container className="pt-28 pb-36 sm:pt-32 sm:pb-56 lg:pt-40 lg:pb-[90px]">
+        <Container className="pt-28 pb-52 sm:pt-32 sm:pb-70 lg:pt-40 lg:pb-[90px]">
           <p className="hero-fade font-mono text-xs tracking-[0.08em] text-muted uppercase" style={delay(0.1)}>
             {hero.eyebrow[locale]}
           </p>
@@ -79,7 +79,7 @@ export function Hero({ locale }: { locale: Locale }) {
           </h1>
 
           <p
-            className="hero-fade mt-6 max-w-[46ch] text-[17px] leading-[1.6] text-pretty text-soft md:mt-[26px] md:text-lg"
+            className="hero-fade mt-6 max-w-[46ch] text-[17px] leading-[1.6] text-pretty text-soft md:mt-[26px] md:text-lg lg:max-w-[40ch] xl:max-w-[46ch]"
             style={delay(0.25)}
           >
             {hero.lead[locale]}
@@ -107,7 +107,7 @@ export function Hero({ locale }: { locale: Locale }) {
           {hero.trust.map((item) => (
             <li
               key={item.id}
-              className="min-w-0 py-5 pr-4 text-sm leading-normal text-muted lg:border-l lg:border-line lg:px-5 lg:pt-[22px] lg:pb-[30px] lg:first:border-l-0 lg:first:pl-0"
+              className="min-w-0 border-line py-5 pr-4 text-sm leading-normal text-muted max-lg:nth-[n+3]:border-t lg:border-l lg:px-5 lg:pt-[22px] lg:pb-[30px] lg:first:border-l-0 lg:first:pl-0"
             >
               <span className="mb-1 block text-[15px] font-semibold text-fg">{item.title[locale]}</span>
               {item.detail[locale]}
