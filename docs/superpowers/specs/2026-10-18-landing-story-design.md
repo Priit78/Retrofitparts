@@ -243,7 +243,8 @@ Where the build departs from the text above (2026-10-18):
   use 4:3 frames.
 - **Chapter index:** shows only after hydration and while motion is allowed. Labels sit above the
   ticks. Only the current label shows; hovering the index reveals all of them, and a focused
-  tick shows its own.
+  tick shows its own. The catalog strip is full-bleed, so its tiles do pass under the index;
+  the labels sit on a small `bg` chip there (as the problem chapter's caption does).
 
 ## Out of scope
 
