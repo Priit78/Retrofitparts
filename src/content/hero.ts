@@ -8,27 +8,36 @@ function joinList(items: readonly string[], locale: Locale): string {
   return `${items.slice(0, -1).join(", ")} ${and} ${items[items.length - 1]}`;
 }
 
-export type TrustIcon = "experience" | "warranty" | "representative" | "workshop";
-
 export interface TrustItem {
-  icon: TrustIcon;
+  id: "experience" | "warranty" | "representative" | "workshop";
   title: Localized<string>;
   detail: Localized<string>;
 }
 
-/** Copy for the hero and the brand marquee. The h1 is `site.tagline`. */
+/** Copy for the landing hero. Facts come from `site.ts`. */
 export const hero = {
   eyebrow: {
-    et: "Bi-LED ja bi-xenon · Tallinn",
-    en: "Bi-LED and bi-xenon · Tallinn",
+    et: "Esitulede retrofit · Tallinn",
+    en: "Headlight retrofits · Tallinn",
   } satisfies Localized<string>,
 
-  subline: {
-    et: `Projektorite paigaldus, tuleklaaside vahetus ja esitulede taastamine – meie Tallinna töökojas alates ${site.founded}. aastast.`,
-    en: `Projector retrofits, lens replacement and headlight restoration – at our Tallinn workshop since ${site.founded}.`,
+  /** The h1, one sentence per line. */
+  title: {
+    et: ["Selge valgus.", "Kindel töö."],
+    en: ["Clear light.", "Solid work."],
+  } satisfies Localized<string[]>,
+
+  lead: {
+    et: `Paigaldame bi-LED ja bi-xenon projektoreid, vahetame tuhmunud tuleklaase ja taastame esitulesid. Oma töökojas Tallinnas, alates ${site.founded}. aastast.`,
+    en: `We fit bi-LED and bi-xenon projectors, replace hazed lenses and restore headlights. All in our own Tallinn workshop, since ${site.founded}.`,
   } satisfies Localized<string>,
 
-  /** Accessible name for the trust strip list. */
+  photoAlt: {
+    et: "Sõiduauto põlev LED-esituli öösel",
+    en: "A car's lit LED headlight at night",
+  } satisfies Localized<string>,
+
+  /** Accessible name for the trust row. */
   trustLabel: {
     et: "Miks Retrofit Parts",
     en: "Why Retrofit Parts",
@@ -36,7 +45,7 @@ export const hero = {
 
   trust: [
     {
-      icon: "experience",
+      id: "experience",
       title: {
         et: `${site.experienceYears} aastat kogemust`,
         en: `${site.experienceYears} years of experience`,
@@ -47,7 +56,7 @@ export const hero = {
       },
     },
     {
-      icon: "warranty",
+      id: "warranty",
       title: {
         et: `${site.warrantyYears}-aastane garantii`,
         en: `${site.warrantyYears}-year warranty`,
@@ -58,7 +67,7 @@ export const hero = {
       },
     },
     {
-      icon: "representative",
+      id: "representative",
       title: {
         et: "Ametlik esindaja",
         en: "Official representative",
@@ -69,7 +78,7 @@ export const hero = {
       },
     },
     {
-      icon: "workshop",
+      id: "workshop",
       title: {
         et: "Töökoda Tallinnas",
         en: "Workshop in Tallinn",
@@ -80,19 +89,4 @@ export const hero = {
       },
     },
   ] satisfies TrustItem[],
-
-  marquee: {
-    heading: {
-      et: "Brändid, millega töötame",
-      en: "Brands we work with",
-    },
-    representative: {
-      et: "Ametlik esindaja",
-      en: "Official representative",
-    },
-    pause: {
-      et: "Peata brändide liikumine",
-      en: "Pause brand scrolling",
-    },
-  } satisfies Record<string, Localized<string>>,
 };
