@@ -178,9 +178,11 @@ describe("filterProducts", () => {
     it("searches the fitment text in both languages without leaking object markup", () => {
       const slugs = (q: string) =>
         filterProducts(products, { q }, "en").map((p) => p.slug);
-      // These words are only in the fitment text, not in either name.
-      expect(slugs("e-class w211 2003")).toEqual(["hella-5dd-008-319-50-suutaja"]);
-      expect(slugs("e-klass w211 2003")).toEqual(["hella-5dd-008-319-50-suutaja"]);
+      // These words are only in the fitment text, not in either name. Both Hella parts list
+      // the E-Class W211 and a 2003 model year among the cars they fit.
+      const w211 = ["hella-5dv-008-290-ballast-replica", "hella-5dd-008-319-50-suutaja"];
+      expect(slugs("e-class w211 2003")).toEqual(w211);
+      expect(slugs("e-klass w211 2003")).toEqual(w211);
       expect(slugs("e55 gen. 4")).toEqual(["hella-e55-afs-adapterid"]);
       expect(slugs("e55 generatsioon")).toEqual(["hella-e55-afs-adapterid"]);
       expect(slugs("japanese cars")).toEqual(["koito-bi-led"]);
@@ -201,21 +203,29 @@ describe("filterProducts", () => {
   });
 
   describe("sorting", () => {
+    // Every live product has a price, so two "ask for price" products are added to check
+    // that unknown prices sort last.
+    const withUnpriced = [
+      { ...products[0], slug: "no-price-a", price: null },
+      ...products,
+      { ...products[1], slug: "no-price-b", price: null },
+    ];
+
     it("price-asc is ascending with unknown prices last", () => {
-      const result = filterProducts(products, { sort: "price-asc" }, "et");
+      const result = filterProducts(withUnpriced, { sort: "price-asc" }, "et");
       const prices = result.map((p) => p.price);
       const firstNull = prices.indexOf(null);
-      expect(firstNull).toBeGreaterThan(0);
+      expect(firstNull).toBe(products.length);
       expect(prices.slice(firstNull).every((p) => p === null)).toBe(true);
       const known = prices.slice(0, firstNull) as number[];
       expect(known).toEqual([...known].sort((a, b) => a - b));
     });
 
     it("price-desc is descending with unknown prices last", () => {
-      const result = filterProducts(products, { sort: "price-desc" }, "et");
+      const result = filterProducts(withUnpriced, { sort: "price-desc" }, "et");
       const prices = result.map((p) => p.price);
       const firstNull = prices.indexOf(null);
-      expect(firstNull).toBeGreaterThan(0);
+      expect(firstNull).toBe(products.length);
       expect(prices.slice(firstNull).every((p) => p === null)).toBe(true);
       const known = prices.slice(0, firstNull) as number[];
       expect(known).toEqual([...known].sort((a, b) => b - a));
@@ -305,17 +315,20 @@ describe("getRelated", () => {
 
   it("tops up a small category with products of the same make", () => {
     const rings = getProduct("loikega-rongad-bmw")!;
-    const related = getRelated(rings);
     const sameCategory = products.filter(
       (p) => p.category === rings.category && p.slug !== rings.slug,
     );
-    expect(related.slice(0, sameCategory.length).map((p) => p.slug)).toEqual(
-      sameCategory.map((p) => p.slug),
+    // Ask for more than the category holds, so the list has to be topped up.
+    const related = getRelated(rings, sameCategory.length + 2);
+    expect(related.slice(0, sameCategory.length).map((p) => p.slug).sort()).toEqual(
+      sameCategory.map((p) => p.slug).sort(),
     );
-    expect(related.length).toBeGreaterThan(sameCategory.length);
-    expect(related.slice(sameCategory.length).every((p) => p.makes.includes("BMW"))).toBe(
-      true,
-    );
+    expect(related.length).toBe(sameCategory.length + 2);
+    expect(
+      related
+        .slice(sameCategory.length)
+        .every((p) => p.category !== rings.category && p.makes.includes("BMW")),
+    ).toBe(true);
   });
 
   it("returns only same-category products for a part with no make", () => {

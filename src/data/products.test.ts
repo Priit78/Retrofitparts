@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { locales } from "@/lib/i18n";
 import { site } from "@/content/site";
@@ -5,6 +7,7 @@ import { categories, products } from "./products";
 
 const categoryOrder = [
   "lenses",
+  "headlights",
   "led-projectors",
   "xenon-projectors",
   "led-lights",
@@ -17,7 +20,7 @@ const categoryOrder = [
 ];
 
 describe("categories", () => {
-  it("lists all 10 categories in display order", () => {
+  it("lists all 11 categories in display order, complete headlights after lenses", () => {
     expect(categories.map((c) => c.id)).toEqual(categoryOrder);
   });
 
@@ -44,8 +47,22 @@ describe("categories", () => {
 });
 
 describe("products", () => {
-  it("contains exactly the 63 captured products", () => {
-    expect(products).toHaveLength(63);
+  it("contains exactly the 114 live products (115 minus the placeholder row)", () => {
+    expect(products).toHaveLength(114);
+  });
+
+  it("leaves out the €0 placeholder and the products the live shop no longer has", () => {
+    const slugs = products.map((p) => p.slug);
+    for (const gone of [
+      "toode",
+      "yike-profile-i-lens-2-0",
+      "4tl-r",
+      "yeaky-d1s-4300k",
+      "osram-d1s-66140cbi-xenarc-cool-blue-intense",
+      "osram-cool-blue-intense-h1-12v-55w",
+    ]) {
+      expect(slugs, gone).not.toContain(gone);
+    }
   });
 
   it("has unique, URL-safe slugs", () => {
@@ -153,5 +170,27 @@ describe("products", () => {
     const bmw = products.filter((p) => p.makes.includes("BMW"));
     expect(bmw.length).toBeGreaterThan(15);
     expect(bmw.some((p) => p.category === "adapters")).toBe(true);
+  });
+
+  it("points every image at its own photo in public/products/, and the file exists", () => {
+    for (const product of products) {
+      if (product.image === undefined) continue;
+      expect(product.image, product.slug).toBe(`/products/${product.slug}.jpg`);
+      expect(existsSync(join(process.cwd(), "public", product.image)), product.image).toBe(true);
+    }
+  });
+
+  it("shows the client's own photo, side and condition for every complete headlight", () => {
+    const headlights = products.filter((p) => p.category === "headlights");
+    expect(headlights).toHaveLength(12);
+    for (const product of headlights) {
+      expect(product.image, product.slug).toBeDefined();
+      const labels = product.specs.map((s) => s.label.en);
+      expect(labels, product.slug).toContain("Condition");
+      expect(
+        labels.includes("Side") || labels.includes("Contents"),
+        `${product.slug} side or set`,
+      ).toBe(true);
+    }
   });
 });

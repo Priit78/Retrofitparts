@@ -1,9 +1,10 @@
 # Content to-do: what we still need before launch
 
-The new site is built from what could be found about Retrofit Parts online on 2026-10-17
+The new site was first built from what could be found about Retrofit Parts online on 2026-10-17
 (search-engine snapshots of the old retrofitparts.ee, business registries and the Facebook page).
-The old site itself could not be downloaded, so some facts conflict, some are approximate, and
-there are no photos at all.
+On 2026-10-18 the live retrofitparts.ee was checked directly: the contact facts were confirmed,
+the catalogue was switched to the live shop's data, and the client's own product photos were
+added. Some facts still conflict or need the client's word; they are listed below.
 
 This list is for **the client** (Retrofit Parts) and **the agency**. Tick items off as they are
 done. Each item says where the answer goes, so whoever updates the site knows which file to edit.
@@ -17,93 +18,180 @@ done. Each item says where the answer goes, so whoever updates the site knows wh
 
 ## 1. Brand assets (client)
 
-- [ ] **Logo** as SVG (and a PNG fallback). The header, footer and mobile menu show a typed
-      placeholder ("● RETROFIT PARTS", `src/components/layout/Wordmark.tsx`); the favicon
-      (`src/app/icon.svg`) and the social sharing image (`src/app/[locale]/opengraph-image.tsx`)
-      are placeholders too.
-- [ ] **Brand colours and fonts**, if Retrofit Parts has any. The site uses near-black with one
-      ice-blue accent; we can adapt it.
+- [ ] **Logo: a brand decision.** The client's current logo is the orange (#FC7D07) blocky
+      "RETROFIT PARTS" wordmark in an orange frame, with a white tagline and URL. It exists only
+      as small PNGs (the best is 500 × 139 px); there is **no vector** (SVG, AI or EPS) anywhere
+      on the old site, and its white text only works on dark backgrounds. The new design uses a
+      typed text wordmark in the header, footer and mobile menu
+      (`src/components/layout/Wordmark.tsx`); the favicon (`src/app/icon.svg`) and the sharing
+      image (`src/app/[locale]/opengraph-image.tsx`) are placeholders. Decide whether to keep
+      the text wordmark, or to have the orange logo redrawn as a vector (SVG) and use that. If
+      the client has the original vector files from the 2020 agency (Hundikuu), send them.
+- [ ] **Brand colours and fonts.** The new design uses graphite and warm white with no brand
+      colour; the client's orange does not appear. Confirm this is acceptable, or say where the
+      orange should come back.
 - [ ] **Morimoto, Bimmerjakes and Strands** logos from their dealer media kits, plus written
       confirmation that Retrofit Parts may show them as their official Estonian representative
       ("ametlik esindaja"). Today the brand strip shows the names as plain text, not their logos.
 - [ ] **The Retrofit Source**: older listings called Retrofit Parts an official distributor. The
       site lists it only as a brand they work with. Confirm whether "ametlik esindaja" applies.
 - [ ] **Facebook** link is correct: <https://www.facebook.com/p/Retrofit-Parts-100057357583960/>.
-      Add Instagram or other profiles if there are any.
+      The live site links a different address,
+      <https://www.facebook.com/Retrofit-Parts-945225955565587>, and an Instagram profile,
+      <https://www.instagram.com/retrofitparts.ee/>. Which should the new site show?
 
 ## 2. Photos (client)
 
-No images could be downloaded from the old site, so everything visual is drawn in code.
+The old site's media library has **no photo of the client's finished work**: no before/after,
+no workshop, no finished cars. What the site uses now:
 
-- [ ] **Product photos**, ideally on a plain dark background, at least 1600 px wide. Until then
-      every product shows a drawn "studio render" of its category, labelled "Illustreeriv pilt".
-      Each photo goes into `public/products/` and its path into that product's `image` field.
-- [ ] **Workshop photos** (Pärnu mnt 160F): exterior, interior, work in progress.
-- [ ] **Own work**: before/after shots and night shots of beam patterns. These are the strongest
-      trust signal the site is missing. The before/after slider is a drawing for now and says so
-      ("Illustratsioon, mitte mõõtetulemus").
+- **The 12 complete headlights** in the catalogue show the client's own photos of the actual
+  units, taken from the old site's media library (one full-unit shot each, optimised to
+  1000 px wide in `public/products/<slug>.jpg`). The part-number label close-ups are not used.
+  Every other product shows a drawn "studio render" of its category, labelled "Illustreeriv
+  pilt". The old shop's other product images are supplier packshots and press photos (Erply,
+  NHK, Morimoto, Hella and others), which are third-party and are not used.
+- **Two photos on the landing page** are believed to be the client's own, also from the media
+  library: `src/assets/photos/retrofit-in-progress.jpg` (a projector retrofit with the bumper
+  off and masking tape on) and `src/assets/photos/projector-bench.jpg` (a lit Morimoto LED
+  projector on the workbench). See `docs/CREDITS.md`.
+- **The other landing photos are stock** (Pexels, credited in `docs/CREDITS.md`).
+
+- [ ] **Confirm the two landing photos** above are the client's own work and may be used.
+- [ ] **Confirm the 12 headlight photos** are the client's own (they look like their own phone
+      snapshots of their stock).
+- [ ] **Recommended: new photography** of the workshop and of finished cars. This is the
+      strongest trust signal the site is missing, and it would replace the stock photos:
+  - the workshop at Pärnu mnt 160F: exterior, interior, work in progress;
+  - finished cars at night, with the headlights on;
+  - before/after pairs of the same car (the before/after slider is a simulation for now and
+    says so: "Illustratsioon, mitte mõõtetulemus");
+  - product shots of the new parts (projectors, lenses, ballasts) on a plain dark background,
+    at least 1600 px wide. Each goes into `public/products/<slug>.jpg` and its path into that
+    product's `image` field.
 
 ## 3. Facts to confirm (client)
 
-The site uses the newest snapshot wherever the old site contradicted itself.
+The site uses the newest source wherever the old site contradicted itself. The live site was
+checked on 2026-10-18.
 
-- [ ] **Opening hours.** The site shows **E–N 09:00–18:00, R–P suletud** (Mon–Thu 09–18,
-      Fri–Sun closed), from the newest snapshot ("E–N: 09:00–18:00, R: Suletud, L: Suletud,
-      P: Suletud"). Older pages said Mon–Fri 09–18, the LED page Mon–Fri 9–17, and the
-      structured data 08–17. Which is right? Is Friday really closed?
-- [ ] **Installation price for glued lights.** The site shows **300 €, 2–4 tööpäeva**
-      ("Sõiduauto, kerealiimiga tuled"). An older page said **150 €, 2–3 tööpäeva**.
-- [ ] **Butyl-sealed lights 150 €, 1–2 tööpäeva** and **motorcycle 90 € per headlight**: still
-      current? Is there a typical turnaround for motorcycles? (The table says "Kokkuleppel".)
+- [x] **Opening hours** are confirmed by the live site: **E–N 09:00–18:00; R, L, P suletud**
+      (Mon–Thu 09–18, Fri–Sun closed).
+- [ ] **Installation prices are unconfirmed.** The site shows **150 €** (butyl-sealed lights,
+      1–2 tööpäeva), **300 €** (glued lights, 2–4 tööpäeva) and **90 €** (motorcycle, per
+      headlight) in `site.pricing`. None of these prices appears anywhere on the live site: not
+      on /teenused/, the other main pages, the terms, or any of the 115 product descriptions. The
+      only earlier source, the Yike I-Lens 2.0 product page, now returns 404. An older snapshot
+      also said 150 € and 2–3 tööpäeva for glued lights. **Do not launch with these prices until
+      the client confirms them** (or remove the price table). Is there a typical turnaround for
+      motorcycles? (The table says "Kokkuleppel".)
+- [ ] **VAT rate.** The live terms (/muugitingimused/) say prices include **20% VAT**, but the
+      shop's figures are net prices times **1.24** (for example 24.59 € × 1.24 = 30.49 €), which
+      matches Estonia's 24% rate since 1 July 2025. The new site takes the shop's prices as they
+      are and says only "hind sisaldab käibemaksu" / "Hinnad sisaldavad käibemaksu", without a
+      rate. Confirm that the prices include 24% VAT, and fix the 20% in the old terms.
 - [ ] **Experience.** The site says **10+ years** ("10+ aastat kogemust esitulede taastamisel";
-      About: "Tulede taastamine ja remont on olnud meie põhitöö üle kümne aasta"). An older
-      services page said "üle 5-aastane kogemus". The company was registered in 2015.
+      About: "Tulede taastamine ja remont on olnud meie põhitöö üle kümne aasta"). The live
+      site still contradicts itself: /teenused/ says "üle 5-aastane kogemus" and "viie
+      tegutsemisaasta jooksul", while the home page says "üle 10 aasta". The company was
+      registered in 2015.
 - [ ] **Warranty.** The site says **2 years on projectors** ("2-aastane garantii projektoritele"),
       as the product pages did. Is there a warranty on the installation work too?
 - [ ] **Business customers.** The About section says customers include car dealerships and
       insurers and that they work with several Estonian repair shops ("Meie klientide seas on
       automarkide esindused ja kindlustusseltsid…"). OK to say publicly? Partner logos welcome.
-- [ ] **Address.** The site uses **Pärnu mnt 160F, 11317 Tallinn** everywhere. The old site still
-      had "Kopli 25" on many product pages and a banner "Alates 30. augustist asume uuel
-      aadressil". Confirm the move is final.
-- [ ] **Phone +372 5667 0631 and info@retrofitparts.ee** are the right public contacts.
+- [x] **Address** confirmed: the live site's footer says "Paigaldustöökoda, Pärnu mnt. 160f,
+      11317 Tallinn", and the new site uses **Pärnu mnt 160F, 11317 Tallinn** everywhere.
+- [ ] **The old address is still live.** "Kopli 25, Boks 8, 10412 Tallinn" still appears on
+      the live site: in the body of /kontakt/, in the /kkk/ answer ("…paigaldustöökojas
+      aadressil Kopli 25 boks 8, Tallinn"), in the structured data (JSON-LD), in the /kontakt/
+      meta description ("Asume Kopli 25, Tallinn"), and on the map sharing image. If the old
+      site stays up until launch, fix these there so search engines and customers don't see
+      two addresses.
+- [x] **Phone +372 5667 0631 and info@retrofitparts.ee** are confirmed by the live site. (Its
+      footer phone links use a broken `tel:+56670631` without the 372; the new site is correct.)
 
 ## 4. Catalogue (client)
 
-63 products were captured from search snapshots; the real shop probably has 60–120. All prices
-on the site include 24% VAT.
+The catalogue now holds **114 products**: the live shop's 115 (WooCommerce Store API,
+2026-10-18) minus the €0 placeholder "Toode". Names, prices, stock, product codes and
+categories are the shop's. The text of the 58 products that were already on the site was kept;
+the 56 new ones were written from the shop's own text, in Estonian and English. A new category,
+**Komplektsed tuled** (complete headlights), holds the 12 new and used OEM headlights. Prices
+are exactly the shop's (see the VAT item in section 3). The catalogue is a copy: it does not
+follow the shop by itself.
 
-- [ ] **Full product list.** Send an export from the old shop if possible (WooCommerce can
-      export CSV), so nothing is missing and the names and codes are exact. Many product codes
-      ("Tootekood") are Erply-style placeholders such as 2000000001081.
-- [ ] **Morimoto, Bimmerjakes and Strands products.** None were found on the old site, even
-      though these are the represented brands. Which of their products should be listed?
-- [ ] **Approximate prices.** The snapshot only gave an approximate price ("about €…"):
+- [x] **Full product list**, taken from the live shop. The product codes ("Tootekood") are the
+      shop's own; many are Erply-style codes such as 2000000001081.
+- [ ] **Keeping the catalogue current.** Who tells the agency when products, prices or stock
+      change? This matters most for the complete headlights, which look like single units: when
+      one is sold it has to come off the site (`src/data/products.ts`).
+- [ ] **Morimoto, Bimmerjakes and Strands products.** The live shop has none, even though these
+      are the represented brands. Which of their products should be listed?
+- [ ] **Price changes.** These products have a different price from the earlier capture; the
+      site now shows the live price. Five of them were approximate before ("about €…"); no price
+      on the site is approximate any more.
 
-      | Product | Price on the site |
-      |---|---|
-      | Tuleklaasid Audi A6 C6 4F | 100,00 € (snapshot: "about €100") |
-      | Tuleklaasid Audi A6 C7 4G pre-facelift | 222,00 € |
-      | Tuleklaasid Mercedes-Benz R-klass W251 pre-facelift | 290,00 € |
-      | Tuleklaasid Honda CR-V 3. põlvkond | 139,00 € (snapshots: €139 to about €141) |
-      | Tuleklaasid Lexus RX XU30 | 183,00 € |
-
-- [ ] **Inconsistent prices.** Snapshots disagreed; the site uses the product-page price:
-
-      | Product | Price on the site | Also seen |
+      | Product | Before | Now (live shop) |
       |---|---|---|
-      | Koito BI-LED projektor | 284,59 € | 330 € on a category page (229,51 € in metadata is the same price without VAT) |
-      | LED rõngad lõikega BMW-le | 79,28 € | 78 € |
-      | Yeaky D2S 6000K xenon lambid | 36,59 € | 36 € |
+      | Tuleklaasid BMW X5 E53 facelift | 320,00 € | 325,25 € |
+      | Tuleklaasid Audi A6 C6 4F | about 100,00 € | 100,62 € |
+      | Tuleklaasid Audi A6 C7 4G pre-facelift | about 222,00 € | 222,59 € |
+      | Tuleklaasid Mercedes-Benz R-klass W251 pre-facelift | about 290,00 € | 289,67 € |
+      | Tuleklaasid Honda CR-V 3. põlvkond | about 139,00 € | 141,28 € |
+      | Tuleklaasid Lexus RX XU30 | about 183,00 € | 182,95 € |
+      | Yeaky LBS D2S 5500K xenon lamp | 39,00 € | 39,64 € |
+      | Tuleklaasid Volvo S60 III | no price | 325,25 € |
+      | E46R Extender (pikendatud kate) | no price | 30,49 € |
 
-- [ ] **Missing prices.** These show "Küsi hinda" (ask for price) until a price is added:
-      Tuleklaasid Volvo S60 III; 4TL-R bi-xenon projektorid; Osram D1S 66140CBI Xenarc Cool Blue
-      Intense; Osram Cool Blue Intense H1 12 V 55 W; E46R Extender (pikendatud kate). Are all of
-      them still sold?
-- [ ] **Stock.** Only 21 of the 63 products had a stock line in the snapshots: 3 in stock
-      ("Laos": Bosch 2,5" xenon lähitulede adapterid, Lexus RX330 AFS adapterid, BMW E36
-      adapterid) and 18 on backorder. The other 42 were not captured and show as **"Tellimisel"**
-      (made to order) by default. Mark what is actually in stock.
+      The prices that snapshots disagreed on before are confirmed by the shop: Koito BI-LED
+      projektor 284,59 €, LED rõngad lõikega BMW-le 79,28 €, Yeaky D2S 6000K 36,59 €.
+- [ ] **Lens sets also sold one at a time.** For the BMW 5 F10/F11, 5 F07 GT, X5 E70 and X6
+      E71 lenses, the shop's headline price is the price of one lens (45,74 €, 70,13 €, 66,07 €
+      and 76,23 €). The site shows the price of the pair (87,41 €, 128,07 €, 121,97 € and
+      142,30 €), with the single lens as a spec. Is that right?
+- [ ] **Products no longer in the shop.** Five products from the earlier capture are gone from
+      the live shop (their pages return 404), so they are no longer on the site: Yike (Profile)
+      I-Lens 2.0 projector (was 280 €), 4TL-R bi-xenon projectors, Yeaky D1S 4300K xenon bulbs
+      (was 55 €), Osram D1S 66140CBI Xenarc Cool Blue Intense, and Osram Cool Blue Intense H1
+      12 V 55 W. Confirm they are no longer sold. (The Bosch 2,5" adapters' text still names the
+      4TL-R projectors they are made for.)
+- [ ] **Stock.** The shop marks 25 products as in stock, shown as **"Laos"**: the 12 complete
+      headlights; the BMW X5 E70, X6 E71 and 5 F07 GT lenses; the Bosch 2,5", Lexus RX330 AFS
+      and BMW E36 adapters; the shroud adapter rings; Yeaky D4S 4300K bulbs; the D2S–AMP
+      adapter; the H7 and T10 CAN-bus error cancellers and the CAN-bus error cancellers; and the
+      HB4 splitter. The other 89 are "Saadaval järeltellimisel" in the shop and show as
+      **"Tellimisel"**. The shop gives no quantities, so the site shows none.
+- [ ] **Products with no description in the shop.** 37 products have only a name in the shop,
+      so the site describes them in one line, from the name or the earlier capture. Details would help
+      (what it is, what it fits, what is in the box): the NHK BRT and NHK VIP G5 projectors;
+      the Hella 5R H7 projector; the LED lisakaugtuled 60 W; the LED demonid; the Iris, Ocular,
+      Bullet, Panamera LED, E46R, E55-R and E46R Extender shrouds; the Valeo 1, Valeo 2,
+      Valeo 2 AFS, AL/Bosch, Lexus RX330 AFS, Lexus GS AFS, BMW E36, BMW E39 pre-facelift and
+      BMW E70 non-AFS adapters; the Xenus igniters (Hella and AL); the D2S–AMP and AMP–D2S
+      adapters; the HB4 splitter and HB4/9006 socket; the three CAN-bus error cancellers; the
+      ferrite rings; the DRL tubes (Toyota Avensis T27, Scania R) and DRL plate (Scania R); and
+      the Volvo XC90 2016+, Scania R450 and Mercedes-Benz W211 lenses.
+- [ ] **Errors in the shop's own text.** The site works around these; fix them in the shop too:
+  - Volkswagen Golf 7 lenses: the short text says model years 2013–2020, the long text
+    2013–2017. The site shows 2013–2020.
+  - BMW E39 pre-facelift (1995–2000) adjuster rods: the description says "facelift". The site
+    follows the product name.
+  - Honda CR-V Gen 3 lenses: the text says "4. põlvkonna mudelile (2007–2011)". The site says
+    3rd generation, as the product name does.
+  - Yeaky LBS 5500K bulbs (D1S and D2S): the long text says 4300 K.
+  - NHK V: the high-beam total is "1260000 lm" (6300 lm per projector). NHK Pro+: the high-beam
+    total is 8200 lm, but 4200 lm per projector. The site shows only the per-projector
+    figures. The NHK pages also list the certificates "CE, ECD"; the site leaves them out until
+    they are confirmed (ECE?).
+- [ ] **Brands.** The shop names the brand of only a few products. The site shows DJ Auto for
+      the BMW E39 facelift lenses (the only lens set with a brand in the shop), Ether for the
+      20 W LED high beams, and Xenus as the maker of the Xenus ballast and igniters (the shop
+      says the ballast is made by Xenus). Who makes the other lens sets?
+- [ ] **Car makes in the filter.** The make filter lists only the makes in `site.vehicleMakes`
+      (BMW, Audi, Volkswagen, Mercedes-Benz, Lexus, Honda, Ford, Mazda, Volvo). The shop now
+      also has parts for the Toyota Avensis T27 and Scania R trucks. Search finds them, the make
+      filter does not. Should Toyota and Scania be added?
 - [ ] **Delivery time for ordered items.** Product pages on backorder say "Tellime sinu jaoks.
       Tarneaeg on pikem, küsi meilt täpset aega." A typical window (for example "tarne 1–3
       nädalat") would be more useful. What is realistic?
@@ -165,6 +253,11 @@ all eight in `src/content/services.ts`.
 - Inquiry form: "Vähemalt üks: e-post või telefon, et saaksime sulle vastata."; "Mida täpsem
   info auto kohta, seda täpsema pakkumise saame teha."; "Veebivorm ei ole praegu kasutusel";
   "Päring on saadetud – Aitäh! Oleme sinu sõnumi kätte saanud ja võtame sinuga ühendust."
+- Products: the Estonian names and descriptions of the 56 products that are new in the
+  catalogue (`src/data/products.ts`) were rewritten from the shop's text, and the new category
+  "Komplektsed tuled" ("Terviklikud esituled otse vahetamiseks: uued või kasutatud ja taastatud
+  originaaltuled (OEM)."). Please read the 12 complete headlights in particular: the condition
+  "Kasutatud, täielikult taastatud", "Tehtud tööd" and "Juhtmoodulid: Saab tellida juurde".
 - The site addresses visitors as "sina" (sinu auto, kirjuta meile). The old site used "Teie" in
   places. Confirm "sina" is the tone you want.
 
@@ -197,21 +290,30 @@ all eight in `src/content/services.ts`.
 
       | Old URL | New URL |
       |---|---|
-      | `/product/<slug>/` | `/et/catalog/<slug>` (54 of the 63 captured products keep their old slug; the old URLs of the other 9 were not captured) |
+      | `/product/<slug>/` | `/et/catalog/<slug>` (all 114 products use their live shop slug, so this maps one to one) |
+      | `/product/<slug>/` of the 5 products no longer sold (section 4) | their category, for example `/et/catalog?category=xenon-bulbs` |
       | `/pood/` | `/et/catalog` |
-      | `/pood/led/led-projektorid/` | `/et/catalog?category=led-projectors` |
-      | `/pood/led/led-kaugtuled/` | `/et/catalog?category=led-lights` |
-      | `/pood/xenon/projektorid/` | `/et/catalog?category=xenon-projectors` |
-      | other `/pood/…` category pages (exact URLs not captured) | the matching category: `lenses`, `led-lights`, `xenon-bulbs`, `ballasts`, `halogen`, `shrouds`, `adapters` or `fitting`; else `/et/catalog` |
+      | `/pood/49/` (Komplektsed tuled) | `/et/catalog?category=headlights` |
+      | `/pood/4/` and everything under it (Tuleklaasid, by make and BMW series) | `/et/catalog?category=lenses` |
+      | `/pood/3/11/` (LED projektorid) | `/et/catalog?category=led-projectors` |
+      | `/pood/3/42/` (LED kaugtuled), `/pood/3/45/` (LED rõngad ja ribad) | `/et/catalog?category=led-lights` |
+      | `/pood/1/6/` (Xenon projektorid) | `/et/catalog?category=xenon-projectors` |
+      | `/pood/1/7/` (Xenon lambid) | `/et/catalog?category=xenon-bulbs` |
+      | `/pood/1/8/` (Xenon ballastid) | `/et/catalog?category=ballasts` |
+      | `/pood/2/47/` (Halogeen projektorid) | `/et/catalog?category=halogen` |
+      | `/pood/5/39/` (Projektorite katted) | `/et/catalog?category=shrouds` |
+      | `/pood/5/37/` (Adapterid) | `/et/catalog?category=adapters` |
+      | `/pood/5/` (Tarvikud) | `/et/catalog?category=fitting` |
+      | other `/pood/…` pages, and older readable URLs seen in snapshots such as `/pood/led/led-projektorid/` | the matching category, else `/et/catalog` |
       | `/teenused/` | `/et#services` |
       | `/meist/` | `/et#about` |
       | `/kkk/` | `/et#faq` |
       | `/kontakt/` | `/et#contact` |
       | `/et/a/evox-r` (Erply) | `/et/catalog/evox-r-2-0` |
       | `/et/a/tuleklaasid-bmw-x5-e70` (Erply) | `/et/catalog/tuleklaasid-e70-x5` |
-      | `/et/a/osram-d1s-66140cbi-xenarc-cool-blue-intense` (Erply) | `/et/catalog/osram-d1s-66140cbi-xenarc-cool-blue-intense` |
+      | `/et/a/osram-d1s-66140cbi-xenarc-cool-blue-intense` (Erply; no longer sold) | `/et/catalog?category=xenon-bulbs` |
       | other `/et/a/<slug>` (Erply) | the matching product, else `/et/catalog` |
-      | `/müügitingimused/`, privacy policy | the new terms pages (section 5) |
+      | `/muugitingimused/`, privacy policy | the new terms pages (section 5) |
 
       In `next.config.ts`, `permanent: true` sends a 308, which search engines treat like a 301;
       use `statusCode: 301` if a literal 301 is required. The old URLs end in `/`, and Next
