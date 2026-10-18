@@ -110,11 +110,14 @@ export const inquiry = {
 /** Copy for the contact section (`components/sections/Contact.tsx`). */
 export const contact = {
   eyebrow: { et: "Kontakt", en: "Contact" },
-  title: { et: "Küsi pakkumist", en: "Request an offer" },
-  intro: {
-    et: "Kirjuta meile oma auto ja soovi kohta. Mida täpsem info, seda täpsem pakkumine.",
-    en: "Tell us about your car and what you need. The more detail you give, the more precise the offer.",
+  /** The CTA band's heading, in the client's own wording. */
+  title: {
+    et: "Saada meile auto mark, mudel ja foto tuledest.",
+    en: "Send us your car's make, model and a photo of the headlights.",
   },
+  /** The client's real FAQ wording; it promises no response time. */
+  reply: { et: "Vastame esimesel võimalusel.", en: "We reply as soon as we can." },
+  formTitle: { et: "Küsi pakkumist", en: "Request an offer" },
   card: {
     title: { et: "Kontaktandmed", en: "Contact details" },
     address: { et: "Töökoda", en: "Workshop" },
