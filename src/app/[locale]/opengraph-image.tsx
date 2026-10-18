@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { logoPath, logoViewBox } from "@/components/layout/logo";
 import { hero } from "@/content/hero";
 import { seoCopy } from "@/content/seo";
 import { site } from "@/content/site";
@@ -16,6 +17,7 @@ const color = {
   bg: "#0e1013",
   fg: "#eeece8",
   muted: "#a2a6ac",
+  brand: "#fc7d07",
 };
 /** `bg` at a given opacity, for the scrims over the photo. */
 const bg = (alpha: number) => `rgba(14,16,19,${alpha})`;
@@ -30,14 +32,17 @@ const [photo, albert400, albert600] = await Promise.all([
 const photoSrc = `data:image/jpeg;base64,${photo.toString("base64")}`;
 
 /*
- * `hero-og.jpg` is `photos/hero-headlight.jpg` prepared as this 1200×630 canvas, so it is drawn
- * 1:1: the photo scaled to 920 px wide and anchored bottom right (30 px past the edge), its top
- * 30 % faded into `bg`, film grain softened (6 px in the dark hood, 1.3 px on the lit headlight),
- * dimmed 22 % towards `bg`, JPEG quality 68. Made once with PIL. The raw photo's grain made the
- * PNG about 870 KB; prepared, it stays under 300 KB.
+ * `hero-og.jpg` is `photos/hero-headlight.jpg` (the edited photo on its 2560×1440 `bg` canvas)
+ * prepared as this 1200×630 canvas, so it is drawn 1:1: scaled to 52.4 % and placed at
+ * (−140, −215), which puts the lens (source x 1030–2500, y 620–1130) at x 400, y 110, upper
+ * right and clear of the kicker and h1; the hero canvas's cut bottom edge (y 540) faded into
+ * `bg` over 140 px; the grain in the dark bodywork softened; dimmed 10 % towards `bg`; JPEG
+ * quality 72. Made once with PIL. Keep the PNG under about 300 KB.
  */
 
-const [wordFirst, ...wordRest] = site.name.split(" ");
+/** The logo's height on the card; its width follows the lettering's proportions. */
+const LOGO_HEIGHT = 30;
+const [, , logoWidth, logoHeight] = logoViewBox.split(" ").map(Number);
 
 // A route handler does not inherit the layout's `generateStaticParams`, so it lists the locales itself.
 export const dynamicParams = false;
@@ -97,10 +102,13 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
             padding: "64px 80px 72px",
           }}
         >
-          <div style={{ display: "flex", fontSize: 30, letterSpacing: 0.6 }}>
-            <span style={{ fontWeight: 600 }}>{wordFirst}</span>
-            <span style={{ fontWeight: 400, color: color.muted, marginLeft: 8 }}>{wordRest.join(" ")}</span>
-          </div>
+          <svg
+            viewBox={logoViewBox}
+            width={Math.round((LOGO_HEIGHT * logoWidth) / logoHeight)}
+            height={LOGO_HEIGHT}
+          >
+            <path d={logoPath} fill={color.brand} fillRule="evenodd" />
+          </svg>
 
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ fontSize: 20, fontWeight: 400, letterSpacing: 2.4, textTransform: "uppercase", color: color.muted }}>

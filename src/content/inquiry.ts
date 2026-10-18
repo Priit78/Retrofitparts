@@ -19,7 +19,7 @@ export const inquiry = {
     carModel: { et: "nt 330i", en: "e.g. 330i" },
     carYear: { et: "nt 2016", en: "e.g. 2016" },
     topic: {
-      et: "nt bi-LED projektorid esituledele",
+      et: "nt bi-LED-projektorid esituledele",
       en: "e.g. bi-LED projectors for headlights",
     },
     message: {
@@ -115,8 +115,14 @@ export const contact = {
     et: "Saada meile auto mark, mudel ja foto tuledest.",
     en: "Send us your car's make, model and a photo of the headlights.",
   },
-  /** The client's real FAQ wording; it promises no response time. */
-  reply: { et: "Vastame esimesel võimalusel.", en: "We reply as soon as we can." },
+  /**
+   * Where the photo goes (the form takes no files), then the client's real FAQ wording, which
+   * promises no response time. The email address follows it.
+   */
+  reply: {
+    et: "Foto saada e-postiga – vastame esimesel võimalusel.",
+    en: "Email us the photo; we reply as soon as we can.",
+  },
   formTitle: { et: "Küsi pakkumist", en: "Request an offer" },
   card: {
     title: { et: "Kontaktandmed", en: "Contact details" },

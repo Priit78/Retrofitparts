@@ -62,9 +62,10 @@ export const site = {
 
   /** Brands Retrofit Parts officially represents in Estonia. */
   representedBrands: ["Morimoto", "Bimmerjakes", "Strands"],
-  /** Other brands they stock and fit. */
-  workedBrands: ["The Retrofit Source", "Koito", "Hella", "Philips", "Osram"],
-  /** Canonical make names; product data uses exactly these strings. */
+  /**
+   * Canonical car makes; product data uses exactly these strings, and the landing page's make
+   * grid shows them in this order. Trucks (Scania) are left out: search still finds them.
+   */
   vehicleMakes: [
     "BMW",
     "Audi",
@@ -75,6 +76,7 @@ export const site = {
     "Ford",
     "Mazda",
     "Volvo",
+    "Toyota",
   ],
 
   /** Indicative installation prices incl. VAT; exact quote on request. */

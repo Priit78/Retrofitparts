@@ -3,18 +3,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { InquiryForm } from "@/components/inquiry/InquiryForm";
-import {
-  categoryName,
-  mono,
-  Price,
-  ProductCard,
-  StockBadge,
-} from "@/components/catalog/ProductCard";
+import { categoryName, Price, ProductCard, StockBadge } from "@/components/catalog/ProductCard";
 import { ProductMedia } from "@/components/catalog/ProductMedia";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { mono, monoLabel } from "@/components/ui/styles";
 import { catalog } from "@/content/catalog";
 import { site } from "@/content/site";
 import { products } from "@/data/products";
@@ -78,7 +73,7 @@ function Breadcrumb({ product, locale }: { product: Product; locale: Locale }) {
   const linkClass = "rounded-[2px] underline-offset-4 transition-colors hover:text-fg hover:underline";
   return (
     <nav aria-label={t.breadcrumb[locale]}>
-      <ol className={`${mono} flex flex-wrap items-center gap-x-2 gap-y-1 text-muted`}>
+      <ol className={`${monoLabel} flex flex-wrap items-center gap-x-2 gap-y-1`}>
         <li>
           <Link href={catalogHref} className={linkClass}>
             {t.catalog[locale]}
@@ -113,7 +108,7 @@ function SpecTable({ product, locale }: { product: Product; locale: Locale }) {
   ];
   return (
     <section aria-labelledby="specs-title">
-      <h2 id="specs-title" className={`${mono} text-muted`}>
+      <h2 id="specs-title" className={monoLabel}>
         {t.specs[locale]}
       </h2>
       <dl className="mt-4 border-t border-line">
@@ -145,7 +140,7 @@ function Fitment({ product, locale }: { product: Product; locale: Locale }) {
   const long = product.fitment.length > LONG_FITMENT;
   return (
     <section aria-labelledby="fitment-title">
-      <h2 id="fitment-title" className={`${mono} text-muted`}>
+      <h2 id="fitment-title" className={monoLabel}>
         {t.fitment[locale]}
       </h2>
       {product.fitment.length > 0 ? (
@@ -188,7 +183,7 @@ function ContactAside({ locale }: { locale: Locale }) {
     "flex items-center gap-3 rounded-[2px] text-sm text-fg underline-offset-4 transition-colors hover:underline";
   return (
     <div className="mt-10 border-t border-line pt-8">
-      <p className={`${mono} text-muted`}>{t.orCall[locale]}</p>
+      <p className={monoLabel}>{t.orCall[locale]}</p>
       <div className="mt-4 flex flex-col gap-3">
         <a href={site.phoneHref} className={`${row} text-base tabular-nums`}>
           <Phone aria-hidden className="size-4 text-muted" strokeWidth={1.5} />
@@ -242,7 +237,7 @@ export default async function ProductPage({ params }: PageProps<"/[locale]/catal
                   sizes="(min-width: 1280px) 720px, (min-width: 1024px) 56vw, 100vw"
                 />
                 {product.image ? null : (
-                  <figcaption className={`${mono} absolute right-4 bottom-3.5 text-muted md:right-5 md:bottom-4`}>
+                  <figcaption className={`${monoLabel} absolute right-4 bottom-3.5 md:right-5 md:bottom-4`}>
                     {t.illustration[locale]}
                   </figcaption>
                 )}
@@ -251,7 +246,7 @@ export default async function ProductPage({ params }: PageProps<"/[locale]/catal
 
             {/* The facts */}
             <div className="lg:col-span-5">
-              <p className={`${mono} text-muted`}>
+              <p className={monoLabel}>
                 {[product.brand, categoryName(product, locale)].filter(Boolean).join(" · ")}
               </p>
               <h1 className="mt-3 text-[32px] leading-[1.05] font-semibold tracking-[-0.025em] text-pretty text-fg sm:text-4xl lg:text-[44px]">
@@ -271,7 +266,7 @@ export default async function ProductPage({ params }: PageProps<"/[locale]/catal
               </div>
 
               <div className="mt-7 border-t border-line pt-7">
-                <p className={`${mono} mb-3 text-muted`}>{t.price[locale]}</p>
+                <p className={`${monoLabel} mb-3`}>{t.price[locale]}</p>
                 <Price product={product} locale={locale} size="lg" />
                 <p className="mt-4 flex items-start gap-2 text-sm leading-relaxed text-pretty text-soft">
                   <Clock aria-hidden className="mt-0.5 size-4 shrink-0 text-muted" strokeWidth={1.5} />
@@ -326,7 +321,7 @@ export default async function ProductPage({ params }: PageProps<"/[locale]/catal
           <Container>
             <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
               <Reveal>
-                <p className={`${mono} mb-4 text-muted`}>{t.relatedEyebrow[locale]}</p>
+                <p className={`${monoLabel} mb-4`}>{t.relatedEyebrow[locale]}</p>
                 <h2
                   id="related-title"
                   className="text-[32px] leading-[1.05] font-semibold tracking-[-0.025em] text-balance text-fg md:text-[44px]"

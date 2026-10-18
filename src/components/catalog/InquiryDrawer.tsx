@@ -7,7 +7,8 @@ import { catalog } from "@/content/catalog";
 import type { Product } from "@/data/types";
 import { cn } from "@/lib/cn";
 import type { Locale } from "@/lib/i18n";
-import { mono, Price } from "./ProductCard";
+import { monoLabel } from "@/components/ui/styles";
+import { Price } from "./ProductCard";
 import { ProductMedia } from "./ProductMedia";
 import { useModal } from "./useModal";
 
@@ -109,7 +110,7 @@ export function InquiryDrawer({
                 <ProductMedia product={product} sizes="112px" />
               </div>
               <div className="min-w-0">
-                {product.brand ? <p className={cn(mono, "text-muted")}>{product.brand}</p> : null}
+                {product.brand ? <p className={monoLabel}>{product.brand}</p> : null}
                 <p className="mt-1 text-sm leading-snug font-semibold text-pretty text-fg">
                   {product.name[locale]}
                 </p>

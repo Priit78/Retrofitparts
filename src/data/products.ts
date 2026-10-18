@@ -12,8 +12,8 @@ import type { Category, Product, ProductSpec } from "./types";
  * - `stock` is "in-stock" where the shop says so; everything else is ordered in ("backorder").
  * - `sku` is the shop's product code ("Tootekood").
  * - `makes` only holds values from `site.vehicleMakes`; it is derived from the product name
- *   or the fitment text. Universal parts, and makes outside that list (Toyota, Scania), have
- *   none.
+ *   or the fitment text. Universal parts, and makes outside that list (the Scania trucks),
+ *   have none.
  * - `fitment` is model text from the shop, one entry per vehicle, in both languages
  *   ("3. seeria" / "3 Series"). Entries that are only model codes use the same text in both.
  *   Model years are only given where the shop states them.
@@ -166,14 +166,14 @@ export const categories: Category[] = [
     name: { et: "Komplektsed tuled", en: "Complete headlights" },
     description: {
       et: "Terviklikud esituled otse vahetamiseks: uued või kasutatud ja taastatud originaaltuled (OEM).",
-      en: "Complete headlight units for direct replacement: new, or used and restored, original (OEM) lights.",
+      en: "Complete headlight units for direct replacement: new, or used and restored, original (OEM) headlights.",
     },
   },
   {
     id: "led-projectors",
     name: { et: "LED-projektorid", en: "LED projectors" },
     description: {
-      et: "Bi-LED projektorid esitulede uuendamiseks, mis annavad lähi- ja kaugtule ühest moodulist.",
+      et: "Bi-LED-projektorid esitulede uuendamiseks, mis annavad lähi- ja kaugtule ühest moodulist.",
       en: "Bi-LED projectors for upgrading headlights, with low and high beam from a single unit.",
     },
   },
@@ -181,7 +181,7 @@ export const categories: Category[] = [
     id: "xenon-projectors",
     name: { et: "Xenon-projektorid", en: "Xenon projectors" },
     description: {
-      et: "Bi-xenon projektorid, mis annavad lähi- ja kaugtule ühes moodulis ning sobivad õigete adapteritega paljudesse esituledesse.",
+      et: "Bi-xenon-projektorid, mis annavad lähi- ja kaugtule ühes moodulis ning sobivad õigete adapteritega paljudesse esituledesse.",
       en: "Bi-xenon projectors with low and high beam in one unit, fitting many headlights with the right adapters.",
     },
   },
@@ -189,7 +189,7 @@ export const categories: Category[] = [
     id: "led-lights",
     name: { et: "LED-kaugtuled ja -rõngad", en: "LED high beams & rings" },
     description: {
-      et: "LED kaugtuled kaugtulede nähtavuse parandamiseks, LED rõngad BMW esituledele ja LED demon eye'd projektoritele.",
+      et: "LED-kaugtuled kaugtulede nähtavuse parandamiseks, LED-rõngad BMW esituledele ja LED-demonid (demon eyes) projektoritele.",
       en: "LED high beams for better high-beam visibility, LED rings for BMW headlights and LED demon eyes for projectors.",
     },
   },
@@ -448,7 +448,7 @@ export const products: Product[] = [
     price: 128.07,
     stock: "in-stock",
     description: {
-      et: `Uute tuleklaaside komplekt (parem ja vasak) mudelile BMW 5. seeria F07 GT. Sobivad xenon-tuledele; ei sobi Full Adaptive LED tuledele. ${lensInstall.et}`,
+      et: `Uute tuleklaaside komplekt (parem ja vasak) mudelile BMW 5. seeria F07 GT. Sobivad xenon-tuledele; ei sobi Full Adaptive LED-tuledele. ${lensInstall.et}`,
       en: `Set of new replacement headlight lenses (left and right) for the BMW 5 Series F07 GT. Suitable for xenon headlights; not suitable for Full Adaptive LED headlights. ${lensInstall.en}`,
     },
     specs: [modelYears("2009–2016"), lensPair, singleLens(70.13)],
@@ -746,10 +746,11 @@ export const products: Product[] = [
     price: 142.3,
     stock: "backorder",
     description: {
-      et: `Uute tuleklaaside komplekt (parem ja vasak) mudelile Mercedes-Benz E-klass W211. ${lensInstall.et}`,
-      en: `Set of new replacement headlight lenses (left and right) for the Mercedes-Benz E-Class W211. ${lensInstall.en}`,
+      // The shop gives no description, so nothing says whether this is a pair (CONTENT-TODO).
+      et: `Uued tuleklaasid mudelile Mercedes-Benz E-klass W211. ${lensInstall.et}`,
+      en: `New replacement headlight lenses for the Mercedes-Benz E-Class W211. ${lensInstall.en}`,
     },
-    specs: [lensPair],
+    specs: [],
     fitment: [{ et: "Mercedes-Benz E-klass W211", en: "Mercedes-Benz E-Class W211" }],
   },
   {
@@ -895,7 +896,7 @@ export const products: Product[] = [
     stock: "in-stock",
     description: {
       et: `Täielikult taastatud ja ideaalses seisukorras BMW G30 (pre-LCI) vasak adaptiivne LED-esituli. Tuleklaas ja valgusjuhid on vahetatud. ${modulesOffer.et}`,
-      en: `A fully restored BMW G30 (pre-LCI) left adaptive LED headlight in ideal condition. The lens and the light guides have been replaced. ${modulesOffer.en}`,
+      en: `A fully restored BMW G30 (pre-LCI) left adaptive LED headlight in excellent condition. The lens and the light guides have been replaced. ${modulesOffer.en}`,
     },
     specs: [
       partNumber("7439193-04"),
@@ -972,7 +973,7 @@ export const products: Product[] = [
     stock: "in-stock",
     description: {
       et: `Täielikult taastatud ja ideaalses seisukorras BMW F10 (LCI) parem bi-xenon-esituli. Tuleklaas on vahetatud, juhtmestik testitud ja reflektor asendatud korralikuga. ${modulesOffer.et}`,
-      en: `A fully restored BMW F10 (LCI) right bi-xenon headlight in ideal condition. The lens has been replaced, the wiring tested and the reflector swapped for a sound one. ${modulesOffer.en}`,
+      en: `A fully restored BMW F10 (LCI) right bi-xenon headlight in excellent condition. The lens has been replaced, the wiring tested and the reflector swapped for a sound one. ${modulesOffer.en}`,
     },
     specs: [
       partNumber("731713211"),
@@ -1001,7 +1002,7 @@ export const products: Product[] = [
     stock: "in-stock",
     description: {
       et: `Täielikult taastatud ja ideaalses seisukorras BMW F01 (pre-LCI) vasak bi-xenon-esituli. Tuleklaas on vahetatud ja reflektor asendatud korralikuga. ${modulesOffer.et}`,
-      en: `A fully restored BMW F01 (pre-LCI) left bi-xenon headlight in ideal condition. The lens has been replaced and the reflector swapped for a sound one. ${modulesOffer.en}`,
+      en: `A fully restored BMW F01 (pre-LCI) left bi-xenon headlight in excellent condition. The lens has been replaced and the reflector swapped for a sound one. ${modulesOffer.en}`,
     },
     specs: [
       partNumber("7182137"),
@@ -1105,7 +1106,7 @@ export const products: Product[] = [
     stock: "in-stock",
     description: {
       et: `Täielikult taastatud ja ideaalses seisukorras Audi A6 C7 (pre-facelift) parem bi-xenon-esituli. Tuleklaas on vahetatud, juhtmestik testitud ja reflektor asendatud korralikuga. ${modulesOffer.et}`,
-      en: `A fully restored Audi A6 C7 (pre-facelift) right bi-xenon headlight in ideal condition. The lens has been replaced, the wiring tested and the reflector swapped for a sound one. ${modulesOffer.en}`,
+      en: `A fully restored Audi A6 C7 (pre-facelift) right bi-xenon headlight in excellent condition. The lens has been replaced, the wiring tested and the reflector swapped for a sound one. ${modulesOffer.en}`,
     },
     specs: [
       partNumber("4G0941006C"),
@@ -1223,7 +1224,7 @@ export const products: Product[] = [
     price: 284.59,
     stock: "backorder",
     description: {
-      et: "Integreeritud juhtplokiga 3-tolline bi-LED projektor, mis annab nii lähi- kui ka kaugtule ning lisaks päevatule (DRL) režiimi. Komplektis kaks projektorit. Sobib paljudele Jaapani päritolu sõidukitele alates 2015. aastast.",
+      et: "Integreeritud juhtplokiga 3-tolline bi-LED-projektor, mis annab nii lähi- kui ka kaugtule ning lisaks päevatule (DRL) režiimi. Komplektis kaks projektorit. Sobib paljudele Jaapani päritolu sõidukitele alates 2015. aastast.",
       en: 'A 3" bi-LED projector with an integrated driver, giving both low and high beam plus a daytime running light (DRL) mode. Supplied as a pair. Suits many vehicles of Japanese origin from 2015 onwards.',
     },
     specs: [
@@ -1251,7 +1252,7 @@ export const products: Product[] = [
     price: 354.72,
     stock: "backorder",
     description: {
-      et: "NHK viienda põlvkonna 3-tollised G5-tüüpi bi-LED projektorid. Mõeldud parempoolsesse liiklusse (vasakrooliga autodele). Komplektis kaks projektorit.",
+      et: "NHK viienda põlvkonna 3-tollised G5-tüüpi bi-LED-projektorid. Mõeldud parempoolsesse liiklusse (vasakrooliga autodele). Komplektis kaks projektorit.",
       en: "NHK fifth-generation 3-inch G5-type bi-LED projectors. Made for right-hand traffic (left-hand-drive cars). Supplied as a pair.",
     },
     specs: [
@@ -1287,7 +1288,7 @@ export const products: Product[] = [
     price: 325.25,
     stock: "backorder",
     description: {
-      et: "NHK neljanda põlvkonna G5-tüüpi bi-LED projektorite edasiarendus, mille valgusvihk on eelmise mudeliga võrreldes laiem ja tugevam. Sobivad kõigi G5-kinnitusega projektorite asendamiseks ning adapteritega ka teistesse esituledesse. Mõeldud parempoolsesse liiklusse (vasakrooliga autodele).",
+      et: "NHK neljanda põlvkonna G5-tüüpi bi-LED-projektorite edasiarendus, mille valgusvihk on eelmise mudeliga võrreldes laiem ja tugevam. Sobivad kõigi G5-kinnitusega projektorite asendamiseks ning adapteritega ka teistesse esituledesse. Mõeldud parempoolsesse liiklusse (vasakrooliga autodele).",
       en: "A further development of NHK's fourth-generation G5-type bi-LED projectors, with a wider and stronger beam than the previous model. They replace any projector with a G5 mount, and fit other headlights with adapters. Made for right-hand traffic (left-hand-drive cars).",
     },
     specs: [
@@ -1323,7 +1324,7 @@ export const products: Product[] = [
     price: 253.08,
     stock: "backorder",
     description: {
-      et: "NHK 2,5-tollised G5-tüüpi bi-LED projektorid, mis annavad oma suuruse kohta väga hea valguse. Sobivad kõigi G5-kinnitusega projektorite asendamiseks ning adapteritega ka teistesse esituledesse. Mõeldud parempoolsesse liiklusse (vasakrooliga autodele).",
+      et: "NHK 2,5-tollised G5-tüüpi bi-LED-projektorid, mis annavad oma suuruse kohta väga hea valguse. Sobivad kõigi G5-kinnitusega projektorite asendamiseks ning adapteritega ka teistesse esituledesse. Mõeldud parempoolsesse liiklusse (vasakrooliga autodele).",
       en: "NHK 2.5-inch G5-type bi-LED projectors with very good light output for their size. They replace any projector with a G5 mount, and fit other headlights with adapters. Made for right-hand traffic (left-hand-drive cars).",
     },
     specs: [
@@ -1382,7 +1383,7 @@ export const products: Product[] = [
     price: 142.3,
     stock: "backorder",
     description: {
-      et: "Edasiarendatud koopia varasematest Hella projektoritest: lai ja ere valgusmuster ning sinaka peegeldusvastase kattega läätsed, mis vähendavad lõikejoone hägusust. Universaalne bi-xenon projektor, mis sobib õigete adapteritega enamikule autodest. Komplektis kaks projektorit.",
+      et: "Edasiarendatud koopia varasematest Hella projektoritest: lai ja ere valgusmuster ning sinaka peegeldusvastase kattega läätsed, mis vähendavad lõikejoone hägusust. Universaalne bi-xenon-projektor, mis sobib õigete adapteritega enamikule autodest. Komplektis kaks projektorit.",
       en: "A further-developed replica of earlier Hella projectors, with a wide, bright beam pattern and blue-tinted anti-reflective lenses that reduce blur along the cut-off line. A universal bi-xenon projector that fits most cars with the right adapters. Supplied as a pair.",
     },
     specs: [
@@ -1409,7 +1410,7 @@ export const products: Product[] = [
     price: 155,
     stock: "backorder",
     description: {
-      et: "Kvaliteetne 3-tolline bi-xenon projektor, mida saab kasutada D1S, D2S, D3S ja D4S xenon-lampidega. Saadaval ainult DOT lõikejoonega. Müüakse paarina.",
+      et: "Kvaliteetne 3-tolline bi-xenon-projektor, mida saab kasutada D1S, D2S, D3S ja D4S xenon-lampidega. Saadaval ainult DOT lõikejoonega. Müüakse paarina.",
       en: "A premium 3-inch bi-xenon projector that works with D1S, D2S, D3S and D4S xenon bulbs. Available with the DOT cut-off only. Sold as a pair.",
     },
     specs: [
@@ -1456,7 +1457,7 @@ export const products: Product[] = [
     price: 264.26,
     stock: "backorder",
     description: {
-      et: "LED lisakaugtuled on kiireim ja soodsaim viis kaugtulede nähtavuse parandamiseks. Paigaldatavad enamikule sõidukitele ilma esitulesid ümber ehitamata.",
+      et: "LED-lisakaugtuled on kiireim ja soodsaim viis kaugtulede nähtavuse parandamiseks. Paigaldatavad enamikule sõidukitele ilma esitulesid ümber ehitamata.",
       en: "Auxiliary LED high beams: the fastest and most affordable way to improve high-beam visibility. They can be fitted to most vehicles without rebuilding the headlights.",
     },
     specs: [spec(label.power, same("60 W"))],
@@ -1473,7 +1474,7 @@ export const products: Product[] = [
     price: 162.62,
     stock: "backorder",
     description: {
-      et: "20 W LED lisakaugtuled kaugtulede nähtavuse parandamiseks. Lihtne paigaldada enamikule sõidukitele ilma esitulesid ümber ehitamata. E-märgisega, seega lubatud avalikel teedel.",
+      et: "20 W LED-lisakaugtuled kaugtulede nähtavuse parandamiseks. Lihtne paigaldada enamikule sõidukitele ilma esitulesid ümber ehitamata. E-märgisega, seega lubatud avalikel teedel.",
       en: "20 W auxiliary LED high beams for improving high-beam visibility. Easy to fit to most vehicles without rebuilding the headlights. E-marked, so road legal.",
     },
     specs: [
@@ -1497,7 +1498,7 @@ export const products: Product[] = [
     price: 80.3,
     stock: "backorder",
     description: {
-      et: "Esitule sisse paigaldatavad 3-tollised LED-kaugtuled päevatule (DRL) funktsiooniga. Annavad väga ühtlase punktvalguse ja sobivad hästi lisakaugtuleks bi-LED- või bi-xenon-süsteemile. Paigaldus H7-soklisse on väga lihtne, väikese ümbertegemisega sobivad peaaegu igasse soklisse. Komplektis kinnitusvahendid H7-sokli jaoks.",
+      et: "Esitule sisse paigaldatavad 3-tollised LED-kaugtuled päevatule (DRL) funktsiooniga. Annavad väga ühtlase punktvalguse ja sobivad hästi lisakaugtuleks bi-LED- või bi-xenon-süsteemile. Need on väga lihtne paigaldada H7-soklisse ja väikese ümbertegemisega sobivad peaaegu igasse soklisse. Komplektis kinnitusvahendid H7-sokli jaoks.",
       en: "3-inch LED high beams with a daytime running light (DRL) function, fitted inside the headlight. They give a very even spot beam and suit bi-LED or bi-xenon systems well as an additional high beam. They fit an H7 socket very easily, and almost any socket with a small modification. Includes fixings for an H7 socket.",
     },
     specs: [
@@ -1518,7 +1519,7 @@ export const products: Product[] = [
     price: 141.28,
     stock: "backorder",
     description: {
-      et: "NHK kolmanda põlvkonna LED-kaugtuled gabariidituli-funktsiooniga. Annavad väga ühtlase punktvalguse ja sobivad hästi lisakaugtuleks bi-LED- või bi-xenon-süsteemile. Paigaldus H7-soklisse on väga lihtne, väikese ümbertegemisega sobivad peaaegu igasse soklisse.",
+      et: "NHK kolmanda põlvkonna LED-kaugtuled gabariiditule funktsiooniga. Annavad väga ühtlase punktvalguse ja sobivad hästi lisakaugtuleks bi-LED- või bi-xenon-süsteemile. Need on väga lihtne paigaldada H7-soklisse ja väikese ümbertegemisega sobivad peaaegu igasse soklisse.",
       en: "NHK third-generation LED high beams with a position-light function. They give a very even spot beam and suit bi-LED or bi-xenon systems well as an additional high beam. They fit an H7 socket very easily, and almost any socket with a small modification.",
     },
     specs: [
@@ -1546,14 +1547,14 @@ export const products: Product[] = [
     price: 79.28,
     stock: "backorder",
     description: {
-      et: "Kvaliteetsed LED rõngad (nn angel eyes), mis sobivad erinevatele BMW mudelitele. Piimjas kate ja ühtlane 6000 K valge valgus. Komplektis neli 131 mm rõngast, ühenduskomplekt ja paigaldustarvikud.",
+      et: "Kvaliteetsed LED-rõngad (nn angel eyes), mis sobivad erinevatele BMW mudelitele. Piimjas kate ja ühtlane 6000 K valge valgus. Komplektis neli 131 mm rõngast, ühenduskomplekt ja paigaldustarvikud.",
       en: 'Quality LED rings ("angel eyes") for various BMW models, with a cut-out, a milky diffuser and an even 6000 K white light. Includes four 131 mm rings, a connection kit and fitting accessories.',
     },
     specs: [
       spec(label.diameter, same("131 mm")),
       spec(label.colorTemperature, same("6000 K")),
       spec(label.contents, {
-        et: "4 LED rõngast (131 mm), ühenduskomplekt, paigaldustarvikud",
+        et: "4 LED-rõngast (131 mm), ühenduskomplekt, paigaldustarvikud",
         en: "4 LED rings (131 mm), connection kit, fitting accessories",
       }),
     ],
@@ -1571,14 +1572,14 @@ export const products: Product[] = [
     price: 86.39,
     stock: "backorder",
     description: {
-      et: "LED rõngad (nn angel eyes) esimese põlvkonna BMW X5-le (E53 pre-facelift). Piimjas kate hajutab LED-ide valguse ühtlaseks 6000 K valgeks valguseks. Komplektis kaks 127 mm ja kaks 158 mm rõngast, ühenduskomplekt ja paigaldustarvikud.",
+      et: "LED-rõngad (nn angel eyes) esimese põlvkonna BMW X5-le (E53 pre-facelift). Piimjas kate hajutab LED-ide valguse ühtlaseks 6000 K valgeks valguseks. Komplektis kaks 127 mm ja kaks 158 mm rõngast, ühenduskomplekt ja paigaldustarvikud.",
       en: 'LED rings ("angel eyes") for the first-generation BMW X5 (E53 pre-facelift). A milky diffuser spreads the light of the LEDs into an even 6000 K white. Includes two 127 mm and two 158 mm rings, a connection kit and fitting accessories.',
     },
     specs: [
       spec(label.diameter, { et: "127 mm ja 158 mm", en: "127 mm and 158 mm" }),
       spec(label.colorTemperature, same("6000 K")),
       spec(label.contents, {
-        et: "2 LED rõngast (127 mm), 2 LED rõngast (158 mm), ühenduskomplekt, paigaldustarvikud",
+        et: "2 LED-rõngast (127 mm), 2 LED-rõngast (158 mm), ühenduskomplekt, paigaldustarvikud",
         en: "2 LED rings (127 mm), 2 LED rings (158 mm), connection kit, fitting accessories",
       }),
     ],
@@ -1596,7 +1597,7 @@ export const products: Product[] = [
     price: 12.2,
     stock: "backorder",
     description: {
-      et: "Valged LED demon eye'd 3-tollise projektori läätsele.",
+      et: "Valged LED-demonid (demon eyes) 3-tollise projektori läätse jaoks.",
       en: "White LED demon eyes for a 3-inch projector lens.",
     },
     specs: [spec(label.lensDiameter, same('3"'))],
@@ -1795,7 +1796,7 @@ export const products: Product[] = [
     price: 66.07,
     stock: "backorder",
     description: {
-      et: "Xenuse toodetud soodsam asendus Hella 5DV 009 ja samaväärsetele originaalballastidele. Sobib nii D1S- kui ka D1R-lampidega ning paljudele Euroopa automudelitele.",
+      et: "Xenuse toodetud soodsam asendus Hella 5DV 009 ballastile ja samaväärsetele originaalballastidele. Sobib nii D1S- kui ka D1R-lampidega ning paljudele Euroopa automudelitele.",
       en: "An affordable Xenus-made replacement for the Hella 5DV 009 and equivalent original ballasts. Works with both D1S and D1R bulbs and suits many European car models.",
     },
     specs: [
@@ -2151,7 +2152,7 @@ export const products: Product[] = [
     price: 40.66,
     stock: "backorder",
     description: {
-      et: 'AL/Bosch 3" bi-xenon projektorite asendamiseks Hella 5R projektoritega AFS-tuledes; sobivad ka mitte-AFS tuledele. Komplektis kõik adapterid ja kinnitusvahendid.',
+      et: 'AL/Bosch 3" bi-xenon-projektorite asendamiseks Hella 5R projektoritega AFS-tuledes; sobivad ka mitte-AFS-tuledele. Komplektis kõik adapterid ja kinnitusvahendid.',
       en: "For replacing AL/Bosch 3-inch bi-xenon projectors with Hella 5R projectors in AFS headlights; also suitable for non-AFS headlights. Includes all adapters and fixings.",
     },
     specs: [
@@ -2251,7 +2252,7 @@ export const products: Product[] = [
     price: 25.41,
     stock: "backorder",
     description: {
-      et: "Paigaldusadapterid Koito originaalsete lähitule projektorite asendamiseks Hella 5R bi-xenon projektoritega. Komplektis adapterid ja kinnitustarvikud.",
+      et: "Paigaldusadapterid Koito originaalsete lähitule projektorite asendamiseks Hella 5R bi-xenon-projektoritega. Komplektis adapterid ja kinnitustarvikud.",
       en: "Adapters for replacing original Koito low-beam projectors with Hella 5R bi-xenon projectors. Includes the adapters and fixings.",
     },
     specs: [
@@ -2382,7 +2383,7 @@ export const products: Product[] = [
     price: 20.33,
     stock: "backorder",
     description: {
-      et: "Adapterid Ford Mondeo MK4 (2007–2014) tehase bi-xenon projektorite asendamiseks Hella 5R projektoritega.",
+      et: "Adapterid Ford Mondeo MK4 (2007–2014) tehase bi-xenon-projektorite asendamiseks Hella 5R projektoritega.",
       en: "Adapters for replacing the factory bi-xenon projectors of the Ford Mondeo MK4 (2007–2014) with Hella 5R projectors.",
     },
     specs: [],
@@ -2510,7 +2511,7 @@ export const products: Product[] = [
     price: 15.25,
     stock: "in-stock",
     description: {
-      et: "CAN-bus veateate eemaldajad, mis kustutavad lambi veateate.",
+      et: "CAN-bus-veaeemaldajad, mis kustutavad lambi rikketeate.",
       en: "CAN-bus error cancellers that clear the bulb-out error message.",
     },
     specs: [],
@@ -2598,7 +2599,7 @@ export const products: Product[] = [
     sku: "2000000002132",
     name: { et: "DRL torud Toyota Avensis T27", en: "DRL light tubes Toyota Avensis T27" },
     category: "fitting",
-    makes: [],
+    makes: ["Toyota"],
     price: 156.24,
     stock: "backorder",
     description: {

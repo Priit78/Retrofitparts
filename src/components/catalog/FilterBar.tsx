@@ -21,13 +21,13 @@ import { selectOptions, type FacetCounts } from "@/lib/catalog-ui";
 import { cn } from "@/lib/cn";
 import type { Locale } from "@/lib/i18n";
 import { Button } from "@/components/ui/Button";
+import { monoLabel } from "@/components/ui/styles";
 import { usePrefersReducedMotion } from "@/components/ui/usePrefersReducedMotion";
 import { useModal } from "./useModal";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 const SEARCH_DEBOUNCE_MS = 200;
 
-const labelClass = "font-mono text-xs tracking-[0.08em] text-muted uppercase";
 /** Inputs and selects: flat, a 2 px radius and a border that holds 3:1 against the page. */
 const controlClass =
   "block h-11 w-full rounded-[2px] border border-fg/40 bg-surface text-[15px] text-fg transition-[border-color,background-color] duration-300 ease-out-expo hover:border-fg/60 focus:border-fg/80 focus:bg-surface-2";
@@ -208,7 +208,7 @@ function SelectField({
   const { options: list, selected } = selectOptions(options, value);
   return (
     <div className={className}>
-      <label htmlFor={id} className={cn(labelClass, "mb-2 block")}>
+      <label htmlFor={id} className={cn(monoLabel, "mb-2 block")}>
         {label}
       </label>
       <div className="relative">
@@ -254,7 +254,7 @@ function CategoryOptions({
 
   return (
     <div role="group" aria-labelledby={labelId}>
-      <p id={labelId} className={cn(labelClass, "mb-3")}>
+      <p id={labelId} className={cn(monoLabel, "mb-3")}>
         {t.category[locale]}
       </p>
       <ul className={variant === "list" ? "flex flex-col border-t border-line" : "flex flex-wrap gap-2"}>
@@ -608,7 +608,7 @@ export function ResultsHeader({
       ) : null}
 
       <div className="ml-auto flex items-center gap-2">
-        <label htmlFor={sortId} className={cn(labelClass, "max-sm:sr-only")}>
+        <label htmlFor={sortId} className={cn(monoLabel, "max-sm:sr-only")}>
           {t.sort[locale]}
         </label>
         <div className="relative">

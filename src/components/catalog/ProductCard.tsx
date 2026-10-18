@@ -1,3 +1,4 @@
+import { mono } from "@/components/ui/styles";
 import { catalog } from "@/content/catalog";
 import { categories } from "@/data/products";
 import type { Product } from "@/data/types";
@@ -7,8 +8,6 @@ import { localePath, type Locale } from "@/lib/i18n";
 import { IntentLink } from "./IntentLink";
 import { ProductMedia } from "./ProductMedia";
 
-/** The small uppercase label used across the catalog (brand, stock, table headings). */
-export const mono = "font-mono text-xs tracking-[0.08em] uppercase";
 
 export function productHref(locale: Locale, product: Product) {
   return localePath(locale, `/catalog/${product.slug}`);

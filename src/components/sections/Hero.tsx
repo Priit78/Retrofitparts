@@ -3,6 +3,7 @@ import { Fragment, type CSSProperties } from "react";
 import heroPhoto from "@/assets/photos/hero-headlight.jpg";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
+import { monoLabel } from "@/components/ui/styles";
 import { common } from "@/content/common";
 import { hero } from "@/content/hero";
 import { localePath, type Locale } from "@/lib/i18n";
@@ -39,16 +40,17 @@ export function Hero({ locale }: { locale: Locale }) {
           From `lg` it fills the zone's right side and fades into `bg` on its left.
         */}
         <div className="absolute inset-x-0 bottom-0 -z-10 h-56 overflow-hidden sm:h-[18.75rem] lg:inset-y-0 lg:left-auto lg:h-auto lg:w-[80%]">
-          <div className="absolute inset-x-0 bottom-0 h-[26rem] lg:top-0 lg:h-auto">
+          <div className="absolute inset-x-0 bottom-0 h-[22rem] lg:top-0 lg:h-auto">
             <Image
               src={heroPhoto}
               alt={hero.photoAlt[locale]}
               fill
               preload
-              // Below 740 px the 26 rem box is cover-scaled to its height, so the photo renders
-              // 740 px wide; above that it spans the viewport (80 % of it from `lg`, plus crop).
-              sizes="(min-width: 46.25rem) 100vw, 740px"
-              className="object-cover object-[78%_90%] lg:object-[100%_60%]"
+              // Below 626 px the 22 rem box is cover-scaled to its height, so the photo renders
+              // 626 px wide; above that it spans the viewport (80 % of it from `lg`, plus crop).
+              // Anchored right below `lg`, so the whole headlight sits in the band.
+              sizes="(min-width: 39.125rem) 100vw, 626px"
+              className="object-cover object-[100%_90%] lg:object-[100%_60%]"
             />
           </div>
           <div aria-hidden className="absolute inset-x-0 top-0 h-10 bg-linear-to-b from-bg to-transparent lg:hidden" />
@@ -62,7 +64,7 @@ export function Hero({ locale }: { locale: Locale }) {
         <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-12 bg-linear-to-t from-bg to-transparent lg:h-1/3" />
 
         <Container className="pt-28 pb-52 sm:pt-32 sm:pb-70 lg:pt-40 lg:pb-[90px]">
-          <p className="hero-fade font-mono text-xs tracking-[0.08em] text-muted uppercase" style={delay(0.1)}>
+          <p className={`hero-fade ${monoLabel}`} style={delay(0.1)}>
             {hero.eyebrow[locale]}
           </p>
 

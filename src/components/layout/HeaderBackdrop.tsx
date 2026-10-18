@@ -34,6 +34,7 @@ export function HeaderBackdrop({ locale }: { locale: Locale }) {
   return (
     <div
       aria-hidden
+      data-header-backdrop=""
       data-solid={solid ? "" : undefined}
       className={cn(
         "pointer-events-none absolute inset-0 border-b border-line bg-bg transition-opacity duration-300",

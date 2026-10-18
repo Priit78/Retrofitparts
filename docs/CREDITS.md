@@ -6,11 +6,10 @@ The Pexels License allows free commercial use with no attribution required. Thes
 
 | File (`src/assets/photos/`) | Pexels photo | Use |
 |---|---|---|
-| `hero-headlight.jpg` | [Car Headlight in Dark, #19292944](https://www.pexels.com/photo/car-headlight-in-dark-19292944/), cropped | Landing hero |
+| `hero-headlight.jpg` | [Close-Up of Car Headlight with Purple LED Rings, #33990956](https://www.pexels.com/photo/close-up-of-car-headlight-with-purple-led-rings-33990956/), edited: desaturated, the LED rings turned from purple to white, darkened, and placed on a 2560 × 1440 canvas in the page colour with feathered edges | Landing hero; also `src/assets/og/hero-og.jpg`, the sharing image's background, cut from it |
 | `road-night.jpg` | [Road in Snow in Forest at Night, #15100466](https://www.pexels.com/photo/road-in-snow-in-forest-at-night-15100466/), cropped to remove the air freshener and dashboard | Before/after slider (simulation) |
-| `headlight-hazed.jpg` | [#18371956](https://www.pexels.com/photo/18371956/) (old yellowed headlight) | Polish section |
 | `cat-lens.jpg` | [Extreme Close-up of a Car's Left Front Light, #15469365](https://www.pexels.com/photo/extreme-close-up-of-a-cars-left-front-light-15469365/), cropped | Catalog teaser: lenses |
-| `cat-led.jpg` | [Close-up of Luxury Car Headlight in Parking Area, #35113549](https://www.pexels.com/photo/close-up-of-luxury-car-headlight-in-parking-area-35113549/) | Catalog teaser: LED |
+| `cat-led.jpg` | [Close-up of Luxury Car Headlight in Parking Area, #35113549](https://www.pexels.com/photo/close-up-of-luxury-car-headlight-in-parking-area-35113549/) (a Lamborghini; the crop keeps its script badge out of frame) | Catalog teaser: LED |
 | `cat-xenon.jpg` | [A Close-Up Shot of the Headlight of a Car, #11079820](https://www.pexels.com/photo/a-close-up-shot-of-the-headlight-of-a-car-11079820/), cropped | Catalog teaser: xenon |
 | `forest-drive.jpg` | [Car with Headlights On in Dark Forest Setting, #29052777](https://www.pexels.com/photo/car-with-headlights-on-in-dark-forest-setting-29052777/) | Contact band |
 
@@ -20,8 +19,9 @@ The Pexels License allows free commercial use with no attribution required. Thes
 |---|---|---|
 | `retrofit-in-progress.jpg` | retrofitparts.ee media library (`headlight-assembly-2.jpg`) | Polish section |
 | `projector-bench.jpg` | retrofitparts.ee media library (`headlight-assembly-3.jpg`) | About section |
+| `headlight-unpolished.jpg`, `headlight-polished.jpg` | Supplied by the project owner on 2026-10-18: the same BMW 3 Series headlight before and after polishing. Cropped to matching frames, 1600 × 750, metadata stripped | Polish section |
 
-The client should confirm these two are their own work. Their own workshop and finished-car photography would replace the stock photos above; see `docs/CONTENT-TODO.md`.
+The client should confirm these are their own work. Their own workshop and finished-car photography would replace the stock photos above; see `docs/CONTENT-TODO.md`.
 
 ## Product photos (the client's own, from retrofitparts.ee)
 
@@ -47,3 +47,19 @@ progressive, metadata stripped). The part-number label close-ups are not used.
 
 No supplier packshots are used. The client should confirm these are their own photos; see
 `docs/CONTENT-TODO.md`.
+
+## Logo
+
+`src/components/layout/logo.ts` holds the client's "RETROFIT PARTS" lettering, traced into an
+SVG path from their logo `retrofit-parts-logo-500.png` on retrofitparts.ee (the frame, tagline
+and URL left out). The favicon `src/app/icon.svg` is "RP" from the same lettering. Both should
+be replaced by the original vector logo when the client sends it.
+
+## Fonts
+
+All under the SIL Open Font License 1.1.
+
+- Albert Sans (display and body) and IBM Plex Mono (labels), served through Google Fonts with
+  `next/font`.
+- `src/assets/fonts/AlbertSans-400.ttf` and `AlbertSans-600.ttf` are bundled for the sharing
+  image (`src/app/[locale]/opengraph-image.tsx`), which cannot read web fonts.

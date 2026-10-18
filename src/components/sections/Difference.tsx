@@ -4,14 +4,13 @@ import { RoadPhoto } from "@/components/difference/RoadPhoto";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { mono, monoLabel } from "@/components/ui/styles";
 import { difference as t } from "@/content/difference";
 import type { Locale } from "@/lib/i18n";
 
 /** The section appears once per page, so fixed ids are safe. */
 const HINT_ID = "difference-slider-hint";
 const FACTS_ID = "difference-facts";
-
-const mono = "font-mono text-xs tracking-[0.08em] uppercase";
 
 /** Small dark tag in a top corner of the slider. */
 function SideTag({ children }: { children: ReactNode }) {
@@ -23,7 +22,7 @@ function SideTag({ children }: { children: ReactNode }) {
 /** "See the difference": a before/after slider on one night photo, plus three plain-physics facts. */
 export function Difference({ locale }: { locale: Locale }) {
   return (
-    <section id="difference" className="border-b border-line py-24 md:py-30">
+    <section id="difference" className="border-t border-line py-18 md:py-30">
       <Container>
         <Reveal>
           <SectionHeading eyebrow={t.eyebrow[locale]} title={t.title[locale]} intro={t.intro[locale]} />
@@ -41,7 +40,7 @@ export function Difference({ locale }: { locale: Locale }) {
               beforeLabel={<SideTag>{t.before.label[locale]}</SideTag>}
               afterLabel={<SideTag>{t.after.label[locale]}</SideTag>}
             />
-            <figcaption className={`${mono} mt-3.5 flex flex-wrap justify-between gap-x-6 gap-y-1.5 text-muted`}>
+            <figcaption className={`${monoLabel} mt-3.5 flex flex-wrap justify-between gap-x-6 gap-y-1.5`}>
               <span>{t.slider.note[locale]}</span>
               <span id={HINT_ID}>{t.slider.hint[locale]}</span>
             </figcaption>
@@ -50,7 +49,7 @@ export function Difference({ locale }: { locale: Locale }) {
 
         <div className="mt-20 md:mt-28">
           <Reveal>
-            <p id={FACTS_ID} className={`${mono} text-muted`}>
+            <p id={FACTS_ID} className={monoLabel}>
               {t.factsLabel[locale]}
             </p>
           </Reveal>
@@ -66,11 +65,11 @@ export function Difference({ locale }: { locale: Locale }) {
                 <p className="mt-3 mb-7 text-[15px] leading-relaxed text-pretty text-soft">{fact.body[locale]}</p>
                 <dl className="mt-auto grid grid-cols-2 gap-4">
                   <div>
-                    <dt className={`${mono} text-muted`}>{t.beforeShort[locale]}</dt>
+                    <dt className={monoLabel}>{t.beforeShort[locale]}</dt>
                     <dd className="mt-1.5 text-[15px] font-medium text-halogen">{fact.before[locale]}</dd>
                   </div>
                   <div>
-                    <dt className={`${mono} text-muted`}>{t.afterShort[locale]}</dt>
+                    <dt className={monoLabel}>{t.afterShort[locale]}</dt>
                     <dd className="mt-1.5 text-[15px] font-medium text-fg">{fact.after[locale]}</dd>
                   </div>
                 </dl>
