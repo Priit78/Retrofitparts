@@ -117,7 +117,10 @@ export function HeroStage({ locale }: { locale: Locale }) {
               fill
               preload
               // Below 626 px the 22 rem box is cover-scaled to its height, so the photo renders
-              // 626 px wide; above that it spans the viewport (80 % of it from `lg`, plus crop).
+              // 626 px wide in the static layout; above that it spans the viewport (80 % of it
+              // from `lg`, plus crop). Pinned, the band grows with the screen and the photo
+              // renders wider (about 742 px at 390×844), but `sizes` stays at 626 px on purpose:
+              // the larger file would cost the LCP budget for little visible gain.
               // Anchored right below `lg`, so the whole headlight sits in the band.
               sizes="(min-width: 39.125rem) 100vw, 626px"
               className="object-cover object-[100%_90%] lg:object-[100%_60%]"

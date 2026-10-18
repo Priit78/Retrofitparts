@@ -42,11 +42,13 @@ export const processCopy = {
     {
       id: "installation",
       title: { et: "Paigaldus", en: "Installation" },
+      // A word joiner (U+2060) after the en dash keeps the range on one line: a line may
+      // otherwise break after a dash. The no-break space keeps the unit with it.
       body: {
-        et: "Töö tehakse meie Tallinna töökojas. Olenevalt tuledest kulub selleks 1–4\u00a0tööpäeva.",
-        en: "We do the work at our Tallinn workshop. Depending on the headlights, it takes 1–4\u00a0working days.",
+        et: "Töö tehakse meie Tallinna töökojas. Olenevalt tuledest kulub selleks 1–\u20604\u00a0tööpäeva.",
+        en: "We do the work at our Tallinn workshop. Depending on the headlights, it takes 1–\u20604\u00a0working days.",
       },
-      tag: { et: "1–4 tööpäeva", en: "1–4 working days" },
+      tag: { et: "1–\u20604 tööpäeva", en: "1–\u20604 working days" },
     },
     {
       id: "warranty",
