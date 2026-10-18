@@ -53,9 +53,10 @@ no workshop, no finished cars. What the site uses now:
   library: `src/assets/photos/retrofit-in-progress.jpg` (a projector retrofit with the bumper
   off and masking tape on) and `src/assets/photos/projector-bench.jpg` (a lit Morimoto LED
   projector on the workbench). See `docs/CREDITS.md`.
-- **The before/after polishing pair** in the "Poleerimine on ajutine lahendus" section
+- **The before/after polishing pair** in the landing page's problem chapter ("Probleem")
   (`headlight-unpolished.jpg`, `headlight-polished.jpg`: the same BMW 3 Series headlight) was
-  supplied by the project owner on 2026-10-18.
+  supplied by the project owner on 2026-10-18. The unpolished photo also illustrates the first
+  process step ("Päring").
 - **The other landing photos are stock** (Pexels, credited in `docs/CREDITS.md`). The hero is an
   edited Pexels photo of a BMW headlight (desaturated, its purple LED rings turned white).
 
@@ -251,12 +252,23 @@ all eight in `src/content/services.ts`.
   tuledest."; "Tulede taastamine ja remont kindlalt partnerilt"; table column "Valmimisaeg";
   "Ei tea, millised tuled sinu autol on? Saada foto aadressil info@retrofitparts.ee."; the
   eight one-sentence service descriptions, including the title "Projektorite retrofit".
-- Polishing: "Miks mitte poleerida"; "Poleerimine on ajutine lahendus"; "See on odavaim
-  lahendus, kuid valgust see sageli juurde ei anna. Meie vahetame kahjustatud osad välja: ette
-  uue tuleklaasi, sisse uue projektori."; the captions "Enne poleerimist", "Pärast
-  poleerimist" and "Projektori paigaldus"; "Millest esituli koosneb" / "Eest taha"; the part
-  names "Tuleklaas", "Projektori kate", "Projektor", "Korpus" and their one-line descriptions;
-  "Poleerida või vahetada?" with the tags "Ajutine" and "Püsiv".
+- Landing page story (new on 2026-10-18; the page now reads as chapters that change as you
+  scroll):
+  - Hero, the line that follows the first screen: "Aga iga esituli vananeb."
+  - The problem chapter, label "Probleem": "Tuleklaas vananeb."; "Päike, kivid ja aastad
+    muudavad tuleklaasi pinna karedaks ja kollakaks. Valgus hajub ja teele jõuab seda vähem.";
+    "Poleerimine teeb klaasi korraks selgeks."; "See on odavaim lahendus, kuid valgust see
+    sageli juurde ei anna."; the photo captions "Enne poleerimist" and "Pärast poleerimist";
+    "Poleerida või vahetada?" with the tags "Ajutine" and "Püsiv" and the two lists under them.
+  - The before/after slider: "Keri edasi ja vaata, kuidas valgus muutub."
+  - The fix chapter, label "Lahendus": "Millest esituli koosneb"; the part names "Tuleklaas",
+    "Projektori kate", "Projektor", "Korpus" and their one-line descriptions; the drawing's
+    description for screen readers, "Esitule neli osa eest taha: tuleklaas, projektori kate,
+    projektor ja korpus".
+  - The chapter list at the right edge of wide screens, "Peatükid": "Valgus", "Probleem",
+    "Vahe", "Lahendus", "Hinnad", "Töö käik", "Kataloog".
+  - The catalogue strip: the tile "Komplektsed tuled" (photo description "Komplektne esituli,
+    foto meie kataloogist") and the closing card "Vaata kogu kataloogi".
 - Contact: "Foto saada e-postiga – vastame esimesel võimalusel." The process step "Päring":
   "Kirjuta meile auto mark ja mudel kontaktivormi kaudu või e-postiga. Foto tuledest saada
   aadressil info@retrofitparts.ee."

@@ -6,7 +6,7 @@ The Pexels License allows free commercial use with no attribution required. Thes
 
 | File (`src/assets/photos/`) | Pexels photo | Use |
 |---|---|---|
-| `hero-headlight.jpg` | [Close-Up of Car Headlight with Purple LED Rings, #33990956](https://www.pexels.com/photo/close-up-of-car-headlight-with-purple-led-rings-33990956/), edited: desaturated, the LED rings turned from purple to white, darkened, and placed on a 2560 × 1440 canvas in the page colour with feathered edges | Landing hero; also `src/assets/og/hero-og.jpg`, the sharing image's background, cut from it |
+| `hero-headlight.jpg` | [Close-Up of Car Headlight with Purple LED Rings, #33990956](https://www.pexels.com/photo/close-up-of-car-headlight-with-purple-led-rings-33990956/), edited: desaturated, the LED rings turned from purple to white, darkened, and placed on a 2560 × 1440 canvas in the page colour with feathered edges | Landing hero; process chapter, step 4 (Garantii); also `src/assets/og/hero-og.jpg`, the sharing image's background, cut from it |
 | `road-night.jpg` | [Road in Snow in Forest at Night, #15100466](https://www.pexels.com/photo/road-in-snow-in-forest-at-night-15100466/), cropped to remove the air freshener and dashboard | Before/after slider (simulation) |
 | `cat-lens.jpg` | [Extreme Close-up of a Car's Left Front Light, #15469365](https://www.pexels.com/photo/extreme-close-up-of-a-cars-left-front-light-15469365/), cropped | Catalog teaser: lenses |
 | `cat-led.jpg` | [Close-up of Luxury Car Headlight in Parking Area, #35113549](https://www.pexels.com/photo/close-up-of-luxury-car-headlight-in-parking-area-35113549/) (a Lamborghini; the crop keeps its script badge out of frame) | Catalog teaser: LED |
@@ -17,9 +17,9 @@ The Pexels License allows free commercial use with no attribution required. Thes
 
 | File | Source | Use |
 |---|---|---|
-| `retrofit-in-progress.jpg` | retrofitparts.ee media library (`headlight-assembly-2.jpg`) | Polish section |
-| `projector-bench.jpg` | retrofitparts.ee media library (`headlight-assembly-3.jpg`) | About section |
-| `headlight-unpolished.jpg`, `headlight-polished.jpg` | Supplied by the project owner on 2026-10-18: the same BMW 3 Series headlight before and after polishing. Cropped to matching frames, 1600 × 750, metadata stripped | Polish section |
+| `retrofit-in-progress.jpg` | retrofitparts.ee media library (`headlight-assembly-2.jpg`) | Process chapter, step 3 (Paigaldus) |
+| `projector-bench.jpg` | retrofitparts.ee media library (`headlight-assembly-3.jpg`) | About section; process chapter, step 2 (Pakkumine) |
+| `headlight-unpolished.jpg`, `headlight-polished.jpg` | Supplied by the project owner on 2026-10-18: the same BMW 3 Series headlight before and after polishing. Cropped to matching frames, 1600 × 750, metadata stripped | Problem chapter: the polishing pair; `headlight-unpolished.jpg` also in the process chapter, step 1 (Päring) |
 
 The client should confirm these are their own work. Their own workshop and finished-car photography would replace the stock photos above; see `docs/CONTENT-TODO.md`.
 

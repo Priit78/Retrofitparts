@@ -215,6 +215,36 @@ New copy, to add to CONTENT-TODO "copy to confirm":
 - **Manual:** screenshots at 1440 and 390 per chapter at p 0, 0.5 and 1, then the AA probe and
   LCP/CLS check.
 
+## As built
+
+Where the build departs from the text above (2026-10-18):
+
+- **Pinning** also needs a viewport at least 32rem (512 px) tall; shorter screens get the static
+  layout.
+- **Hero:** the pinned stage is one screen tall. The trust row reads after the chapter, in the
+  flow, below lg and on screens under 42rem tall; elsewhere it stays in the stage (and fades
+  when pinned). The second line centres from lg; below lg it sits near the top, where the copy
+  was.
+- **Problem:** from lg, screens under 45rem tall give the beats the wider column (7/5). Landscape
+  tablets (md to lg) also put the photo beside the beats, at 7/5. Phones up to 43rem tall get a
+  compact type scale, so the photo keeps its full width. The caption chip hides in frames
+  narrower than 12.5rem (the alt texts carry the meaning).
+- **Difference:** the side tags fade out as the split reaches them.
+- **Fix:** the assembled drawing starts at 1.25× and settles to its own size as it comes apart,
+  while the dashed depth edges draw in. The parts list never changes size while it scrolls: each
+  part keeps its row, and the descriptions share one slot under the list, as tall as the longest.
+  The active part is `aria-current="step"` in `fg`; its description fades and rises into the
+  slot while the others fade out.
+- **Process:** side by side (the heading beside the step) on landscape screens from md, which
+  covers desktops; stacked on phones and portrait screens. Step 1's photo loads eagerly at low
+  fetch priority, so React does not preload it beside the hero photo.
+- **Catalog:** the strip pins from 1024 px (lg), not 900 px. Pinned, the photo row is 4:5 at
+  most and gives up height first on short screens (the frames grow wider). Phones (below 640 px)
+  use 4:3 frames.
+- **Chapter index:** shows only after hydration and while motion is allowed. Labels sit above the
+  ticks. Only the current label shows; hovering the index reveals all of them, and a focused
+  tick shows its own.
+
 ## Out of scope
 
 Video or frame-sequence scrubbing (needs real footage), new photography, catalog page changes,

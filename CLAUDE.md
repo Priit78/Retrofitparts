@@ -41,6 +41,11 @@ memory of Next.js APIs.
   the FAQ accordion. Every animation respects `prefers-reduced-motion`, and no content may stay
   hidden if JS or animation doesn't run. Never wrap above-the-fold or LCP content (the hero h1) in
   `Reveal`, and put hover transitions on a child of a `Reveal` rather than on the element itself.
+- The landing page is a scroll story (`docs/superpowers/specs/2026-10-18-landing-story-design.md`):
+  pinned chapters are `ScrollChapter`s in `src/components/story/`, whose leaves read
+  `useChapter()` (progress, `animated`, `seek`) and fade text with `Beat`; style the pinned layout
+  with `pinned:` / `pinned-lg:` and leave the unprefixed static layout showing everything (no JS,
+  reduced motion, short screens). Per frame, animate only transform, opacity and clip-path.
 - Add `"use client"` only on leaf components that need it.
 - Use real facts only. No invented reviews, ratings, counts or performance figures.
 - No horizontal scroll at 360 px. Keep visible focus states and AA contrast.
