@@ -76,7 +76,7 @@ function Index({ locale }: { locale: Locale }) {
             <li key={chapter.id}>
               <a
                 href={`#${chapter.id}`}
-                aria-current={active ? "true" : undefined}
+                aria-current={active ? "location" : undefined}
                 className="group/tick flex flex-col items-end gap-1.5 rounded-[2px] py-1.5 pl-2"
               >
                 <span

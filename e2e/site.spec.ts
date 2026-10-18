@@ -237,9 +237,8 @@ for (const path of ["/et", "/en"]) {
 
 test.describe("the scroll story", () => {
   const [aging, polishing] = story.problem.beats;
-  // includeHidden: a hidden beat's heading is still in the DOM, and must be found to be checked.
   const problemTitle = (page: Page, title: string) =>
-    page.locator("#problem").getByRole("heading", { name: title, exact: true, includeHidden: true });
+    page.locator("#problem").getByRole("heading", { name: title, exact: true });
 
   test("before hydration, a pinned chapter shows only its first beat", async ({ page }) => {
     // The inline script marks the page as running JS, but no script chunk loads: nothing
@@ -250,7 +249,7 @@ test.describe("the scroll story", () => {
     await page.goto("/et");
     await expect(problemTitle(page, aging.title.et)).toBeVisible();
     expect(await shownOpacity(problemTitle(page, aging.title.et))).toBe(1);
-    await expect(problemTitle(page, polishing.title.et)).toBeHidden();
+    // Hidden by opacity only: its text stays readable to assistive technology.
     expect(await shownOpacity(problemTitle(page, polishing.title.et))).toBe(0);
   });
 
@@ -307,6 +306,8 @@ test.describe("the scroll story", () => {
 
       await page.setViewportSize({ width: 390, height: 844 });
       await expect(page.locator("#catalog-teaser")).not.toHaveAttribute("data-animated");
+      // The strip drops its pinned translation: a swipe row again.
+      expect(await track(page).evaluate((el) => getComputedStyle(el).transform)).toBe("none");
       await expect.poll(() => pageOverflow(page)).toBeLessThanOrEqual(0);
       await scrollThrough(page);
       expect(await pageOverflow(page)).toBeLessThanOrEqual(0);
@@ -478,7 +479,7 @@ test.describe("navigation to a section", () => {
       await expectLandedBelowHeader(page, "anatomy");
       await expectOneWay();
       await expect(page).toHaveURL("/et#anatomy");
-      await expect(index.getByRole("link", { name: label, exact: true })).toHaveAttribute("aria-current", "true");
+      await expect(index.getByRole("link", { name: label, exact: true })).toHaveAttribute("aria-current", "location");
     });
   });
 

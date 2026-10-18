@@ -66,7 +66,7 @@ const links = (name: string) => within(screen.getByRole("navigation", { name }))
 /** Labels of the links marked current. */
 const current = () =>
   links("Peatükid")
-    .filter((link) => link.getAttribute("aria-current") === "true")
+    .filter((link) => link.getAttribute("aria-current") === "location")
     .map((link) => link.textContent);
 
 /** A link's hairline tick. */

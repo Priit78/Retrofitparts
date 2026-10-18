@@ -72,6 +72,7 @@ describe("chapter CSS", () => {
   const base = '.chapter:not([data-pin-from="lg"])';
   const lg = '.chapter[data-pin-from="lg"]';
   const stage = "position: sticky; top: 0; height: 100svh; overflow: hidden;";
+  const focusable = ':is(a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"]))';
 
   it("pins a chapter at every width by default", () => {
     const pinned = split(PINNED).inside;
@@ -84,7 +85,7 @@ describe("chapter CSS", () => {
       `${base} [data-pinned-hidden]:where(html.js *) { opacity: 0; pointer-events: none; }`,
     );
     expect(pinned).toContain(
-      `${base}:not([data-animated]) [data-pinned-hidden]:where(html.js *) { visibility: hidden; }`,
+      `${base}:not([data-animated]) [data-pinned-hidden] ${focusable}:where(html.js *) { visibility: hidden; }`,
     );
   });
 
@@ -96,7 +97,7 @@ describe("chapter CSS", () => {
       `${lg} [data-pinned-hidden]:where(html.js *) { opacity: 0; pointer-events: none; }`,
     );
     expect(pinnedLg).toContain(
-      `${lg}:not([data-animated]) [data-pinned-hidden]:where(html.js *) { visibility: hidden; }`,
+      `${lg}:not([data-animated]) [data-pinned-hidden] ${focusable}:where(html.js *) { visibility: hidden; }`,
     );
   });
 

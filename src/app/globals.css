@@ -148,11 +148,12 @@
     }
   }
 
-  /* Until the chapter animates (ScrollChapter sets `data-animated` once hydrated), a hidden beat
-     is also out of the tab order: focus there would show an invisible ring, and nothing can
-     bring the beat into view yet. Afterwards the beat's own opacity takes over, and focusing it
-     scrolls to it. */
-  .chapter:not([data-pin-from="lg"]):not([data-animated]) [data-pinned-hidden] {
+  /* Until the chapter animates (ScrollChapter sets `data-animated` once hydrated), anything
+     focusable in a hidden beat is out of the tab order: focus there would show an invisible
+     ring, and nothing can bring the beat into view yet. Only the focusable elements: the text
+     stays readable to assistive technology. Afterwards the beat's own opacity takes over, and
+     focusing it scrolls to it. */
+  .chapter:not([data-pin-from="lg"]):not([data-animated]) [data-pinned-hidden] :is(a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])) {
     @variant pinned {
       visibility: hidden;
     }
@@ -181,7 +182,7 @@
     }
   }
 
-  .chapter[data-pin-from="lg"]:not([data-animated]) [data-pinned-hidden] {
+  .chapter[data-pin-from="lg"]:not([data-animated]) [data-pinned-hidden] :is(a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])) {
     @variant pinned-lg {
       visibility: hidden;
     }

@@ -16,10 +16,13 @@ describe("jumpTo", () => {
     vi.stubGlobal("scrollTo", scrollTo);
     const lenis = { scrollTo: vi.fn() };
     const unregister = registerScroller(lenis);
-    jumpTo(800);
-    expect(lenis.scrollTo).toHaveBeenCalledWith(800, { immediate: true, force: true });
-    expect(scrollTo).not.toHaveBeenCalled();
-    unregister();
+    try {
+      jumpTo(800);
+      expect(lenis.scrollTo).toHaveBeenCalledWith(800, { immediate: true, force: true });
+      expect(scrollTo).not.toHaveBeenCalled();
+    } finally {
+      unregister();
+    }
   });
 
   it("falls back to the window once the scroller is unregistered", () => {
@@ -37,10 +40,14 @@ describe("jumpTo", () => {
     const newer = { scrollTo: vi.fn() };
     const unregisterOlder = registerScroller(older);
     const unregisterNewer = registerScroller(newer);
-    unregisterOlder();
-    jumpTo(50);
-    expect(newer.scrollTo).toHaveBeenCalledWith(50, { immediate: true, force: true });
-    expect(older.scrollTo).not.toHaveBeenCalled();
-    unregisterNewer();
+    try {
+      unregisterOlder();
+      jumpTo(50);
+      expect(newer.scrollTo).toHaveBeenCalledWith(50, { immediate: true, force: true });
+      expect(older.scrollTo).not.toHaveBeenCalled();
+    } finally {
+      unregisterOlder();
+      unregisterNewer();
+    }
   });
 });
