@@ -8,7 +8,7 @@ import type { Locale } from "@/lib/i18n";
 import { FaqAccordion, type AccordionItem } from "./FaqAccordion";
 
 const linkClass =
-  "text-light underline decoration-accent/40 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent";
+  "text-fg underline decoration-fg/35 underline-offset-4 transition-colors hover:decoration-fg";
 
 export function Faq({ locale }: { locale: Locale }) {
   const email = (
@@ -43,22 +43,24 @@ export function Faq({ locale }: { locale: Locale }) {
   };
 
   return (
-    <section id="faq" className="relative py-24 md:py-36">
+    <section id="faq" className="relative border-t border-line py-24 md:py-30">
       <script
         type="application/ld+json"
         // Escape "<" so the payload can never close the script tag.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
       <Container>
-        <div className="mx-auto max-w-3xl">
-          <Reveal>
-            <SectionHeading align="center" eyebrow={faq.eyebrow[locale]} title={faq.title[locale]} />
+        {/* Phones read heading, questions, then "didn't find your answer?"; wide screens keep
+            that line under the heading, beside the questions. */}
+        <div className="grid gap-10 md:gap-y-12 lg:grid-cols-12 lg:grid-rows-[auto_1fr] lg:gap-x-16 lg:gap-y-6">
+          <Reveal className="lg:col-span-5">
+            <SectionHeading eyebrow={faq.eyebrow[locale]} title={faq.title[locale]} />
           </Reveal>
-          <Reveal delay={0.1} className="mt-14 md:mt-16">
+          <Reveal delay={0.08} className="lg:col-span-7 lg:col-start-6 lg:row-span-2 lg:row-start-1 lg:pt-2">
             <FaqAccordion items={items} defaultOpen={items[0]?.id} />
           </Reveal>
-          <Reveal delay={0.15}>
-            <p className="mt-10 text-center text-base leading-relaxed text-muted">
+          <Reveal delay={0.08} className="lg:col-span-5 lg:col-start-1 lg:row-start-2">
+            <p className="max-w-[40ch] text-base leading-relaxed text-pretty text-soft">
               {fillTemplate(faq.more[locale], { email, phone })}
             </p>
           </Reveal>

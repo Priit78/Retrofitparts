@@ -1,6 +1,5 @@
 "use client";
 
-import { Plus } from "lucide-react";
 import { animate } from "motion/react";
 import { useId, useRef, useState, type ReactNode } from "react";
 import { usePrefersReducedMotion } from "@/components/ui/usePrefersReducedMotion";
@@ -75,26 +74,30 @@ function FaqRow({ item, initiallyOpen }: { item: AccordionItem; initiallyOpen: b
 
   return (
     <div className="border-b border-line">
-      <h3 className="text-base leading-snug font-semibold md:text-lg">
+      <h3 className="text-base leading-snug font-medium tracking-[-0.01em] md:text-lg">
         <button
           id={buttonId}
           type="button"
           aria-expanded={open}
           aria-controls={panelId}
           onClick={toggle}
-          className="group/q flex w-full items-start justify-between gap-6 py-6 text-left text-fg transition-colors hover:text-light md:py-7"
+          className="group/q flex w-full items-start justify-between gap-6 py-6 text-left text-fg md:py-7"
         >
-          <span className="min-w-0 text-pretty">{item.question}</span>
+          <span className="min-w-0 text-pretty underline decoration-transparent underline-offset-4 transition-colors duration-300 group-hover/q:decoration-fg/40">
+            {item.question}
+          </span>
+          {/* Plus when closed, minus when open: the vertical stroke folds away. */}
           <span
             aria-hidden
-            className={cn(
-              "mt-0.5 grid size-7 shrink-0 place-items-center rounded-full border transition-[transform,border-color,color,background-color] duration-500 ease-out-expo",
-              open
-                ? "rotate-45 border-accent/60 bg-accent/10 text-accent"
-                : "border-line text-muted group-hover/q:border-accent/40 group-hover/q:text-fg",
-            )}
+            className="relative mt-[0.3em] size-3.5 shrink-0 text-muted transition-colors duration-300 group-hover/q:text-fg"
           >
-            <Plus className="size-4" strokeWidth={1.75} />
+            <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-current" />
+            <span
+              className={cn(
+                "absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-current transition-transform duration-300 ease-out-expo",
+                open && "scale-y-0",
+              )}
+            />
           </span>
         </button>
       </h3>
@@ -108,7 +111,7 @@ function FaqRow({ item, initiallyOpen }: { item: AccordionItem; initiallyOpen: b
         // answer from being clipped by overflow-hidden.
         className="-mx-2 overflow-hidden px-2 [.js_&[data-collapsed]]:invisible [.js_&[data-collapsed]]:h-0"
       >
-        <div className="max-w-2xl pt-1 pr-12 pb-7 text-base leading-relaxed text-pretty text-muted">
+        <div className="max-w-[62ch] pt-0 pr-8 pb-7 text-base leading-relaxed text-pretty text-soft md:pr-10">
           {item.answer}
         </div>
       </div>
