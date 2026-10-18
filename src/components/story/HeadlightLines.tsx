@@ -34,9 +34,10 @@ interface Layer {
  * depth z back) and projected it as screen = x·X + y·Y + z·Z, with X = 0.92·(cos 24°, sin 24°),
  * Y = (0, 1) and Z the unit explode direction (120, −64)/136. Outlines are cubic Béziers mapped
  * point by point (a parallel projection keeps them Béziers), circles are four cubics, cylinder
- * silhouettes are the outer tangents of the projected end circles (its far arc a polyline), and
- * the masks are the parts' projected hulls. Coordinates are rounded to 0.1. To change the drawing,
- * edit the paths here, or rebuild them the same way.
+ * silhouettes are the outer tangents of the projected end circles, and the masks are the parts'
+ * projected hulls. The projector's far arc and its two hulls came out as dense polylines; they
+ * were refitted as cubics (within 0.2 units). Coordinates are rounded to 0.1. To change the
+ * drawing, edit the paths here, or rebuild them the same way.
  */
 const DRAWING = {
   layers: [
@@ -58,7 +59,7 @@ const DRAWING = {
     {
       face: "M158 188.3 C158 210.4 143 221.6 124.4 213.4 C105.8 205.1 90.8 180.5 90.8 158.4 C90.8 136.3 105.8 125.1 124.4 133.4 C143 141.6 158 166.3 158 188.3 Z M151.3 185.4 C151.3 203 139.2 212 124.4 205.4 C109.5 198.8 97.5 179.1 97.5 161.4 C97.5 143.7 109.5 134.8 124.4 141.4 C139.2 148 151.3 167.7 151.3 185.4 Z M100 169.5 L125.2 180.8 L133.6 174.5 L148.8 181.2",
       depth: [
-        { mask: null, d: "M103.9 132.5 L121.3 123.3 M146.9 213.1 L164.3 203.9 M121.3 123.3 L123.3 122.2 L125.5 121.3 L127.8 120.7 L130.1 120.4 L132.6 120.3 L135.1 120.5 L137.7 121 L140.3 121.7 L142.9 122.7 L145.6 123.9 L148.2 125.3 L150.8 127 L153.3 128.9 L155.8 131 L158.3 133.4 L160.6 135.9 L162.8 138.5 L165 141.4 L166.9 144.3 L168.8 147.4 L170.5 150.6 L172 153.8 L173.3 157.1 L174.5 160.4 L175.5 163.8 L176.3 167.1 L176.9 170.5 L177.2 173.7 L177.4 176.9 L177.4 180.1 L177.1 183.1 L176.7 186 L176 188.7 L175.2 191.3 L174.1 193.8 L172.9 196 L171.5 198 L169.9 199.8 L168.2 201.4 L166.3 202.8 L164.3 203.9" },
+        { mask: null, d: "M103.9 132.5 L121.3 123.3 M146.9 213.1 L164.3 203.9 M121.3 123.3 C123 122.4 123.6 121.9 125.5 121.3 C135.2 118.1 145.8 122.9 153.3 128.9 C167.4 140.2 176.8 158.8 177.4 176.9 C177.7 187.9 174.3 198.4 164.3 203.9" },
         { mask: "holder", d: "M105.1 101.8 L182.5 136.2 L182.5 224.2 L105.1 189.8 Z M135.1 85.8 L212.5 120.2 L212.5 208.2 M105.1 101.8 L135.1 85.8 M182.5 136.2 L212.5 120.2 M182.5 224.2 L212.5 208.2" },
         { mask: "body", d: "M135.3 82.4 L219.4 119.9 L219.4 207.9 M165.3 66.4 L249.4 103.9 L249.4 191.9 M135.3 82.4 L165.3 66.4 M219.4 119.9 L249.4 103.9 M219.4 207.9 L249.4 191.9 M145.5 85.2 L145.5 69.2 L171.9 55.1 L171.9 71.1 M162.3 92.7 L162.3 76.7 L188.8 62.6 L188.8 78.6 M179.1 100.2 L179.1 84.2 L205.6 70.1 L205.6 86.1 M195.9 107.7 L195.9 91.7 L222.4 77.6 L222.4 93.6 M212.7 115.2 L212.7 99.2 L239.2 85.1 L239.2 101.1" },
       ],
@@ -76,8 +77,8 @@ const DRAWING = {
   masks: {
     outline: "M30.3 153.5 C30.3 105.5 53.8 81.9 104.2 96.4 L319.4 172.2 C351.3 183.4 369.8 210.6 363.1 233.7 C358 251.4 344.6 257.4 322.7 255.7 L94.1 229.9 C55.5 224.7 30.3 195.5 30.3 153.5 Z",
     aperture: "M162.2 190.2 C162.2 215.1 145.3 227.7 124.4 218.4 C103.5 209.1 86.6 181.4 86.6 156.5 C86.6 131.7 103.5 119.1 124.4 128.4 C145.3 137.7 162.2 165.4 162.2 190.2 Z M300.9 218 C300.9 234.5 285.8 241.3 267.3 233 C248.7 224.7 233.6 204.6 233.6 188 C233.6 171.5 248.7 164.7 267.3 173 C285.8 181.3 300.9 201.4 300.9 218 Z",
-    holder: "M90.8 158.4 L90.8 157.4 L90.8 156.3 L90.9 155.3 L91 154.3 L91.1 153.3 L91.2 152.3 L91.3 151.4 L91.5 150.4 L91.7 149.5 L91.9 148.6 L92.2 147.7 L92.4 146.8 L92.7 145.9 L93 145.1 L93.3 144.2 L93.7 143.4 L94 142.7 L94.4 141.9 L94.8 141.1 L95.3 140.4 L95.7 139.7 L96.2 139 L96.7 138.4 L97.2 137.8 L97.7 137.2 L98.3 136.6 L98.8 136 L99.4 135.5 L100 135 L100.6 134.5 L101.2 134.1 L101.9 133.6 L102.6 133.2 L103.2 132.9 L122.6 122.5 L123.3 122.2 L124 121.9 L124.8 121.6 L125.5 121.3 L126.2 121.1 L127 120.9 L127.8 120.7 L128.5 120.6 L129.3 120.5 L130.1 120.4 L130.9 120.3 L131.8 120.3 L132.6 120.3 L133.4 120.4 L134.3 120.4 L135.1 120.5 L136 120.6 L136.8 120.8 L137.7 121 L138.5 121.2 L139.4 121.4 L140.3 121.7 L141.2 122 L142 122.3 L142.9 122.7 L143.8 123 L144.7 123.4 L145.6 123.9 L146.4 124.3 L147.3 124.8 L148.2 125.3 L149.1 125.9 L149.9 126.4 L150.8 127 L151.6 127.6 L152.5 128.3 L153.3 128.9 L154.2 129.6 L155 130.3 L155.8 131 L156.7 131.8 L157.5 132.6 L158.3 133.4 L159.1 134.2 L159.8 135 L160.6 135.9 L161.4 136.7 L162.1 137.6 L162.8 138.5 L163.6 139.5 L164.3 140.4 L165 141.4 L165.6 142.3 L166.3 143.3 L166.9 144.3 L167.6 145.3 L168.2 146.4 L168.8 147.4 L169.4 148.4 L169.9 149.5 L170.5 150.6 L171 151.6 L171.5 152.7 L172 153.8 L172.5 154.9 L172.9 156 L173.3 157.1 L173.8 158.2 L174.1 159.3 L174.5 160.4 L174.9 161.5 L175.2 162.7 L175.5 163.8 L175.8 164.9 L176 166 L176.3 167.1 L176.5 168.2 L176.7 169.4 L176.9 170.5 L177 171.6 L177.1 172.6 L177.2 173.7 L177.3 174.8 L177.4 175.9 L177.4 176.9 L177.4 178 L177.4 179 L177.4 180.1 L177.3 181.1 L177.2 182.1 L177.1 183.1 L177 184.1 L176.9 185 L176.7 186 L176.5 186.9 L176.3 187.8 L176 188.7 L175.8 189.6 L175.5 190.5 L175.2 191.3 L174.9 192.2 L174.5 193 L174.1 193.8 L173.8 194.5 L173.3 195.3 L172.9 196 L172.5 196.7 L172 197.4 L171.5 198 L171 198.6 L170.5 199.3 L169.9 199.8 L169.4 200.4 L168.8 200.9 L168.2 201.4 L167.6 201.9 L166.9 202.3 L166.3 202.8 L165.6 203.2 L165 203.5 L145.5 213.9 L144.9 214.2 L144.1 214.5 L143.4 214.8 L142.7 215.1 L142 215.3 L141.2 215.5 L140.4 215.7 L139.7 215.8 L138.9 215.9 L138.1 216 L137.3 216.1 L136.4 216.1 L135.6 216.1 L134.8 216 L133.9 216 L133.1 215.9 L132.2 215.8 L131.4 215.6 L130.5 215.4 L129.6 215.2 L128.8 215 L127.9 214.7 L127 214.4 L126.1 214.1 L125.3 213.8 L124.4 213.4 L123.5 213 L122.6 212.5 L121.8 212.1 L120.9 211.6 L120 211.1 L119.1 210.5 L118.3 210 L117.4 209.4 L116.5 208.8 L115.7 208.1 L114.8 207.5 L114 206.8 L113.2 206.1 L112.3 205.4 L111.5 204.6 L110.7 203.8 L109.9 203 L109.1 202.2 L108.3 201.4 L107.6 200.5 L106.8 199.7 L106.1 198.8 L105.3 197.9 L104.6 196.9 L103.9 196 L103.2 195 L102.6 194.1 L101.9 193.1 L101.2 192.1 L100.6 191.1 L100 190.1 L99.4 189 L98.8 188 L98.3 186.9 L97.7 185.9 L97.2 184.8 L96.7 183.7 L96.2 182.6 L95.7 181.5 L95.3 180.4 L94.8 179.3 L94.4 178.2 L94 177.1 L93.7 176 L93.3 174.9 L93 173.7 L92.7 172.6 L92.4 171.5 L92.2 170.4 L91.9 169.3 L91.7 168.2 L91.5 167.1 L91.3 166 L91.2 164.9 L91.1 163.8 L91 162.7 L90.9 161.6 L90.8 160.5 L90.8 159.5 Z",
-    body: "M90.8 158.4 L90.8 157 L90.8 155.7 L90.9 154.4 L91.1 153.1 L91.2 151.9 L91.5 150.7 L91.7 149.5 L92 148.3 L92.3 147.2 L105.1 101.8 L135.1 85.8 L212.5 120.2 L212.5 208.2 L182.5 224.2 L132.3 215.8 L131.2 215.6 L130.1 215.3 L129 215 L127.8 214.7 L126.7 214.3 L125.5 213.9 L124.4 213.4 L123.2 212.8 L122.1 212.3 L121 211.6 L119.8 211 L118.7 210.3 L117.6 209.6 L116.5 208.8 L115.5 208 L114.4 207.1 L113.3 206.3 L112.3 205.4 L111.3 204.4 L110.3 203.4 L109.3 202.4 L108.4 201.4 L107.4 200.4 L106.5 199.3 L105.6 198.2 L104.7 197.1 L103.8 195.9 L103 194.7 L102.2 193.5 L101.4 192.3 L100.6 191.1 L99.9 189.8 L99.1 188.6 L98.4 187.3 L97.8 186 L97.1 184.7 L96.5 183.3 L95.9 182 L95.4 180.6 L94.8 179.3 L94.3 177.9 L93.9 176.5 L93.4 175.2 L93 173.8 L92.6 172.4 L92.3 171 L92 169.6 L91.7 168.2 L91.5 166.8 L91.2 165.4 L91.1 164 L90.9 162.6 L90.8 161.2 L90.8 159.8 Z",
+    holder: "M90.8 158.4 C90.8 148.8 93.9 137.5 103.2 132.9 L122.6 122.5 C124.3 121.8 126 121.1 127.8 120.7 C136.6 118.9 145.6 123 152.5 128.3 C165.8 138.5 175.5 155.9 177.1 172.6 C178 182 176.9 192.8 169.9 199.8 C168.4 201.3 166.9 202.6 165 203.5 L145.5 213.9 C136.5 218.4 126.3 215.2 118.3 210 C102.9 200.1 90.8 177.8 90.8 159.5 Z",
+    body: "M90.8 158.4 C90.8 154.6 91.3 150.9 92.3 147.2 L105.1 101.8 L135.1 85.8 L212.5 120.2 L212.5 208.2 L182.5 224.2 L132.3 215.8 C113.5 212.4 99.6 193.6 93.9 176.5 C92.1 171.2 90.8 165.5 90.8 159.8 Z",
   },
   axes: ["M-758 644 L1006.7 -297.2", "M-615.1 673.6 L1149.6 -267.6"],
 } satisfies {
@@ -114,7 +115,6 @@ export function HeadlightLines({
   className?: string;
 }) {
   const shift = assemblyOffset(offsets ?? []);
-  const line = { vectorEffect: "non-scaling-stroke" } as const;
 
   return (
     <svg
@@ -126,7 +126,17 @@ export function HeadlightLines({
       strokeWidth={1.1}
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={cn("block h-auto w-full text-fg/30", className)}
+      className={cn(
+        "block h-auto w-full text-fg/30",
+        // Once here rather than on every element: strokes keep their width when the drawing
+        // scales; each layer's highlight; the callout numbers (too small to read on phones).
+        "[&_[data-assembly]_circle]:[vector-effect:non-scaling-stroke] [&_[data-assembly]_path]:[vector-effect:non-scaling-stroke]",
+        "[&_[data-layer]]:transition-[color,stroke-width] [&_[data-layer]]:duration-500 [&_[data-layer]]:ease-out-expo",
+        "[&_[data-layer][data-active]]:text-fg [&_[data-layer][data-active]]:[stroke-width:1.6]",
+        "[&_text]:fill-muted [&_text]:font-mono [&_text]:text-[14px] [&_text]:tracking-[0.08em] [&_text]:transition-[fill] [&_text]:duration-500 [&_[data-active]_text]:fill-fg",
+        "max-md:[&_[data-callout]]:hidden",
+        className,
+      )}
     >
       <defs>
         {(["outline", "holder", "body"] as const).map((id) => (
@@ -149,31 +159,29 @@ export function HeadlightLines({
         style={{ transformOrigin: `${ASSEMBLED_CENTRE.x}px ${ASSEMBLED_CENTRE.y}px` }}
       >
         {/* The assembly axes: the layers slide along them. */}
-        <path d={DRAWING.axes.join(" ")} strokeWidth={1} strokeDasharray="12 4 2 4" className="opacity-60" {...line} />
+        <path d={DRAWING.axes.join(" ")} strokeWidth={1} strokeDasharray="12 4 2 4" className="opacity-60" />
         {DRAWING.layers.map((layer, index) => (
           <g
             key={index}
             data-layer={index}
             transform={offsets?.[index] ? translate(offsets[index]) : undefined}
-            className="transition-[color,stroke-width] duration-500 ease-out-expo data-active:text-fg data-active:[stroke-width:1.6]"
           >
-            <path d={layer.face} {...line} />
+            <path d={layer.face} />
             <g data-depth="">
               {layer.depth.map((part) => (
-                <path key={part.mask ?? "open"} d={part.d} mask={part.mask ? `url(#${maskId(part.mask)})` : undefined} {...line} />
+                <path key={part.mask ?? "open"} d={part.d} mask={part.mask ? `url(#${maskId(part.mask)})` : undefined} />
               ))}
             </g>
-            {/* Callouts match the list's numbers; too small to read on phones. */}
-            <g className="max-md:hidden">
-              <path d={layer.tag.d} {...line} />
-              <circle cx={layer.tag.dot[0]} cy={layer.tag.dot[1]} r={2.2} {...line} />
+            {/* Callouts match the list's numbers. */}
+            <g data-callout="">
+              <path d={layer.tag.d} />
+              <circle cx={layer.tag.dot[0]} cy={layer.tag.dot[1]} r={2.2} />
               <text
                 x={layer.tag.x}
                 y={layer.tag.y}
                 textAnchor={layer.tag.anchor === "end" ? "end" : "start"}
                 dominantBaseline="central"
                 stroke="none"
-                className="fill-muted font-mono text-[14px] tracking-[0.08em] transition-[fill] duration-500 [[data-active]_&]:fill-fg"
               >
                 {String(index + 1).padStart(2, "0")}
               </text>
