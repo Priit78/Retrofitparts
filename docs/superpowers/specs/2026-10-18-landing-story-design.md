@@ -220,7 +220,14 @@ New copy, to add to CONTENT-TODO "copy to confirm":
 Where the build departs from the text above (2026-10-18):
 
 - **Pinning** also needs a viewport at least 32rem (512 px) tall; shorter screens get the static
-  layout.
+  layout. Leaves read the chapter through `useChapter()` (progress, `animated`, `seek`), not
+  `useChapterProgress()`.
+- **Links into a pinned chapter** (header, chapter index, `/et#process` from another page) land
+  at its start, p = 0: pinned chapters have `scroll-margin-top: 0`, because their stage keeps its
+  own room for the header. Static, they keep the 5rem margin other sections have.
+- **Resizes, rotations and reduced-motion switches** keep the reader's place
+  (`src/lib/keep-place.ts`): the tracks are in vh, so the scroll offset alone would land them in
+  another section.
 - **Hero:** the pinned stage is one screen tall. The trust row reads after the chapter, in the
   flow, below lg and on screens under 42rem tall; elsewhere it stays in the stage (and fades
   when pinned). The second line centres from lg; below lg it sits near the top, where the copy
@@ -230,8 +237,9 @@ Where the build departs from the text above (2026-10-18):
   compact type scale, so the photo keeps its full width. The caption chip hides in frames
   narrower than 12.5rem (the alt texts carry the meaning).
 - **Difference:** the side tags fade out as the split reaches them.
-- **Fix:** the assembled drawing starts at 1.25× and settles to its own size as it comes apart,
-  while the dashed depth edges draw in. The parts list never changes size while it scrolls: each
+- **Fix:** strokes are 1.1 px (1.6 px on the active layer). The assembled drawing starts at
+  1.25× and settles to its own size as it comes apart, while the depth edges (solid) fade in;
+  the dashed lines are the assembly axes the layers slide along, always shown. The parts list never changes size while it scrolls: each
   part keeps its row, and the descriptions share one slot under the list, as tall as the longest.
   The active part is `aria-current="step"` in `fg`; its description fades and rises into the
   slot while the others fade out.
@@ -245,6 +253,10 @@ Where the build departs from the text above (2026-10-18):
   ticks. Only the current label shows; hovering the index reveals all of them, and a focused
   tick shows its own. The catalog strip is full-bleed, so its tiles do pass under the index;
   the labels sit on a small `bg` chip there (as the problem chapter's caption does).
+- **LCP target (lead ruling):** measured at 390×844 @3 with 4× CPU on DevTools' Fast 4G (median
+  of at least 9 runs), LCP stays within +0.1 s of the pre-story baseline (`89bd6d1`) measured in
+  the same session. The baseline itself misses 1.1 s on the build machine, so the absolute
+  "1.1 s" above is not the test. On 2026-10-18 (15 runs each): story 1.20 s, baseline 1.16 s.
 
 ## Out of scope
 

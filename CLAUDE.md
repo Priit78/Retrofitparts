@@ -24,8 +24,9 @@ memory of Next.js APIs.
 - Every visible string is bilingual. Copy lives in `src/content/<area>.ts` as `{ et, en }` objects
   (`Localized<T>` from `@/lib/i18n`). Company facts, hours, address and prices come only from
   `src/content/site.ts`.
-- Sections are `export function Name({ locale }: { locale: Locale })` in
-  `src/components/sections/`. Each is self-contained.
+- Sections are `export function Name({ locale }: { locale: Locale })`, self-contained, in
+  `src/components/sections/`; the scroll story's own chapters (problem, fix, process) and their
+  leaves are in `src/components/story/`.
 - Design direction A "Dark refined" (`docs/superpowers/specs/2026-10-18-redesign-direction-a.md`):
   graphite and warm white, photo-led, calm. **No glow**: no coloured box-shadow glows, text glow,
   bloom, neon gradients, cursor-follow light or canvas effects. Radius 2 px. Prefer hairline
@@ -37,12 +38,13 @@ memory of Next.js APIs.
   Mono, small uppercase labels).
 - Photos live in `src/assets/photos/` and render through `next/image` (static imports), with
   bilingual alt text from content files. Sources are listed in `docs/CREDITS.md`.
-- Animation is quiet: `Reveal` entrances, the before/after slider, the process progress line and
+- Animation is quiet: `Reveal` entrances, the scroll story's chapters, the before/after slider and
   the FAQ accordion. Every animation respects `prefers-reduced-motion`, and no content may stay
   hidden if JS or animation doesn't run. Never wrap above-the-fold or LCP content (the hero h1) in
   `Reveal`, and put hover transitions on a child of a `Reveal` rather than on the element itself.
 - The landing page is a scroll story (`docs/superpowers/specs/2026-10-18-landing-story-design.md`):
-  pinned chapters are `ScrollChapter`s in `src/components/story/`, whose leaves read
+  pinned chapters use `ScrollChapter` (from `src/components/story/`), wherever the section file
+  lives, and their leaves read
   `useChapter()` (progress, `animated`, `seek`) and fade text with `Beat`; style the pinned layout
   with `pinned:` / `pinned-lg:` and leave the unprefixed static layout showing everything (no JS,
   reduced motion, short screens). Per frame, animate only transform, opacity and clip-path.
