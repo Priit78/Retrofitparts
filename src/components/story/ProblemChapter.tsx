@@ -13,8 +13,19 @@ import { Beat } from "./Beat";
 import { PolishWipe } from "./PolishWipe";
 import { ScrollChapter } from "./ScrollChapter";
 
-/** The photo column: 7/12 of the container from lg, the full width below. */
-const PHOTO_SIZES = "(min-width: 1280px) 690px, (min-width: 1024px) 56vw, 100vw";
+/**
+ * The photo column: 7/12 of the container from lg. From 640 px to lg the static pair sits side
+ * by side (half width) while the pinned frame spans the container; static there means reduced
+ * motion or a viewport too short to pin (pinned.ts). Phones get the full width. (Without JS a
+ * tablet fetches the full-width size: harmless.)
+ */
+const PHOTO_SIZES = [
+  "(min-width: 1280px) 690px",
+  "(min-width: 1024px) 56vw",
+  "(min-width: 640px) and (prefers-reduced-motion: reduce) 50vw",
+  "(min-width: 640px) and (max-height: 511px) 50vw",
+  "100vw",
+].join(", ");
 
 /** Pinned, the three beats share one grid cell and crossfade; static, they read in order. */
 const beatClass = "pinned:[grid-area:1/1] pinned:self-start pinned:lg:self-center";
@@ -49,7 +60,7 @@ function Compare({ locale }: { locale: Locale }) {
     <div
       className={cn(
         "mt-8 grid gap-10 sm:grid-cols-2 sm:gap-6 pinned:mt-6 pinned:grid-cols-2 pinned:gap-4 pinned:sm:gap-6",
-        "pinned:max-md:[@media(max-height:40rem)]:mt-4",
+        "pinned:max-md:[@media(max-height:40rem)]:mt-3",
       )}
     >
       {columns.map((column) => {
@@ -77,7 +88,12 @@ function Compare({ locale }: { locale: Locale }) {
               {column.points.map((point) => (
                 <li
                   key={point.en}
-                  className="flex gap-3 text-[15px] leading-relaxed text-pretty pinned:max-sm:gap-2 pinned:max-sm:text-[13px] pinned:max-sm:leading-snug"
+                  className={cn(
+                    "flex gap-3 text-[15px] leading-relaxed text-pretty",
+                    // Pinned on a phone the columns sit side by side; 13 px only on a short one.
+                    "pinned:max-sm:gap-2 pinned:max-sm:text-[14px] pinned:max-sm:leading-snug",
+                    "pinned:max-md:[@media(max-height:40rem)]:text-[13px]",
+                  )}
                 >
                   <Icon
                     aria-hidden
@@ -117,8 +133,8 @@ export function ProblemStage({ locale }: { locale: Locale }) {
       {/* The pair beside the beats from lg; it stays in view while static beats scroll past. */}
       <div className="lg:sticky lg:top-28 lg:order-2 pinned:lg:static">
         <PolishWipe
-          // A short phone gets a shallower crop of the pair.
-          className="pinned:max-md:[@media(max-height:40rem)]:max-h-[22svh]"
+          // On a short phone the frame is capped at 20svh tall: it keeps its 32:15 shape and narrows.
+          className="pinned:max-md:[@media(max-height:40rem)]:max-h-[20svh]"
           before={
             <Image
               src={headlightUnpolished}

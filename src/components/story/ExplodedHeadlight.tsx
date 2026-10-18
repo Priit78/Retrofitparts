@@ -1,9 +1,9 @@
 "use client";
 
-import { useLayoutEffect, useRef, type ReactNode } from "react";
+import { useLayoutEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { explodeOffset } from "@/lib/story";
-import { activePartAt, assemblyTransform, depthAt, explodeAt, type Offset } from "./anatomy";
+import { ASSEMBLED_SCALE, activePartAt, assemblyTransform, depthAt, explodeAt, type Offset } from "./anatomy";
 import { useChapter } from "./ScrollChapter";
 
 const translate = ({ x, y }: Offset) => `translate(${x}px, ${y}px)`;
@@ -57,9 +57,11 @@ export function ExplodedHeadlight({ children, className }: { children: ReactNode
   return (
     <div
       ref={ref}
+      // Set once, for the pre-hydration CSS below; the frames use the same constant.
+      style={{ "--assembled-scale": ASSEMBLED_SCALE } as CSSProperties}
       className={cn(
         // p = 0 before hydration: assembled at ASSEMBLED_SCALE, no depth edges.
-        "pinned:[&_[data-assembly]]:[transform:scale(1.25)] pinned:[&_[data-depth]]:opacity-0 pinned:[&_[data-layer]]:transform-none",
+        "pinned:[&_[data-assembly]]:[transform:scale(var(--assembled-scale))] pinned:[&_[data-depth]]:opacity-0 pinned:[&_[data-layer]]:transform-none",
         className,
       )}
     >

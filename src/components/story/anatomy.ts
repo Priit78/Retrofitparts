@@ -37,7 +37,7 @@ export function assemblyOffset(offsets: readonly Offset[]): Offset {
 
 /**
  * The assembled drawing is shown this much larger and settles to its own size as it comes apart,
- * like a camera pulling back. The `pinned:` pre-hydration class in ExplodedHeadlight repeats it.
+ * like a camera pulling back. ExplodedHeadlight also hands it to its pre-hydration CSS.
  */
 export const ASSEMBLED_SCALE = 1.25;
 

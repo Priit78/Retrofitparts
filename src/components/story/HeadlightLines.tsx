@@ -29,6 +29,15 @@ interface Layer {
   tag: { d: string; dot: number[]; x: number; y: number; anchor: string };
 }
 
+/*
+ * How the data was made: a one-off script modelled each part in 3D (face plane x right, y down,
+ * depth z back) and projected it as screen = x·X + y·Y + z·Z, with X = 0.92·(cos 24°, sin 24°),
+ * Y = (0, 1) and Z the unit explode direction (120, −64)/136. Outlines are cubic Béziers mapped
+ * point by point (a parallel projection keeps them Béziers), circles are four cubics, cylinder
+ * silhouettes are the outer tangents of the projected end circles (its far arc a polyline), and
+ * the masks are the parts' projected hulls. Coordinates are rounded to 0.1. To change the drawing,
+ * edit the paths here, or rebuild them the same way.
+ */
 const DRAWING = {
   layers: [
     {
@@ -77,7 +86,14 @@ const DRAWING = {
   axes: string[];
 };
 
-/** Fits the assembled and the fully exploded drawing, with its callouts. */
+/**
+ * The centre of the assembled drawing, callouts included (its bounding box is x −8…402,
+ * y 55…278): the origin ExplodedHeadlight scales the assembly about. Re-measure it if the paths
+ * above change.
+ */
+const ASSEMBLED_CENTRE = { x: 197, y: 167 };
+
+/** Fits the assembled (scaled up) and the fully exploded drawing, with its callouts. */
 const VIEW_BOX = "-198 -24 790 386";
 /** Mask canvas: everything the drawing can cover, whatever its offsets. */
 const CANVAS = { x: -600, y: -600, width: 2000, height: 1600 };
@@ -130,7 +146,11 @@ export function HeadlightLines({
       </defs>
 
       {/* Scaled about the assembled headlight's centre (ExplodedHeadlight shows it larger). */}
-      <g data-assembly="" transform={translate(shift)} className="[transform-origin:197px_167px]">
+      <g
+        data-assembly=""
+        transform={translate(shift)}
+        style={{ transformOrigin: `${ASSEMBLED_CENTRE.x}px ${ASSEMBLED_CENTRE.y}px` }}
+      >
         {/* The assembly axes: the layers slide along them. */}
         <path d={DRAWING.axes.join(" ")} strokeWidth={1} strokeDasharray="12 4 2 4" className="opacity-60" {...line} />
         {DRAWING.layers.map((layer, index) => (

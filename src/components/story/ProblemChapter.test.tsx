@@ -101,6 +101,41 @@ describe("ProblemStage", () => {
     }
   });
 
+  it.each(locales)("drops every motion style when the chapter stops animating (%s)", (locale) => {
+    const stage = (animated: boolean) => (
+      <ChapterProgressProvider progress={0.46} animated={animated}>
+        <ProblemStage locale={locale} />
+      </ChapterProgressProvider>
+    );
+    const { container, rerender } = render(stage(true));
+    expect(clipOf(screen.getByRole("img", { name: polish.photos.polished.alt[locale] }))).toBe("inset(0 50% 0 0)");
+    rerender(stage(false));
+
+    for (const el of container.querySelectorAll<HTMLElement>("*")) {
+      expect(el.style.clipPath).toBe("");
+      expect(el.style.transform).toBe("");
+      expect(el.style.opacity).toBe("");
+    }
+    for (const photo of [polish.photos.unpolished, polish.photos.polished]) {
+      const img = screen.getByRole("img", { name: photo.alt[locale] });
+      expect(img.closest("figure")).toHaveTextContent(photo.caption[locale]);
+    }
+    for (const name of beatTitles(locale)) {
+      expect(shownOpacity(screen.getByRole("heading", { name }))).toBe(1);
+    }
+  });
+
+  it("asks for half-width photos where the static pair sits side by side, full width where it pins", () => {
+    renderStage("et", 0);
+    for (const photo of [polish.photos.unpolished, polish.photos.polished]) {
+      const sizes = screen.getByRole("img", { name: photo.alt.et }).getAttribute("sizes") ?? "";
+      // 640–1023 px: side by side when static (reduced motion, or too short to pin), one frame when pinned.
+      expect(sizes).toContain("(min-width: 640px) and (prefers-reduced-motion: reduce) 50vw");
+      expect(sizes).toContain("(min-width: 640px) and (max-height: 511px) 50vw");
+      expect(sizes.trim().endsWith("100vw")).toBe(true);
+    }
+  });
+
   it.each(locales)("shows both photos with their own captions and no motion styles when static (%s)", (locale) => {
     renderStage(locale, 0.5, false);
     for (const photo of [polish.photos.unpolished, polish.photos.polished]) {

@@ -35,7 +35,7 @@ export function AnatomyStage({ locale }: { locale: Locale }) {
           id={HEADING_ID}
           className={cn(
             "mt-4 text-[32px] leading-[1.05] font-semibold tracking-[-0.025em] text-balance text-fg md:text-[52px]",
-            "pinned:max-md:[@media(max-height:40rem)]:mt-2 pinned:max-md:[@media(max-height:40rem)]:text-[26px]",
+            "pinned:max-md:text-[28px] pinned:max-md:[@media(max-height:40rem)]:mt-2 pinned:max-md:[@media(max-height:40rem)]:text-[26px]",
           )}
         >
           {polish.partsHeading[locale]}
@@ -45,7 +45,8 @@ export function AnatomyStage({ locale }: { locale: Locale }) {
         <HeadlightLines
           label={story.anatomy.drawingLabel[locale]}
           offsets={EXPLODED}
-          className="pinned:max-md:[@media(max-height:40rem)]:max-h-[22svh]"
+          // Pinned on a phone the drawing gives way to the list's description slot.
+          className="pinned:max-md:max-h-[24svh] pinned:max-md:[@media(max-height:40rem)]:max-h-[22svh]"
         />
       </ExplodedHeadlight>
       <PartsList
