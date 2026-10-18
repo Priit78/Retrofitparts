@@ -54,8 +54,9 @@ export const processCopy = {
       id: "warranty",
       title: { et: "Garantii", en: "Warranty" },
       body: {
-        et: "Projektoritele kehtib {years}-aastane garantii. Kõik tooted on meil endal ära testitud.",
-        en: "Projectors carry a {years}-year warranty, and we have tested every product ourselves.",
+        // A word joiner (U+2060) after the hyphen, as in the range above.
+        et: "Projektoritele kehtib {years}-\u2060aastane garantii. Kõik tooted on meil endal ära testitud.",
+        en: "Projectors carry a {years}-\u2060year warranty, and we have tested every product ourselves.",
       },
       tag: { et: "{years} aastat", en: "{years} years" },
     },

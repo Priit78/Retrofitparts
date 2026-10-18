@@ -153,7 +153,8 @@ export const catalog = {
     inquire: { et: "Küsi pakkumist", en: "Request an offer" },
     warranty: {
       et: (n: number) => `Garantii ${n} aastat`,
-      en: (n: number) => `${n}-year warranty`,
+      // A word joiner (U+2060) after the hyphen: a line may otherwise break after it.
+      en: (n: number) => `${n}-\u2060year warranty`,
     },
     delivery: {
       "in-stock": {

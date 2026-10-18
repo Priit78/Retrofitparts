@@ -105,7 +105,8 @@ describe("Hero", () => {
       const items = within(list).getAllByRole("listitem");
       expect(items).toHaveLength(4);
       expect(items[0]).toHaveTextContent(`${site.experienceYears} aastat kogemust`);
-      expect(items[1]).toHaveTextContent(`${site.warrantyYears}-aastane garantii`);
+      expect(items[1]).toHaveTextContent(hero.trust[1].title.et);
+      expect(items[1]).toHaveTextContent(String(site.warrantyYears));
       expect(items[2]).toHaveTextContent("Ametlik esindaja");
       for (const brand of site.representedBrands) expect(items[2]).toHaveTextContent(brand);
       expect(items[3]).toHaveTextContent(site.address.street);

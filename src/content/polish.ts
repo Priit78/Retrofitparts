@@ -110,9 +110,10 @@ export const polish = {
           et: "Oluliselt parem nähtavus pimedas",
           en: "Much better visibility in the dark",
         },
+        // A word joiner (U+2060) after the hyphen: a line may otherwise break after it.
         {
-          et: `Projektoritele ${site.warrantyYears}-aastane garantii`,
-          en: `${site.warrantyYears}-year warranty on projectors`,
+          et: `Projektoritele ${site.warrantyYears}-\u2060aastane garantii`,
+          en: `${site.warrantyYears}-\u2060year warranty on projectors`,
         },
       ] satisfies Localized<string>[],
     },

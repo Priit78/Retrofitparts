@@ -57,9 +57,10 @@ export const hero = {
     },
     {
       id: "warranty",
+      // A word joiner (U+2060) after the hyphen: a line may otherwise break after it.
       title: {
-        et: `${site.warrantyYears}-aastane garantii`,
-        en: `${site.warrantyYears}-year warranty`,
+        et: `${site.warrantyYears}-\u2060aastane garantii`,
+        en: `${site.warrantyYears}-\u2060year warranty`,
       },
       detail: {
         et: "projektoritele",
