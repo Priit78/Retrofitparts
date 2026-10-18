@@ -134,6 +134,12 @@ function SpecTable({ product, locale }: { product: Product; locale: Locale }) {
 /** Above this many vehicles the fitment list runs in two tighter columns (from `sm`). */
 const LONG_FITMENT = 6;
 
+/** "BMW X5 E53 (2003–2006)" as the model and its trailing year range, if it has one. */
+function splitYears(text: string): [string, string | null] {
+  const match = /^(.*\S)\s+(\([^()]*\d{4}[^()]*\))$/.exec(text);
+  return match ? [match[1], match[2]] : [text, null];
+}
+
 function Fitment({ product, locale }: { product: Product; locale: Locale }) {
   const t = catalog.product;
   const long = product.fitment.length > LONG_FITMENT;
@@ -143,19 +149,31 @@ function Fitment({ product, locale }: { product: Product; locale: Locale }) {
         {t.fitment[locale]}
       </h2>
       {product.fitment.length > 0 ? (
-        <ul className={cn("mt-4 grid border-t border-line", long && "sm:grid-cols-2 sm:gap-x-6")}>
-          {product.fitment.map((entry) => (
-            <li
-              key={entry.en}
-              className={cn(
-                "flex min-w-0 items-start gap-3 border-b border-line text-sm leading-snug text-fg [overflow-wrap:anywhere]",
-                long ? "py-2.5" : "py-3",
-              )}
-            >
-              <Check aria-hidden className="mt-px size-4 shrink-0 text-muted" strokeWidth={1.75} />
-              {entry[locale]}
-            </li>
-          ))}
+        // Columns (not a grid) so an alphabetical list reads down the first column, then the next.
+        <ul className={cn("mt-4 border-t border-line", long && "sm:columns-2 sm:gap-x-6")}>
+          {product.fitment.map((entry) => {
+            const [model, years] = splitYears(entry[locale]);
+            return (
+              <li
+                key={entry.en}
+                className={cn(
+                  "flex min-w-0 break-inside-avoid items-start gap-3 border-b border-line text-sm leading-snug text-fg [overflow-wrap:anywhere]",
+                  long ? "py-2.5" : "py-3",
+                )}
+              >
+                <Check aria-hidden className="mt-px size-4 shrink-0 text-muted" strokeWidth={1.75} />
+                <span>
+                  {model}
+                  {years ? (
+                    <>
+                      {" "}
+                      <span className="whitespace-nowrap">{years}</span>
+                    </>
+                  ) : null}
+                </span>
+              </li>
+            );
+          })}
         </ul>
       ) : (
         <p className="mt-4 text-sm leading-relaxed text-pretty text-soft">{t.fitmentNone[locale]}</p>

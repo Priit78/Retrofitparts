@@ -31,6 +31,8 @@ const C = {
   surface: "#15181c",
   surface2: "#1b1f24",
   graphite: "#2b2f35",
+  /** Lit graphite: the plinth's top face and the top of a headlight housing. */
+  graphiteLit: "#3b3f45",
   steel: "#5c6168",
   muted: "#a2a6ac",
   soft: "#c9cdd2",
@@ -112,7 +114,7 @@ function defs(): string {
     // Scene: a graphite sweep, lit by a broad softbox from the upper left
     lin("backdrop", 0, 1, stop(0, C.graphite), stop(0.55, C.surface2), stop(1, C.surface)),
     lin("key", 1, 1, stop(0, C.light, 0.07), stop(0.45, C.light, 0.02), stop(1, C.light, 0)),
-    lin("plinth-top", 0, 1, stop(0, "#3b3f45"), stop(1, C.graphite)),
+    lin("plinth-top", 0, 1, stop(0, C.graphiteLit), stop(1, C.graphite)),
     lin("plinth-sheen", 1, 0.4, stop(0, C.light, 0.08), stop(0.6, C.light, 0)),
     lin("plinth-side", 1, 0, stop(0, C.graphite), stop(0.55, C.surface), stop(1, C.surface2)),
     lin(
@@ -152,7 +154,7 @@ function defs(): string {
     el(
       "linearGradient",
       { id: "housing", gradientUnits: "userSpaceOnUse", x1: 0, y1: 92, x2: 0, y2: 210 },
-      stop(0, "#3b3f45"),
+      stop(0, C.graphiteLit),
       stop(0.3, C.graphite),
       stop(1, C.bg),
     ),

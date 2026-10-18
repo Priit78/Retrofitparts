@@ -259,7 +259,9 @@ function CategoryOptions({
       </p>
       <ul className={variant === "list" ? "flex flex-col border-t border-line" : "flex flex-wrap gap-2"}>
         {options.map((option) => {
-          const active = filters.category === option.id;
+          // A link can select several categories (the landing tiles do); each one shows as
+          // pressed. A click still selects just that one, and "All" clears the category.
+          const active = option.id ? Boolean(filters.category?.includes(option.id)) : !filters.category;
           // Empty categories stay clickable and readable: in the sheet their label drops from
           // `fg` to `muted`; in the list every inactive row is already `muted`. Both hold AA on
           // the page and on the sheet. No opacity dimming, which took them below AA.
@@ -270,7 +272,10 @@ function CategoryOptions({
                 type="button"
                 aria-pressed={active}
                 onClick={() =>
-                  onChange({ category: option.id }, { reveal: variant === "list" })
+                  onChange(
+                    { category: option.id ? [option.id] : undefined },
+                    { reveal: variant === "list" },
+                  )
                 }
                 className={cn(
                   "flex items-center text-left transition-[background-color,border-color,color] duration-300",
@@ -544,22 +549,34 @@ export function ResultsHeader({
 }) {
   const t = catalog.filters;
   const sortId = useId();
-  const category = categories.find((c) => c.id === filters.category);
-  const pills: { key: keyof CatalogFilters; label: ReactNode; text: string }[] = [];
-  if (category) {
-    pills.push({ key: "category", label: category.name[locale], text: category.name[locale] });
+  const pills: { key: string; label: ReactNode; text: string; remove: Partial<CatalogFilters> }[] = [];
+  // One pill per category; removing one keeps the others (the last one clears the filter).
+  for (const id of filters.category ?? []) {
+    const name = categories.find((c) => c.id === id)?.name[locale] ?? id;
+    const rest = filters.category?.filter((other) => other !== id) ?? [];
+    pills.push({
+      key: `category-${id}`,
+      label: name,
+      text: name,
+      remove: { category: rest.length > 0 ? rest : undefined },
+    });
   }
   // The same spelling as the selects show (`?make=bmw` reads "BMW").
   if (filters.make) {
     const make = selectOptions(makes, filters.make).selected;
-    pills.push({ key: "make", label: make, text: make });
+    pills.push({ key: "make", label: make, text: make, remove: { make: undefined } });
   }
   if (filters.brand) {
     const brand = selectOptions(brands, filters.brand).selected;
-    pills.push({ key: "brand", label: brand, text: brand });
+    pills.push({ key: "brand", label: brand, text: brand, remove: { brand: undefined } });
   }
   if (filters.q) {
-    pills.push({ key: "q", label: t.queryPill[locale](filters.q), text: filters.q });
+    pills.push({
+      key: "q",
+      label: t.queryPill[locale](filters.q),
+      text: filters.q,
+      remove: { q: undefined },
+    });
   }
 
   return (
@@ -579,7 +596,7 @@ export function ResultsHeader({
               <button
                 type="button"
                 aria-label={t.remove[locale](pill.text)}
-                onClick={() => onChange({ [pill.key]: undefined })}
+                onClick={() => onChange(pill.remove)}
                 className="group/pill inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-[2px] border border-fg/35 py-1 pr-2 pl-3 text-[13px] text-fg transition-[background-color,border-color] duration-300 hover:border-fg/70 hover:bg-fg/[0.04]"
               >
                 <span className="truncate">{pill.label}</span>

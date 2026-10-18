@@ -20,7 +20,7 @@ export const catalog = {
   meta: {
     title: { et: "Tootekataloog", en: "Product catalog" },
     description: {
-      et: "Bi-LED ja bi-xenon projektorid, tuleklaasid, komplektsed esituled, xenon-lambid, ballastid ja paigaldustarvikud. Hinnad sisaldavad käibemaksu. Küsi pakkumist otse tootelehelt.",
+      et: "Bi-LED- ja bi-xenon-projektorid, tuleklaasid, komplektsed esituled, xenon-lambid, ballastid ja paigaldustarvikud. Hinnad sisaldavad käibemaksu. Küsi pakkumist otse tootelehelt.",
       en: "Bi-LED and bi-xenon projectors, headlight lenses, complete headlights, xenon bulbs, ballasts and fitting parts. Prices include VAT. Request an offer straight from the product page.",
     },
   },
@@ -32,8 +32,8 @@ export const catalog = {
       en: "Projectors, lenses and everything a headlight needs",
     },
     intro: {
-      et: "Projektorid, tuleklaasid, komplektsed esituled, lambid ja paigaldustarvikud, mida müüme ja oma töökojas paigaldame. Hinnad sisaldavad käibemaksu. Morimoto, Bimmerjakes ja Strands kataloogidest tellime ka tooteid, mida siin ei ole.",
-      en: "Projectors, lenses, complete headlight units, bulbs and fitting parts that we sell and fit in our workshop. Prices include VAT. We can also order products from the Morimoto, Bimmerjakes and Strands catalogs that are not listed here.",
+      et: "Müüme ja paigaldame oma töökojas kõike alates komplektsetest esituledest kuni paigaldustarvikuteni. Hinnad sisaldavad käibemaksu. Morimoto, Bimmerjakes ja Strands kataloogidest tellime ka tooteid, mida siin ei ole.",
+      en: "We sell all of it and fit it in our own workshop, from complete headlight units to fitting parts. Prices include VAT. We can also order products from the Morimoto, Bimmerjakes and Strands catalogs that are not listed here.",
     },
     /** Labels under the figures (the number itself is shown separately). */
     stats: {
@@ -207,7 +207,7 @@ export const catalog = {
         },
       },
       led: {
-        title: { et: "LED projektorid ja kaugtuled", en: "LED projectors and high beams" },
+        title: { et: "LED-projektorid ja -kaugtuled", en: "LED projectors and high beams" },
         alt: {
           et: "Matthalli auto LED-esituli lähivaates",
           en: "A matte grey car's LED headlight, close up",

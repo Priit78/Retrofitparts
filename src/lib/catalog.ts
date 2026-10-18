@@ -8,7 +8,11 @@ export const sorts = ["featured", "price-asc", "price-desc"] as const;
 export type CatalogSort = (typeof sorts)[number];
 
 export interface CatalogFilters {
-  category?: CategoryId;
+  /**
+   * One or more categories (a product matches if it is in any of them), never empty, without
+   * duplicates and in the display order of `categories`. Absent means every category.
+   */
+  category?: CategoryId[];
   brand?: string;
   make?: string;
   q?: string;
@@ -25,16 +29,26 @@ function readParam(params: RawParams, key: string): string | undefined {
 }
 
 /**
+ * The categories in a `category` param (`lenses` or `led-projectors,led-lights`): known ids
+ * only, each once, in display order, so every spelling of a set reads (and writes) the same.
+ * `undefined` when none is left, which means every category.
+ */
+function parseCategories(raw: string | undefined): CategoryId[] | undefined {
+  if (!raw) return undefined;
+  const wanted = new Set(raw.split(",").map((id) => id.trim()));
+  const ids = categories.map((c) => c.id).filter((id) => wanted.has(id));
+  return ids.length > 0 ? ids : undefined;
+}
+
+/**
  * Reads catalog filters from URL params. Unknown categories and sort values are dropped;
  * brand, make and q are kept as text (a stale link then simply shows no results).
  */
 export function parseFilters(params: RawParams): CatalogFilters {
   const filters: CatalogFilters = {};
 
-  const category = readParam(params, "category");
-  if (category && categories.some((c) => c.id === category)) {
-    filters.category = category as CategoryId;
-  }
+  const category = parseCategories(readParam(params, "category"));
+  if (category) filters.category = category;
 
   const brand = readParam(params, "brand");
   if (brand) filters.brand = brand;
@@ -53,11 +67,15 @@ export function parseFilters(params: RawParams): CatalogFilters {
   return filters;
 }
 
-/** Serialises filters to `''` or `'?category=lenses&make=BMW'`, keys in a fixed order. */
+/**
+ * Serialises filters to `''`, `'?category=lenses&make=BMW'` or
+ * `'?category=led-projectors,led-lights'`, keys in a fixed order. Commas stay readable: they
+ * need no escaping in a query, and `parseFilters` only splits the category on them.
+ */
 export function filtersToQuery(f: CatalogFilters): string {
   const params = new URLSearchParams();
   const entries: [string, string | undefined][] = [
-    ["category", f.category],
+    ["category", f.category?.join(",")],
     ["brand", f.brand],
     ["make", f.make],
     ["q", f.q],
@@ -66,7 +84,7 @@ export function filtersToQuery(f: CatalogFilters): string {
   for (const [key, value] of entries) {
     if (value) params.set(key, value);
   }
-  const query = params.toString();
+  const query = params.toString().replace(/%2C/gi, ",");
   return query ? `?${query}` : "";
 }
 
@@ -107,7 +125,7 @@ export function filterProducts(
   const words = f.q ? normalize(f.q).split(/\s+/).filter(Boolean) : [];
 
   const result = list.filter((p) => {
-    if (f.category && p.category !== f.category) return false;
+    if (f.category && !f.category.includes(p.category)) return false;
     if (brand && (!p.brand || normalize(p.brand) !== brand)) return false;
     if (make && !p.makes.some((m) => normalize(m) === make)) return false;
     if (words.length > 0) {

@@ -12,20 +12,33 @@ import { catalog } from "@/content/catalog";
 import { site } from "@/content/site";
 import { categories, products } from "@/data/products";
 import type { CategoryId } from "@/data/types";
+import { filterProducts, filtersToQuery, type CatalogFilters } from "@/lib/catalog";
+import { cn } from "@/lib/cn";
 import { localePath, type Locale, type Localized } from "@/lib/i18n";
 
 interface Tile {
   id: keyof typeof catalog.teaser.tiles;
   photo: StaticImageData;
-  /** Where the 4:5 frame crops the photo (CSS `object-position`). */
+  /** Where the frame crops the photo (CSS `object-position`). */
   position: string;
-  /** The categories the tile covers. The first is its main one, which the tile links to. */
+  /** Per-photo adjustments: tone, and on phones (4:3) a zoom that keeps the crop clean. */
+  photoClass?: string;
+  /** The categories the tile covers, in display order; its main link shows all of them. */
   categories: readonly [CategoryId, ...CategoryId[]];
 }
 
 const tiles: readonly Tile[] = [
   { id: "lenses", photo: catLens, position: "50% 50%", categories: ["lenses"] },
-  { id: "led", photo: catLed, position: "96% 50%", categories: ["led-projectors", "led-lights"] },
+  {
+    id: "led",
+    photo: catLed,
+    position: "72% 50%",
+    // A matte light-grey car: toned down to sit with the two night shots. The 4:3 phone frame
+    // can't crop out the badge script and blue reflection at the lamp's outer end, so it zooms
+    // in from the right; the 4:5 frame at 72 % already leaves them out.
+    photoClass: "brightness-[0.82] max-sm:origin-right max-sm:scale-[1.4]",
+    categories: ["led-projectors", "led-lights"],
+  },
   {
     id: "xenon",
     photo: catXenon,
@@ -35,10 +48,6 @@ const tiles: readonly Tile[] = [
 ];
 
 const partNames: Partial<Record<CategoryId, Localized<string>>> = catalog.teaser.parts;
-
-function countIn(id: CategoryId) {
-  return products.filter((p) => p.category === id).length;
-}
 
 /** The car makes with the most products in a category, most first (ties in `site` order). */
 function topMakes(id: CategoryId, n: number): string[] {
@@ -55,17 +64,18 @@ function topMakes(id: CategoryId, n: number): string[] {
 
 /**
  * Landing-page catalog section: three large photo tiles (lenses, LED, xenon) with real product
- * counts, each linking to the catalog filtered by its main category, then a link to the whole
- * catalog. A tile that groups several categories lists them with their own counts and links,
- * so its total never promises more than one filtered view shows.
+ * counts, then a link to the whole catalog. Each tile links to the catalog filtered by every
+ * category it covers (`?category=led-projectors,led-lights`), and its count is that view's
+ * length, computed with the catalog's own filter. A tile that groups several categories also
+ * lists each with its own count and link.
  */
 export function CatalogTeaser({ locale }: { locale: Locale }) {
   const t = catalog.teaser;
   const catalogHref = localePath(locale, "/catalog");
-  const categoryHref = (id: CategoryId) => `${catalogHref}?category=${id}`;
+  const hrefFor = (filters: CatalogFilters) => `${catalogHref}${filtersToQuery(filters)}`;
 
   return (
-    <section id="catalog-teaser" className="border-t border-line py-24 md:py-[120px]">
+    <section id="catalog-teaser" className="border-t border-line py-24 md:py-30">
       <Container>
         <Reveal>
           <SectionHeading eyebrow={t.eyebrow[locale]} title={t.title[locale]} intro={t.intro[locale]} />
@@ -74,45 +84,52 @@ export function CatalogTeaser({ locale }: { locale: Locale }) {
         <ul className="mt-12 grid gap-x-5 gap-y-12 sm:grid-cols-3 md:mt-14">
           {tiles.map((tile, index) => {
             const copy = t.tiles[tile.id];
+            const group: CatalogFilters = { category: [...tile.categories] };
+            const total = filterProducts(products, group, locale).length;
             const parts = tile.categories
-              .map((id) => ({ id, count: countIn(id) }))
+              .map((id) => ({ id, count: filterProducts(products, { category: [id] }, locale).length }))
               .filter((part) => part.count > 0);
-            const total = parts.reduce((sum, part) => sum + part.count, 0);
             const makes = tile.categories.length === 1 ? topMakes(tile.categories[0], 4) : [];
 
             return (
               <Reveal as="li" key={tile.id} delay={index * 0.06} className="min-w-0">
-                <div data-teaser-tile={tile.id} className="group/tile relative">
-                  <div className="relative aspect-[4/5] overflow-hidden rounded-[2px] bg-surface">
-                    <Image
-                      src={tile.photo}
-                      alt={copy.alt[locale]}
-                      fill
-                      sizes="(min-width: 1280px) 400px, (min-width: 640px) 31vw, 100vw"
-                      style={{ objectPosition: tile.position }}
-                      className="object-cover saturate-85 transition-transform duration-700 ease-out-expo group-hover/tile:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover/tile:scale-100"
-                    />
+                <div data-teaser-tile={tile.id}>
+                  {/* The photo, title and count are one link; only hovering it animates. */}
+                  <div className="group/tile relative">
+                    <div className="relative aspect-[4/3] overflow-hidden rounded-[2px] bg-surface sm:aspect-[4/5]">
+                      <Image
+                        src={tile.photo}
+                        alt={copy.alt[locale]}
+                        fill
+                        sizes="(min-width: 1280px) 400px, (min-width: 640px) 31vw, 100vw"
+                        style={{ objectPosition: tile.position }}
+                        className={cn(
+                          "object-cover saturate-85 transition-transform duration-700 ease-out-expo motion-reduce:transition-none sm:group-hover/tile:scale-[1.03] sm:motion-reduce:group-hover/tile:scale-100",
+                          tile.photoClass,
+                        )}
+                      />
+                    </div>
+
+                    <h3 className="mt-4 text-lg leading-snug font-semibold tracking-[-0.01em] text-balance text-fg md:text-[19px]">
+                      <Link
+                        href={hrefFor(group)}
+                        className="rounded-[2px] underline-offset-4 outline-none group-hover/tile:underline after:absolute after:inset-0 after:rounded-[2px] after:content-[''] focus-visible:after:outline-2 focus-visible:after:outline-offset-4 focus-visible:after:outline-accent"
+                      >
+                        {copy.title[locale]}
+                      </Link>
+                    </h3>
+                    <p data-tile-count={total} className="mt-1 text-sm leading-relaxed text-muted">
+                      {catalog.productCount[locale](total)}
+                      {makes.length > 0 ? ` · ${makes.join(", ")}` : null}
+                    </p>
                   </div>
 
-                  <h3 className="mt-4 text-lg leading-snug font-semibold tracking-[-0.01em] text-balance text-fg md:text-[19px]">
-                    <Link
-                      href={categoryHref(tile.categories[0])}
-                      className="rounded-[2px] underline-offset-4 outline-none group-hover/tile:underline after:absolute after:inset-0 after:rounded-[2px] after:content-[''] focus-visible:after:outline-2 focus-visible:after:outline-offset-4 focus-visible:after:outline-accent"
-                    >
-                      {copy.title[locale]}
-                    </Link>
-                  </h3>
-                  <p className="mt-1 text-sm leading-relaxed text-muted">
-                    {catalog.productCount[locale](total)}
-                    {makes.length > 0 ? ` · ${makes.join(", ")}` : null}
-                  </p>
-
                   {parts.length > 1 ? (
-                    <ul className="relative z-10 mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm">
+                    <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm">
                       {parts.map((part) => (
                         <li key={part.id}>
                           <Link
-                            href={categoryHref(part.id)}
+                            href={hrefFor({ category: [part.id] })}
                             className="group/part inline-flex min-h-6 items-center gap-1.5 rounded-[2px] text-soft transition-colors hover:text-fg"
                           >
                             <span className="underline decoration-fg/30 underline-offset-4 transition-[text-decoration-color] group-hover/part:decoration-fg/70">

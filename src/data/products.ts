@@ -171,7 +171,7 @@ export const categories: Category[] = [
   },
   {
     id: "led-projectors",
-    name: { et: "LED projektorid", en: "LED projectors" },
+    name: { et: "LED-projektorid", en: "LED projectors" },
     description: {
       et: "Bi-LED projektorid esitulede uuendamiseks, mis annavad lähi- ja kaugtule ühest moodulist.",
       en: "Bi-LED projectors for upgrading headlights, with low and high beam from a single unit.",
@@ -179,7 +179,7 @@ export const categories: Category[] = [
   },
   {
     id: "xenon-projectors",
-    name: { et: "Xenon projektorid", en: "Xenon projectors" },
+    name: { et: "Xenon-projektorid", en: "Xenon projectors" },
     description: {
       et: "Bi-xenon projektorid, mis annavad lähi- ja kaugtule ühes moodulis ning sobivad õigete adapteritega paljudesse esituledesse.",
       en: "Bi-xenon projectors with low and high beam in one unit, fitting many headlights with the right adapters.",
@@ -187,7 +187,7 @@ export const categories: Category[] = [
   },
   {
     id: "led-lights",
-    name: { et: "LED kaugtuled ja rõngad", en: "LED high beams & rings" },
+    name: { et: "LED-kaugtuled ja -rõngad", en: "LED high beams & rings" },
     description: {
       et: "LED kaugtuled kaugtulede nähtavuse parandamiseks, LED rõngad BMW esituledele ja LED demon eye'd projektoritele.",
       en: "LED high beams for better high-beam visibility, LED rings for BMW headlights and LED demon eyes for projectors.",
@@ -195,7 +195,7 @@ export const categories: Category[] = [
   },
   {
     id: "xenon-bulbs",
-    name: { et: "Xenon lambid", en: "Xenon bulbs" },
+    name: { et: "Xenon-lambid", en: "Xenon bulbs" },
     description: {
       et: "Xenon- ja HID-lambid D1S-, D2S-, D4S- ja H7-sokliga esitulede uuendamiseks ja asendamiseks.",
       en: "Xenon and HID bulbs with D1S, D2S, D4S and H7 bases, for upgrading or replacing headlight bulbs.",
