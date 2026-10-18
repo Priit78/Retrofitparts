@@ -31,7 +31,8 @@ memory of Next.js APIs.
   bloom, neon gradients, cursor-follow light or canvas effects. Radius 2 px. Prefer hairline
   dividers over boxed cards.
 - Colors come from theme tokens only (`bg`, `surface`, `surface-2`, `line`, `fg`, `soft`, `muted`,
-  `light`, `accent`, `halogen` for "before" states, `danger` for errors), defined in
+  `light`, `accent`, `halogen` for "before" states, `danger` for errors, `brand` (the client's
+  orange) for the logo only), defined in
   `src/app/globals.css`. Fonts: `font-display` and `font-sans` (Albert Sans), `font-mono` (IBM Plex
   Mono, small uppercase labels).
 - Photos live in `src/assets/photos/` and render through `next/image` (static imports), with

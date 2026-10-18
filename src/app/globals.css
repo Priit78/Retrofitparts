@@ -16,6 +16,8 @@
   --color-accent: #d6d3cc;
   --color-halogen: #d9a35b;
   --color-danger: #ff8a80;
+  /* The client's brand orange, for the logo only. Never for UI. */
+  --color-brand: #fc7d07;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }

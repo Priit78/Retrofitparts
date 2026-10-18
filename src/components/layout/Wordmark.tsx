@@ -1,23 +1,25 @@
 import { site } from "@/content/site";
 import { cn } from "@/lib/cn";
-
-const [first, ...rest] = site.name.split(" ");
+import { logoPath, logoViewBox } from "./logo";
 
 /**
- * Text wordmark: "Retrofit" in bold, "Parts" in regular weight and `muted`. The client's logo
- * is a separate brand decision (see docs/CONTENT-TODO.md); callers only rely on `size` and
- * `className`.
+ * The client's own "RETROFIT PARTS" lettering in their brand orange. The orange belongs to the
+ * logo only; the rest of the site keeps to the graphite and ivory tokens. Callers only rely on
+ * `size` and `className`.
  */
 export function Wordmark({ size = "md", className }: { size?: "md" | "lg"; className?: string }) {
   return (
-    <span
+    <svg
+      role="img"
+      aria-label={site.name}
+      viewBox={logoViewBox}
       className={cn(
-        "font-display leading-none tracking-[0.02em] whitespace-nowrap text-fg",
-        size === "lg" ? "text-xl" : "text-[17px]",
+        "block w-auto shrink-0 text-brand",
+        size === "lg" ? "h-[18px]" : "h-[15px] lg:h-4",
         className,
       )}
     >
-      <span className="font-bold">{first}</span> <span className="font-normal text-muted">{rest.join(" ")}</span>
-    </span>
+      <path fill="currentColor" fillRule="evenodd" d={logoPath} />
+    </svg>
   );
 }
