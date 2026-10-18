@@ -28,12 +28,14 @@ const PHOTO_SIZES = [
 ].join(", ");
 
 /** Pinned, the three beats share one grid cell and crossfade; static, they read in order. */
-const beatClass = "pinned:[grid-area:1/1] pinned:self-start pinned:lg:self-center";
+const beatClass =
+  "pinned:[grid-area:1/1] pinned:self-start pinned:md:max-lg:landscape:self-center pinned:lg:self-center";
 const titleClass = cn(
   "mt-4 text-[32px] leading-[1.05] font-semibold tracking-[-0.025em] text-balance text-fg md:text-[52px]",
-  // Pinned, the large title scales with the screen's height; a short phone gets a smaller one.
+  // Pinned, the large title scales with the screen's height; a short phone (up to 688 px high)
+  // gets a smaller one, so the photo above keeps the full width.
   "pinned:md:text-[clamp(2rem,6svh,3.25rem)]",
-  "pinned:max-md:[@media(max-height:40rem)]:mt-2 pinned:max-md:[@media(max-height:40rem)]:text-[26px]",
+  "pinned:max-md:[@media(max-height:43rem)]:mt-2 pinned:max-md:[@media(max-height:43rem)]:text-[26px]",
 );
 
 /** The chapter's kicker on each beat. Static, only the first one shows (and is read). */
@@ -61,7 +63,7 @@ function Compare({ locale }: { locale: Locale }) {
     <div
       className={cn(
         "mt-8 grid gap-10 sm:grid-cols-2 sm:gap-6 pinned:mt-6 pinned:grid-cols-2 pinned:gap-4 pinned:sm:gap-6",
-        "pinned:max-md:[@media(max-height:40rem)]:mt-3",
+        "pinned:max-md:[@media(max-height:43rem)]:mt-3",
       )}
     >
       {columns.map((column) => {
@@ -83,7 +85,7 @@ function Compare({ locale }: { locale: Locale }) {
             <ul
               className={cn(
                 "mt-4 space-y-3 pinned:max-sm:mt-3 pinned:max-sm:space-y-2",
-                "pinned:max-md:[@media(max-height:40rem)]:space-y-1.5",
+                "pinned:max-md:[@media(max-height:43rem)]:space-y-1.5",
               )}
             >
               {column.points.map((point) => (
@@ -127,18 +129,23 @@ export function ProblemStage({ locale }: { locale: Locale }) {
         // Pinned: one screen, under the fixed header. Below lg the photo is on top and gives up
         // height to the beats (it shrinks, keeping its shape), so a short screen never clips them.
         "pinned:flex pinned:h-full pinned:flex-col pinned:gap-6 pinned:pt-20 pinned:pb-6",
-        "pinned:max-md:[@media(max-height:40rem)]:gap-4 pinned:max-md:[@media(max-height:40rem)]:pt-[4.5rem]",
-        // From lg the photo sits beside the beats; a short window gives the beats the wider column.
+        "pinned:max-md:[@media(max-height:43rem)]:gap-4 pinned:max-md:[@media(max-height:43rem)]:pt-[4.5rem]",
+        // From lg, and in a landscape tablet, the photo sits beside the beats; a short window
+        // gives the beats the wider column.
+        "pinned:md:max-lg:landscape:grid pinned:md:max-lg:landscape:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] pinned:md:max-lg:landscape:grid-rows-1",
+        // Safe: on the shortest of them the last beat is taller than the screen leaves, and starts
+        // under the header rather than behind it.
+        "pinned:md:max-lg:landscape:content-center-safe pinned:md:max-lg:landscape:items-center-safe pinned:md:max-lg:landscape:gap-10",
         "pinned:lg:grid pinned:lg:grid-rows-1 pinned:lg:content-center-safe pinned:lg:items-center pinned:lg:pt-[5.5rem]",
         "pinned:lg:[@media(max-height:45rem)]:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] pinned:lg:[@media(max-height:45rem)]:gap-12",
       )}
     >
       {/* The pair beside the beats from lg; it stays in view while static beats scroll past. */}
-      <div className="lg:sticky lg:top-28 lg:order-2 pinned:min-h-0 pinned:lg:static">
+      <div className="lg:sticky lg:top-28 lg:order-2 pinned:min-h-0 pinned:md:max-lg:landscape:order-2 pinned:lg:static">
         <PolishWipe
-          // Pinned below lg the frame takes the height the beats leave: it keeps its 32:15 shape
-          // and narrows.
-          className="pinned:max-h-full pinned:lg:max-h-none"
+          // Pinned and stacked, the frame takes the height the beats leave: it keeps its 32:15
+          // shape and narrows.
+          className="pinned:max-h-full pinned:md:max-lg:landscape:max-h-none pinned:lg:max-h-none"
           before={
             <Image
               src={headlightUnpolished}
