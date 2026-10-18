@@ -39,7 +39,7 @@ export const polish = {
         et: "Esituli autol, mille kaitseraud on eemaldatud: korpuses on uus projektor ja kere on kaitstud maalriteibiga",
         en: "A headlight on a car with the bumper removed: a new projector sits in the housing, and the bodywork is protected with masking tape",
       },
-      caption: { et: "Projektori paigaldus meie töökojas", en: "Projector retrofit in our workshop" },
+      caption: { et: "Projektori paigaldus", en: "Projector retrofit" },
     },
   },
 

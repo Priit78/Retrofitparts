@@ -19,8 +19,8 @@ const subheading = "text-2xl leading-tight font-semibold text-fg md:text-3xl";
 
 const photos = [
   { key: "hazed", src: headlightHazed, position: "object-center", ...t.photos.hazed },
-  // A wide 2.35:1 shot: keep the new projector in the middle of the 4:3 crop.
-  { key: "retrofit", src: retrofitInProgress, position: "object-[58%_50%]", ...t.photos.retrofit },
+  // A wide 2.35:1 shot: the 4:3 crop keeps the projector near the middle and the indicator whole.
+  { key: "retrofit", src: retrofitInProgress, position: "object-[70%_50%]", ...t.photos.retrofit },
 ];
 
 /**
@@ -94,28 +94,35 @@ export function Polish({ locale }: { locale: Locale }) {
           <div className="grid gap-12 sm:grid-cols-2 sm:gap-8">
             {columns.map((column, index) => {
               const Icon = column.lasting ? Check : X;
+              const titleId = `polish-compare-${column.key}`;
               return (
                 <Reveal
                   key={column.key}
                   delay={index * 0.08}
                   className={cn("border-t pt-6", column.lasting ? "border-fg/35" : "border-line")}
                 >
-                  <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                    <h4 className="text-lg font-semibold text-fg">{column.title[locale]}</h4>
-                    <span className={cn(mono, column.lasting ? "text-fg" : "text-halogen")}>{column.tag[locale]}</span>
+                  <div role="group" aria-labelledby={titleId}>
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                      <h4 id={titleId} className="text-lg font-semibold text-fg">
+                        {column.title[locale]}
+                      </h4>
+                      <span className={cn(mono, column.lasting ? "text-fg" : "text-halogen")}>
+                        {column.tag[locale]}
+                      </span>
+                    </div>
+                    <ul className="mt-5 space-y-3">
+                      {column.points.map((point) => (
+                        <li key={point.en} className="flex gap-3 text-[15px] leading-relaxed text-pretty">
+                          <Icon
+                            aria-hidden
+                            className={cn("mt-1 size-4 shrink-0", column.lasting ? "text-fg" : "text-muted")}
+                            strokeWidth={1.75}
+                          />
+                          <span className={column.lasting ? "text-fg" : "text-soft"}>{point[locale]}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <ul className="mt-5 space-y-3">
-                    {column.points.map((point) => (
-                      <li key={point.en} className="flex gap-3 text-[15px] leading-relaxed text-pretty">
-                        <Icon
-                          aria-hidden
-                          className={cn("mt-1 size-4 shrink-0", column.lasting ? "text-fg" : "text-muted")}
-                          strokeWidth={1.75}
-                        />
-                        <span className={column.lasting ? "text-fg" : "text-soft"}>{point[locale]}</span>
-                      </li>
-                    ))}
-                  </ul>
                 </Reveal>
               );
             })}

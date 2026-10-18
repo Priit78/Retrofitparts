@@ -35,8 +35,15 @@ describe("Difference", () => {
     const before = screen.getByRole("img", { name: difference.before.photo[locale] });
     const after = screen.getByRole("img", { name: difference.after.photo[locale] });
     expect(before.getAttribute("src")).toBe(after.getAttribute("src"));
-    expect(before.style.filter).toContain("sepia");
-    expect(after.style.filter).not.toContain("sepia");
+    // The filter sits on a wrapper so it also applies to the overlay (vignette or tint).
+    const beforeLayer = before.parentElement as HTMLElement;
+    const afterLayer = after.parentElement as HTMLElement;
+    expect(beforeLayer.style.filter).toContain("sepia");
+    expect(afterLayer.style.filter).not.toContain("sepia");
+    expect(afterLayer.style.filter).toContain("saturate");
+    for (const layer of [beforeLayer, afterLayer]) {
+      expect(layer.querySelector<HTMLElement>("[aria-hidden]")?.style.backgroundImage).toMatch(/gradient/);
+    }
 
     expect(screen.getByText(difference.before.label[locale], { selector: "span" })).toBeInTheDocument();
     expect(screen.getByText(difference.after.label[locale], { selector: "span" })).toBeInTheDocument();

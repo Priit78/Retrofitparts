@@ -238,6 +238,7 @@ export function CompareSlider({
           className={cn(
             "absolute top-1/2 left-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full",
             // Flat: a plain knob with a small neutral shadow to lift it off bright snow.
+            // `shadow-black` is that deliberate neutral shadow, outside the theme tokens.
             "bg-light text-bg shadow-md shadow-black/35",
             "transition-transform duration-300 ease-out-expo",
             "group-hover/compare:scale-105 group-active/compare:scale-95",

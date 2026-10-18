@@ -27,7 +27,7 @@ describe("Polish", () => {
   it("compares polishing with replacing, every point in both languages", () => {
     render(<Polish locale="en" />);
     for (const side of [polish.compare.polish, polish.compare.replace]) {
-      const column = screen.getByRole("heading", { name: side.title.en }).parentElement?.parentElement as HTMLElement;
+      const column = screen.getByRole("group", { name: side.title.en });
       expect(column).toHaveTextContent(side.tag.en);
       expect(within(column).getAllByRole("listitem")).toHaveLength(side.points.length);
       for (const point of side.points) {

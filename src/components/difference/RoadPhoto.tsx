@@ -8,7 +8,12 @@ const SIZES = "(min-width: 1280px) 1232px, (min-width: 768px) calc(100vw - 48px)
 /*
  * Both sides of the comparison are the same night photo; CSS does the simulation. The values
  * were tuned by eye in the direction A mockup. Filter order matters, so they stay plain CSS
- * strings rather than Tailwind's fixed-order filter utilities.
+ * strings rather than Tailwind's fixed-order filter utilities. The raw rgb() values are the
+ * deliberate simulation vignette and tint, outside the theme tokens.
+ *
+ * The filter sits on a wrapper around the photo and its overlay, as in the mockup: the
+ * overlay is filtered too, so `contrast(.84)` lifts the vignette's blacks and the forest
+ * stays visible instead of crushing to black.
  */
 const look = {
   before: {
@@ -30,20 +35,13 @@ const look = {
 export function RoadPhoto({ variant, alt }: { variant: keyof typeof look; alt: string }) {
   const { filter, overlay } = look[variant];
   return (
-    <>
-      <Image
-        src={roadNight}
-        alt={alt}
-        fill
-        sizes={SIZES}
-        className={cn("object-cover object-[50%_60%]", variant === "before" && "scale-[1.02]")}
-        style={{ filter }}
-      />
+    <div className={cn("absolute inset-0", variant === "before" && "scale-[1.02]")} style={{ filter }}>
+      <Image src={roadNight} alt={alt} fill sizes={SIZES} className="object-cover object-[50%_60%]" />
       <div
         aria-hidden
         className={cn("absolute inset-0", variant === "after" && "mix-blend-screen")}
         style={{ backgroundImage: overlay }}
       />
-    </>
+    </div>
   );
 }
