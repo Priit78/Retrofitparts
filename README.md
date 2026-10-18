@@ -5,7 +5,10 @@ Tallinn workshop that sells and fits headlight retrofits: bi-LED and bi-xenon pr
 replacement lenses and restoration. Estonian (default, `/et`) and English (`/en`). The catalog
 shows prices and a "Request an offer" form; there is no cart.
 
-- Design spec: `docs/superpowers/specs/2026-10-17-retrofitparts-website-design.md`
+- Design spec: `docs/superpowers/specs/2026-10-17-retrofitparts-website-design.md`; the current
+  look (direction A "Dark refined": graphite, warm white, real photos, no glow) is
+  `docs/superpowers/specs/2026-10-18-redesign-direction-a.md`
+- Photo, logo and font sources: [`docs/CREDITS.md`](docs/CREDITS.md)
 - What the client still has to supply or confirm: [`docs/CONTENT-TODO.md`](docs/CONTENT-TODO.md)
 
 ## Stack

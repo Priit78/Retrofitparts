@@ -97,6 +97,39 @@ test.describe("catalog", () => {
   });
 });
 
+test.describe("header", () => {
+  const backdrop = (page: Page) => page.locator("header [data-header-backdrop]");
+
+  test("is transparent over the landing hero and turns solid once the page scrolls", async ({ page }) => {
+    await page.goto("/et");
+    await hydrated(backdrop(page));
+    await expect(backdrop(page)).not.toHaveAttribute("data-solid");
+    await page.evaluate(() => window.scrollTo(0, 600));
+    await expect(backdrop(page)).toHaveAttribute("data-solid", "");
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await expect(backdrop(page)).not.toHaveAttribute("data-solid");
+  });
+
+  test("is solid from the first paint on pages without a hero", async ({ page }) => {
+    await page.goto("/et/catalog");
+    await expect(backdrop(page)).toHaveAttribute("data-solid", "");
+  });
+});
+
+test("a catalog teaser tile opens a view with exactly the products it counts", async ({ page }) => {
+  await page.goto("/et");
+  const link = page.locator("#catalog-teaser").getByRole("link", { name: catalog.teaser.tiles.xenon.title.et, exact: true });
+  // The count sits next to the link, in the same tile.
+  const count = Number(
+    await link.locator("xpath=ancestor::h3/following-sibling::p[@data-tile-count][1]").getAttribute("data-tile-count"),
+  );
+  expect(count).toBeGreaterThan(0);
+  await hydrated(link);
+  await link.click();
+  await expect(page).toHaveURL(/\/et\/catalog\?category=[a-z-]+(,[a-z-]+)+$/);
+  await expect(page.locator("[data-product-card]")).toHaveCount(count);
+});
+
 test.describe("language switch", () => {
   test("keeps the product page", async ({ page }) => {
     await page.goto(productPath);

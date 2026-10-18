@@ -18,18 +18,16 @@ done. Each item says where the answer goes, so whoever updates the site knows wh
 
 ## 1. Brand assets (client)
 
-- [ ] **Logo: a brand decision.** The client's current logo is the orange (#FC7D07) blocky
-      "RETROFIT PARTS" wordmark in an orange frame, with a white tagline and URL. It exists only
-      as small PNGs (the best is 500 × 139 px); there is **no vector** (SVG, AI or EPS) anywhere
-      on the old site, and its white text only works on dark backgrounds. The new design uses a
-      typed text wordmark in the header, footer and mobile menu
-      (`src/components/layout/Wordmark.tsx`); the favicon (`src/app/icon.svg`) and the sharing
-      image (`src/app/[locale]/opengraph-image.tsx`) are placeholders. Decide whether to keep
-      the text wordmark, or to have the orange logo redrawn as a vector (SVG) and use that. If
-      the client has the original vector files from the 2020 agency (Hundikuu), send them.
-- [ ] **Brand colours and fonts.** The new design uses graphite and warm white with no brand
-      colour; the client's orange does not appear. Confirm this is acceptable, or say where the
-      orange should come back.
+- [ ] **Logo: the original vector file.** The site uses the client's own orange (#FC7D07)
+      "RETROFIT PARTS" lettering in the header, mobile menu, footer and sharing image, and an
+      orange "RP" in the same lettering as the favicon. There is **no vector** of the logo
+      anywhere on the old site, so the lettering was traced from the best PNG (500 × 139 px)
+      into an SVG path (`src/components/layout/logo.ts`). The frame, tagline and URL are left
+      out: they are unreadable at header size, and the tagline appears as text in the footer.
+      Send the original logo as a vector file (AI, EPS, SVG or PDF), for example from the 2020
+      agency (Hundikuu), and it replaces the trace.
+- [ ] **Brand colours and fonts.** The new design uses graphite and warm white. The client's
+      orange appears only in the logo and favicon. Confirm this is acceptable.
 - [ ] **Morimoto, Bimmerjakes and Strands** logos from their dealer media kits, plus written
       confirmation that Retrofit Parts may show them as their official Estonian representative
       ("ametlik esindaja"). Today the brand strip shows the names as plain text, not their logos.
@@ -55,9 +53,17 @@ no workshop, no finished cars. What the site uses now:
   library: `src/assets/photos/retrofit-in-progress.jpg` (a projector retrofit with the bumper
   off and masking tape on) and `src/assets/photos/projector-bench.jpg` (a lit Morimoto LED
   projector on the workbench). See `docs/CREDITS.md`.
-- **The other landing photos are stock** (Pexels, credited in `docs/CREDITS.md`).
+- **The before/after polishing pair** in the "Poleerimine on ajutine lahendus" section
+  (`headlight-unpolished.jpg`, `headlight-polished.jpg`: the same BMW 3 Series headlight) was
+  supplied by the project owner on 2026-10-18.
+- **The other landing photos are stock** (Pexels, credited in `docs/CREDITS.md`). The hero is an
+  edited Pexels photo of a BMW headlight (desaturated, its purple LED rings turned white).
 
 - [ ] **Confirm the two landing photos** above are the client's own work and may be used.
+- [ ] **Confirm the polishing pair** may be published (whose car it is, and that its owner
+      agrees).
+- [ ] **Photo upload.** The inquiry form takes no files, so the copy asks visitors to email a
+      photo of their headlights. An upload field could be added later; it needs file storage.
 - [ ] **Confirm the 12 headlight photos** are the client's own (they look like their own phone
       snapshots of their stock).
 - [ ] **Recommended: new photography** of the workshop and of finished cars. This is the
@@ -95,6 +101,8 @@ checked on 2026-10-18.
       site still contradicts itself: /teenused/ says "üle 5-aastane kogemus" and "viie
       tegutsemisaasta jooksul", while the home page says "üle 10 aasta". The company was
       registered in 2015.
+- [ ] **"Since 2015".** The hero says "Oma töökojas Tallinnas, alates 2015. aastast". 2015 is
+      when the company was registered; confirm the workshop dates from then too.
 - [ ] **Warranty.** The site says **2 years on projectors** ("2-aastane garantii projektoritele"),
       as the product pages did. Is there a warranty on the installation work too?
 - [ ] **Business customers.** The About section says customers include car dealerships and
@@ -188,10 +196,15 @@ follow the shop by itself.
       the BMW E39 facelift lenses (the only lens set with a brand in the shop), Ether for the
       20 W LED high beams, and Xenus as the maker of the Xenus ballast and igniters (the shop
       says the ballast is made by Xenus). Who makes the other lens sets?
-- [ ] **Car makes in the filter.** The make filter lists only the makes in `site.vehicleMakes`
-      (BMW, Audi, Volkswagen, Mercedes-Benz, Lexus, Honda, Ford, Mazda, Volvo). The shop now
-      also has parts for the Toyota Avensis T27 and Scania R trucks. Search finds them, the make
-      filter does not. Should Toyota and Scania be added?
+- [ ] **Car makes.** The make filter and the landing page's make grid list `site.vehicleMakes`:
+      BMW, Audi, Volkswagen, Mercedes-Benz, Lexus, Honda, Ford, Mazda, Volvo and, new, Toyota
+      (for the Avensis T27 DRL tubes). Scania is a truck make, so it stays out of the grid;
+      search still finds its parts. Confirm, or name other makes to add.
+- [ ] **W211 lenses.** The shop gives no description for the Mercedes-Benz W211 lenses. Are
+      they sold as a pair (left and right) like the other lens sets? The site no longer says so.
+- [ ] **NHK sets.** The NHK V, IV+ and Pro+ projectors and the YG30 high beams are described as
+      "Komplektis kaks …", because the shop prices them per piece ("/tk") but sells a set.
+      Confirm each is sold as a pair.
 - [ ] **Delivery time for ordered items.** Product pages on backorder say "Tellime sinu jaoks.
       Tarneaeg on pikem, küsi meilt täpset aega." A typical window (for example "tarne 1–3
       nädalat") would be more useful. What is realistic?
@@ -225,24 +238,32 @@ answers, "Hobist ettevõtteks – südamega asja juures", "Kõik tooted on meil 
 is not listed. The service descriptions are rewritten from the old site's texts, so please read
 all eight in `src/content/services.ts`.
 
-- Hero: "Bi-LED ja bi-xenon · Tallinn"; "Projektorite paigaldus, tuleklaaside vahetus ja
-  esitulede taastamine – meie Tallinna töökojas alates 2015. aastast."
-- Trust strip: "10+ aastat kogemust / esitulede taastamisel"; "Töökoda Tallinnas".
-- Brands: "Brändid, millega töötame"; "Ametlik esindaja".
+- Hero: "Esitulede retrofit · Tallinn"; "Selge valgus. Kindel töö."; "Paigaldame bi-LED- ja
+  bi-xenon-projektoreid, vahetame tuhmunud tuleklaase ja taastame esitulesid. Oma töökojas
+  Tallinnas, alates 2015. aastast."
+- Trust strip: "10+ aastat kogemust / esitulede taastamisel"; "2-aastane garantii /
+  projektoritele"; "Ametlik esindaja / Morimoto, Bimmerjakes ja Strands"; "Töökoda Tallinnas /
+  Pärnu mnt 160F".
 - Before/after: "Sama tee. Hoopis teine valgus."; "Lohista liugurit ja võrdle."; the three
   facts "Värvustemperatuur", "Valguspiir", "Tuhmunud klaas" and their texts.
-- Services: "Tulede taastamine ja remont kindlalt partnerilt"; table column "Valmimisaeg";
-  "Hinnakiri on orienteeruv – täpse pakkumise teeme sinu auto põhjal."; "Ei tea, millised
-  tuled sinu autol on? Saada foto aadressil info@retrofitparts.ee."; "Xenon-süsteemi rike?
-  Vahetame ballasti, süüturi või pirni."; "…paigaldame vajadusel õhuti, mis hoiab
-  kondensatsiooni eemal."
-- Anatomy: "Esitule anatoomia"; "Miks poleerimine ei aita kauaks"; "Keri alla ja vaata, millest
-  esituli koosneb"; the part names "Tuleklaas", "Projektori kate", "Projektor", "Korpus" and
-  their one-line descriptions; "Poleerida või vahetada?" with the tags "Ajutine" and "Püsiv".
+- Services: "Teenused ja hinnad"; "Hinnad sisaldavad käibemaksu ja on orienteeruvad. Täpse
+  pakkumise teeme sinu auto põhjal: kirjuta meile mark ja mudel ning saada e-postiga foto
+  tuledest."; "Tulede taastamine ja remont kindlalt partnerilt"; table column "Valmimisaeg";
+  "Ei tea, millised tuled sinu autol on? Saada foto aadressil info@retrofitparts.ee."; the
+  eight one-sentence service descriptions, including the title "Projektorite retrofit".
+- Polishing: "Miks mitte poleerida"; "Poleerimine on ajutine lahendus"; "See on odavaim
+  lahendus, kuid valgust see sageli juurde ei anna. Meie vahetame kahjustatud osad välja: ette
+  uue tuleklaasi, sisse uue projektori."; the captions "Enne poleerimist", "Pärast
+  poleerimist" and "Projektori paigaldus"; "Millest esituli koosneb" / "Eest taha"; the part
+  names "Tuleklaas", "Projektori kate", "Projektor", "Korpus" and their one-line descriptions;
+  "Poleerida või vahetada?" with the tags "Ajutine" and "Püsiv".
+- Contact: "Foto saada e-postiga – vastame esimesel võimalusel." The process step "Päring":
+  "Kirjuta meile auto mark ja mudel kontaktivormi kaudu või e-postiga. Foto tuledest saada
+  aadressil info@retrofitparts.ee."
 - Process: "Neli sammu päringust valmis tuledeni"; "Enne töö algust tead täpselt, mida teeme ja
   mis see maksab."; step tags "E-post või vorm", "Konkreetne hind", "1–4 tööpäeva".
-- Catalogue: "Projektorid, tuleklaasid ja kõik, mis esitulle kuulub"; "Kõik, mida esituli
-  vajab"; "Vali oma automark"; "Töötame pea kõigi automarkidega – küsi julgelt"; stock badges
+- Catalogue: "Projektorid, tuleklaasid ja kõik, mis esitulle kuulub"; "Osad, mida müüme ja
+  paigaldame"; "Vali oma automark"; "Töötame pea kõigi automarkidega – küsi julgelt"; stock badges
   "Laos" and "Tellimisel"; "Hind: odavamad enne" / "Hind: kallimad enne"; "Sobivaid tooteid ei
   leitud".
 - Product page: "Tellime sinu jaoks. Tarneaeg on pikem, küsi meilt täpset aega."; "Küsi
