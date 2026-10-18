@@ -6,7 +6,7 @@ import { useState, type ComponentProps } from "react";
 /**
  * A Link that prefetches only once the visitor shows intent (pointer over it, focus or touch).
  *
- * Product cards come in grids of up to 63, and a default Link prefetches every static product
+ * Product cards come in grids of over a hundred, and a default Link prefetches every static product
  * page as it scrolls into view. Deferring to intent (the hover pattern in the Next.js
  * prefetching guide) keeps navigation quick without downloading pages nobody opens.
  */

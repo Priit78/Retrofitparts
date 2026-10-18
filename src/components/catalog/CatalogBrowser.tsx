@@ -49,32 +49,27 @@ function EmptyState({
       initial={reduceMotion ? false : { opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: EASE }}
-      className="relative isolate overflow-hidden rounded-3xl border border-line bg-surface"
+      className="rounded-[2px] border border-line bg-surface"
     >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-radial-[60%_70%_at_50%_0%] from-accent/[0.09] to-transparent"
-      />
-      <div className="flex flex-col items-center px-6 pt-12 pb-10 text-center sm:px-10 md:pt-16">
-        <span className="relative grid size-16 place-items-center rounded-full border border-line bg-bg text-muted">
-          <span aria-hidden className="absolute inset-0 rounded-full shadow-[0_0_48px_-12px_var(--color-accent)]" />
-          <SearchX aria-hidden className="size-6" strokeWidth={1.5} />
+      <div className="flex flex-col items-start px-5 pt-10 pb-9 sm:px-10 md:pt-12">
+        <span className="grid size-12 place-items-center rounded-[2px] border border-line text-muted">
+          <SearchX aria-hidden className="size-5" strokeWidth={1.5} />
         </span>
-        <h3 className="mt-7 text-2xl leading-tight font-semibold tracking-tight text-balance text-fg md:text-3xl">
+        <h3 className="mt-6 text-2xl leading-tight font-semibold tracking-[-0.02em] text-balance text-fg md:text-[28px]">
           {t.title[locale]}
         </h3>
-        <p className="mt-3 max-w-md text-base leading-relaxed text-pretty text-muted">{t.body[locale]}</p>
+        <p className="mt-3 max-w-[48ch] text-base leading-relaxed text-pretty text-soft">{t.body[locale]}</p>
         <Button variant="ghost" onClick={onReset} className="mt-7">
           {t.reset[locale]}
         </Button>
       </div>
 
-      <div className="flex flex-col gap-5 border-t border-line bg-bg/40 px-6 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-10 md:py-8">
+      <div className="flex flex-col gap-5 border-t border-line px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-10 md:py-7">
         <div>
-          <p className="font-display text-lg leading-snug font-semibold text-balance text-fg [font-stretch:125%] md:text-xl">
+          <p className="text-lg leading-snug font-semibold tracking-[-0.01em] text-balance text-fg md:text-xl">
             {t.anyCar[locale]}
           </p>
-          <p className="mt-1.5 text-sm leading-relaxed text-muted">{t.anyCarBody[locale]}</p>
+          <p className="mt-1.5 text-sm leading-relaxed text-soft">{t.anyCarBody[locale]}</p>
         </div>
         <Button aria-haspopup="dialog" onClick={onInquire} className="group/cta shrink-0">
           {t.inquire[locale]}
@@ -151,7 +146,7 @@ function CatalogView({
   };
 
   return (
-    <div className="lg:grid lg:grid-cols-[15.5rem_minmax(0,1fr)] lg:gap-10 xl:grid-cols-[16.5rem_minmax(0,1fr)] xl:gap-14">
+    <div className="lg:grid lg:grid-cols-[15.5rem_minmax(0,1fr)] lg:gap-12 xl:grid-cols-[16.5rem_minmax(0,1fr)] xl:gap-16">
       <FilterSidebar {...facetProps} />
 
       <div className="min-w-0">
@@ -169,7 +164,7 @@ function CatalogView({
           <h2 className="sr-only">{catalog.results.heading[locale]}</h2>
 
           {list.length > 0 ? (
-            <ul className="relative grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
+            <ul className="relative grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-5 sm:gap-y-12 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
               <AnimatePresence initial={false} mode="popLayout">
                 {list.map((product) => (
                   <motion.li

@@ -5,15 +5,15 @@ import { cn } from "@/lib/cn";
 
 /**
  * Studio "product shots" drawn in SVG, one per kind of part, standing in for photos until the
- * client supplies real ones. Every render shares one set-up so a grid of them reads as a single
- * shoot: a key light from the upper left, a cold accent rim light from the back right, a dark
- * glossy plinth with an accent edge, a contact shadow and a soft reflection of the part.
+ * client supplies real ones. Every render shares one neutral, monochrome set-up so a grid of
+ * them reads as a single shoot: a soft key light from the upper left, a faint fill on the
+ * right-hand edges, a soft grey plinth with a warm-white front edge, a contact shadow and a
+ * soft reflection of the part. Nothing glows: lamps and LEDs are shown switched off.
  *
- * Performance: the catalog shows 63 of these. Each kind of shot is serialised once into a
- * data-URI background in a hoisted, de-duplicated `<style>` (React merges styles by `href`), and
- * every illustration is a single element using it. Inline SVGs would put roughly 7,000 extra
- * nodes in the catalog's DOM and make every filter change re-create them. No SVG filters
- * either: glows are radial gradients.
+ * Performance: the catalog shows over a hundred of these. Each kind of shot is serialised once
+ * into a data-URI background in a hoisted, de-duplicated `<style>` (React merges styles by
+ * `href`), and every illustration is a single element using it. Inline SVGs would put many
+ * thousands of extra nodes in the catalog's DOM and make every filter change re-create them.
  *
  * It is a client component on purpose. Rendered from a Server Component, every instance's
  * `<style>` text would travel in the RSC payload (the DOM still holds one per shot), so a page
@@ -22,18 +22,19 @@ import { cn } from "@/lib/cn";
  */
 
 /**
- * The theme tokens from `globals.css`. An SVG used as an image is its own document, where the
- * page's CSS variables don't resolve, so the values are repeated here.
+ * The theme tokens from `globals.css`, plus two neutral greys between them. An SVG used as an
+ * image is its own document, where the page's CSS variables don't resolve, so the values are
+ * repeated here.
  */
 const C = {
-  bg: "#050607",
-  surface: "#0b0d10",
-  surface2: "#12151a",
-  fg: "#f2f4f7",
-  muted: "#8a93a0",
-  light: "#e8f4ff",
-  accent: "#4cc3ff",
-  halogen: "#ffc46b",
+  bg: "#0e1013",
+  surface: "#15181c",
+  surface2: "#1b1f24",
+  graphite: "#2b2f35",
+  steel: "#5c6168",
+  muted: "#a2a6ac",
+  soft: "#c9cdd2",
+  light: "#eeece8",
 } as const;
 
 /** Plinth geometry, shared by every shot (viewBox 400 × 300, cropped to the 4:3 frame below). */
@@ -44,6 +45,7 @@ type Shot =
   | "projector-led"
   | "projector-xenon"
   | "lens"
+  | "headlight"
   | "bulb-xenon"
   | "bulb-halogen"
   | "ballast"
@@ -56,6 +58,7 @@ const shotFor: Record<CategoryId, Shot> = {
   "led-projectors": "projector-led",
   "xenon-projectors": "projector-xenon",
   lenses: "lens",
+  headlights: "headlight",
   "xenon-bulbs": "bulb-xenon",
   halogen: "bulb-halogen",
   ballasts: "ballast",
@@ -63,8 +66,6 @@ const shotFor: Record<CategoryId, Shot> = {
   adapters: "adapter",
   "led-lights": "led-light",
   fitting: "fitting",
-  // Temporary: R2e adds a dedicated render for complete headlight units.
-  headlights: "lens",
 };
 
 /* ----------------------------------------------------------------------------------------- */
@@ -108,25 +109,22 @@ function defs(): string {
   return el(
     "defs",
     {},
-    // Scene
-    lin("backdrop", 0, 1, stop(0, C.surface2), stop(0.62, C.surface), stop(1, C.bg)),
-    rad("key", {}, stop(0, C.light, 0.11), stop(0.55, C.light, 0.03), stop(1, C.light, 0)),
-    rad("rimlight", {}, stop(0, C.accent, 0.2), stop(0.5, C.accent, 0.06), stop(1, C.accent, 0)),
-    lin("plinth-top", 0, 1, stop(0, C.surface2), stop(1, C.surface)),
-    rad("plinth-sheen", { cx: 0.36, cy: 0.3, r: 0.7 }, stop(0, C.light, 0.1), stop(1, C.light, 0)),
-    lin("plinth-side", 1, 0, stop(0, C.surface2), stop(0.55, C.bg), stop(1, C.surface)),
+    // Scene: a graphite sweep, lit by a broad softbox from the upper left
+    lin("backdrop", 0, 1, stop(0, C.graphite), stop(0.55, C.surface2), stop(1, C.surface)),
+    lin("key", 1, 1, stop(0, C.light, 0.07), stop(0.45, C.light, 0.02), stop(1, C.light, 0)),
+    lin("plinth-top", 0, 1, stop(0, "#3b3f45"), stop(1, C.graphite)),
+    lin("plinth-sheen", 1, 0.4, stop(0, C.light, 0.08), stop(0.6, C.light, 0)),
+    lin("plinth-side", 1, 0, stop(0, C.graphite), stop(0.55, C.surface), stop(1, C.surface2)),
     lin(
       "plinth-edge",
       1,
       0,
       stop(0, C.light, 0),
-      stop(0.3, C.light, 0.28),
-      stop(0.62, C.accent, 0.55),
-      stop(0.86, C.accent, 1),
-      stop(1, C.accent, 0),
+      stop(0.3, C.light, 0.4),
+      stop(0.7, C.light, 0.16),
+      stop(1, C.light, 0),
     ),
-    rad("floor", {}, stop(0, C.accent, 0.12), stop(1, C.accent, 0)),
-    rad("shadow", {}, stop(0, C.bg, 0.95), stop(0.6, C.bg, 0.5), stop(1, C.bg, 0)),
+    rad("shadow", {}, stop(0, C.bg, 0.9), stop(0.6, C.bg, 0.45), stop(1, C.bg, 0)),
     el(
       "linearGradient",
       {
@@ -137,7 +135,7 @@ function defs(): string {
         x2: 0,
         y2: P.cy + P.ry - 4,
       },
-      stop(0, C.light, 0.32),
+      stop(0, C.light, 0.26),
       stop(1, C.light, 0),
     ),
     el(
@@ -148,49 +146,47 @@ function defs(): string {
     el("clipPath", { id: "plinth-clip" }, ellipse(P.cx, P.cy, P.rx, P.ry)),
 
     // Materials, lit from the upper left
-    lin("metal", 1, 1, stop(0, C.muted), stop(0.4, C.surface2), stop(1, C.bg)),
-    lin("metal-v", 0, 1, stop(0, C.muted), stop(0.35, C.surface2), stop(1, C.bg)),
-    lin("dark", 1, 1, stop(0, C.surface2), stop(1, C.bg)),
+    lin("metal", 1, 1, stop(0, C.muted), stop(0.4, C.steel), stop(1, C.surface)),
+    lin("metal-v", 0, 1, stop(0, C.muted), stop(0.35, C.steel), stop(1, C.surface)),
+    lin("dark", 1, 1, stop(0, C.graphite), stop(1, C.bg)),
+    el(
+      "linearGradient",
+      { id: "housing", gradientUnits: "userSpaceOnUse", x1: 0, y1: 92, x2: 0, y2: 210 },
+      stop(0, "#3b3f45"),
+      stop(0.3, C.graphite),
+      stop(1, C.bg),
+    ),
     lin(
       "chrome",
       1,
       1,
       stop(0, C.light),
       stop(0.28, C.muted),
-      stop(0.52, C.surface),
+      stop(0.52, C.surface2),
       stop(0.78, C.muted),
-      stop(1, C.surface2),
+      stop(1, C.graphite),
     ),
-    lin("rim", 1, 0, stop(0.35, C.accent, 0), stop(1, C.accent)),
+    // The fill light catching the right-hand edges: neutral, never coloured
+    lin("rim", 1, 0, stop(0.3, C.soft, 0), stop(1, C.soft, 0.55)),
     lin("spec", 1, 1, stop(0, C.light, 0.85), stop(1, C.light, 0)),
     rad(
       "glass",
       { cx: 0.4, cy: 0.36, r: 0.68 },
-      stop(0, C.surface2),
+      stop(0, C.graphite),
       stop(0.55, C.bg),
-      stop(0.86, C.surface),
-      stop(1, C.accent, 0.55),
-    ),
-    rad(
-      "emit",
-      {},
-      stop(0, C.light, 0.95),
-      stop(0.18, C.light, 0.5),
-      stop(0.42, C.accent, 0.22),
-      stop(1, C.accent, 0),
+      stop(0.86, C.surface2),
+      stop(1, C.muted, 0.45),
     ),
   );
 }
 
-/** Backdrop, lights and plinth (identical in every shot) around the subject. */
+/** Backdrop, light and plinth (identical in every shot) around the subject. */
 function set(subject: string): string {
   const left = P.cx - P.rx;
   const right = P.cx + P.rx;
   return [
     el("rect", { width: 400, height: 300, fill: url("backdrop") }),
-    ellipse(128, 34, 250, 170, { fill: url("key") }),
-    ellipse(292, 128, 150, 120, { fill: url("rimlight") }),
-    ellipse(P.cx, P.cy + P.h + 10, 190, 30, { fill: url("floor") }),
+    el("rect", { width: 400, height: 300, fill: url("key") }),
     // Plinth
     path(
       `M${left} ${P.cy} A${P.rx} ${P.ry} 0 0 0 ${right} ${P.cy} L${right} ${P.cy + P.h} A${P.rx} ${P.ry} 0 0 1 ${left} ${P.cy + P.h} Z`,
@@ -199,18 +195,18 @@ function set(subject: string): string {
     ellipse(P.cx, P.cy, P.rx, P.ry, { fill: url("plinth-top") }),
     ellipse(P.cx, P.cy, P.rx, P.ry, { fill: url("plinth-sheen") }),
     line(`M${left} ${P.cy} A${P.rx} ${P.ry} 0 0 1 ${right} ${P.cy}`, C.light, 1, {
-      "stroke-opacity": 0.09,
+      "stroke-opacity": 0.1,
     }),
-    line(`M${left} ${P.cy + P.h} A${P.rx} ${P.ry} 0 0 0 ${right} ${P.cy + P.h}`, C.fg, 1, {
-      "stroke-opacity": 0.06,
+    line(`M${left} ${P.cy + P.h} A${P.rx} ${P.ry} 0 0 0 ${right} ${P.cy + P.h}`, C.light, 1, {
+      "stroke-opacity": 0.05,
     }),
     subject,
     line(`M${left} ${P.cy} A${P.rx} ${P.ry} 0 0 0 ${right} ${P.cy}`, url("plinth-edge"), 1.25),
   ].join("");
 }
 
-/** The part, its reflection in the plinth and its contact shadow, plus any emitted light. */
-function subject(shadow: { x: number; rx: number }, part: string, glow = ""): string {
+/** The part, its reflection in the plinth and its contact shadow. */
+function subject(shadow: { x: number; rx: number }, part: string): string {
   return [
     g(
       { "clip-path": url("plinth-clip") },
@@ -221,7 +217,6 @@ function subject(shadow: { x: number; rx: number }, part: string, glow = ""): st
     ),
     ellipse(shadow.x, P.cy - 1, shadow.rx, 9, { fill: url("shadow") }),
     g({ id: "part" }, part),
-    glow,
   ].join("");
 }
 
@@ -229,11 +224,63 @@ function subject(shadow: { x: number; rx: number }, part: string, glow = ""): st
 /* Parts                                                                                     */
 /* ----------------------------------------------------------------------------------------- */
 
+/** A projector's glass: retaining ring, lens, softbox reflection, crescent and glint. */
+function projectorGlass(cx: number, cy: number, rx: number, ry: number): string {
+  const glass = { rx: rx - Math.round(rx * 0.14), ry: ry - Math.round(ry * 0.13) };
+  const k = rx / 52;
+  return [
+    ellipse(cx, cy, rx, ry, { fill: url("chrome") }),
+    ellipse(cx - 1, cy, glass.rx, glass.ry, { fill: url("glass") }),
+    ellipse(cx + 2 * k, cy + 2 * k, glass.rx - 12 * k, glass.ry - 14 * k, {
+      fill: "none",
+      stroke: C.light,
+      "stroke-opacity": 0.06,
+      "stroke-width": 6 * k,
+    }),
+    // Cut-off shield, seen through the glass
+    line(
+      `M${cx - 34 * k} ${cy + 8 * k} L${cx - 2 * k} ${cy + 8 * k} L${cx + 10 * k} ${cy - 2 * k} L${cx + 34 * k} ${cy - 2 * k}`,
+      C.muted,
+      1,
+      { "stroke-opacity": 0.3 },
+    ),
+    // Softbox reflection, crescent and glint
+    el("rect", {
+      x: cx - 30 * k,
+      y: cy - 46 * k,
+      width: 26 * k,
+      height: 14 * k,
+      rx: 4 * k,
+      transform: `rotate(-30 ${cx - 17 * k} ${cy - 39 * k})`,
+      fill: C.light,
+      "fill-opacity": 0.2,
+    }),
+    line(
+      `M${cx - 38 * k} ${cy - 12 * k} C ${cx - 38 * k} ${cy - 40 * k}, ${cx - 22 * k} ${cy - 56 * k}, ${cx} ${cy - 57 * k}`,
+      url("spec"),
+      4 * k,
+      { "stroke-linecap": "round", "stroke-opacity": 0.8 },
+    ),
+    el("circle", { cx: cx - 22 * k, cy: cy - 30 * k, r: 2 * k, fill: C.light }),
+    line(
+      `M${cx + 8 * k} ${cy + glass.ry - 2 * k} A${glass.rx} ${glass.ry} 0 0 0 ${cx + glass.rx - 4 * k} ${cy + 16 * k}`,
+      C.light,
+      1.5 * k,
+      { "stroke-linecap": "round", "stroke-opacity": 0.45 },
+    ),
+    line(
+      `M${cx + glass.rx - 2 * k} ${cy + 8 * k} A${glass.rx} ${glass.ry} 0 0 0 ${cx + glass.rx - 10 * k} ${cy - 30 * k}`,
+      C.light,
+      1,
+      { "stroke-opacity": 0.18, "stroke-linecap": "round" },
+    ),
+  ].join("");
+}
+
 /** Bi-LED or bi-xenon projector: lens and barrel up front, heat sink or bulb socket behind. */
 function projector(kind: "led" | "xenon"): string {
   const lens = { x: 166, y: 148, rx: 52, ry: 66 };
   const rear = { x: 222, y: 150, rx: 42, ry: 54 };
-  const glass = { rx: lens.rx - 7, ry: lens.ry - 8 };
 
   const fins = Array.from({ length: 10 }, (_, i) => {
     const t = i / 9;
@@ -248,7 +295,7 @@ function projector(kind: "led" | "xenon"): string {
   }).join("");
 
   const lead = (d: string, highlight: string) =>
-    line(d, C.surface2, 5, { "stroke-linecap": "round" }) +
+    line(d, C.graphite, 5, { "stroke-linecap": "round" }) +
     line(highlight, C.light, 1, { "stroke-opacity": 0.18 });
 
   const back =
@@ -263,7 +310,7 @@ function projector(kind: "led" | "xenon"): string {
         line("M250 92 A40 58 0 0 1 250 208", url("rim"), 1.75) +
         path("M268 128 L302 132 L302 170 L268 174 Z", { fill: url("metal-v") }) +
         ellipse(302, 151, 7, 19, { fill: url("metal") }) +
-        line("M302 132 A7 19 0 0 1 302 170", C.accent, 1.25) +
+        line("M302 132 A7 19 0 0 1 302 170", C.soft, 1.25, { "stroke-opacity": 0.5 }) +
         lead("M302 166 C 312 190, 318 210, 334 222", "M302 164 C 312 188, 318 208, 334 220");
 
   return subject(
@@ -286,52 +333,7 @@ function projector(kind: "led" | "xenon"): string {
       line(`M${lens.x} ${lens.y - lens.ry} L${rear.x} ${rear.y - rear.ry}`, C.light, 1, {
         "stroke-opacity": 0.5,
       }),
-      // Retaining ring and glass
-      ellipse(lens.x, lens.y, lens.rx, lens.ry, { fill: url("chrome") }),
-      ellipse(lens.x - 1, lens.y, glass.rx, glass.ry, { fill: url("glass") }),
-      ellipse(lens.x + 2, lens.y + 2, glass.rx - 12, glass.ry - 14, {
-        fill: "none",
-        stroke: C.light,
-        "stroke-opacity": 0.06,
-        "stroke-width": 6,
-      }),
-      // Cut-off shield, seen through the glass
-      line(
-        `M${lens.x - 34} ${lens.y + 8} L${lens.x - 2} ${lens.y + 8} L${lens.x + 10} ${lens.y - 2} L${lens.x + 34} ${lens.y - 2}`,
-        C.accent,
-        1,
-        { "stroke-opacity": 0.28 },
-      ),
-      // Softbox reflection, crescent and glints
-      el("rect", {
-        x: lens.x - 30,
-        y: lens.y - 46,
-        width: 26,
-        height: 14,
-        rx: 4,
-        transform: `rotate(-30 ${lens.x - 17} ${lens.y - 39})`,
-        fill: C.light,
-        "fill-opacity": 0.2,
-      }),
-      line(
-        `M${lens.x - 38} ${lens.y - 12} C ${lens.x - 38} ${lens.y - 40}, ${lens.x - 22} ${lens.y - 56}, ${lens.x} ${lens.y - 57}`,
-        url("spec"),
-        4,
-        { "stroke-linecap": "round", "stroke-opacity": 0.8 },
-      ),
-      el("circle", { cx: lens.x - 22, cy: lens.y - 30, r: 2, fill: C.light }),
-      line(
-        `M${lens.x + 8} ${lens.y + glass.ry - 2} A${glass.rx} ${glass.ry} 0 0 0 ${lens.x + glass.rx - 4} ${lens.y + 16}`,
-        C.accent,
-        1.75,
-        { "stroke-linecap": "round" },
-      ),
-      line(
-        `M${lens.x + glass.rx - 2} ${lens.y + 8} A${glass.rx} ${glass.ry} 0 0 0 ${lens.x + glass.rx - 10} ${lens.y - 30}`,
-        C.accent,
-        1,
-        { "stroke-opacity": 0.35, "stroke-linecap": "round" },
-      ),
+      projectorGlass(lens.x, lens.y, lens.rx, lens.ry),
     ].join(""),
   );
 }
@@ -383,7 +385,107 @@ function lens(): string {
   );
 }
 
-/** D-series xenon capsule, or a halogen bulb. The light source glows. */
+/**
+ * A complete headlight unit in three-quarter view: the swept clear lens in front of a black
+ * housing (an extrusion of the lens outline, so its top and inner end show depth), a projector
+ * and a high-beam module inside, an unlit light-guide brow, the turn signal's reflector at the
+ * inner end, and the mounting tabs and bracket it stands on.
+ */
+function headlight(): string {
+  // Clear outer lens: tall at the outer (left) end, tapering towards the grille (right).
+  const face =
+    "M92 156 C 92 134, 104 122, 128 120 L 296 108 C 312 107, 322 116, 319 130 L 312 160 C 309 172, 298 179, 284 180 L 140 208 C 112 212, 92 196, 92 176 Z";
+  const interior =
+    "M99 158 C 99 140, 110 129, 130 127 L 293 116 C 305 115, 311 122, 308 132 L 302 156 C 299 166, 291 171, 280 172 L 141 201 C 117 204, 99 191, 99 176 Z";
+  // How far the back of the housing sits behind the lens: up and to the right.
+  const depth = { x: 24, y: -14 };
+  const steps = 16;
+
+  const housing = Array.from({ length: steps }, (_, i) => {
+    const t = 1 - i / steps;
+    return path(face, {
+      transform: `translate(${(depth.x * t).toFixed(2)} ${(depth.y * t).toFixed(2)})`,
+      fill: url("housing"),
+    });
+  }).join("");
+
+  const tab = (x: number, y: number, angle: number) =>
+    g(
+      { transform: `rotate(${angle} ${x} ${y})` },
+      path(
+        `M${x - 12} ${y + 9} L${x - 9} ${y - 5} C ${x - 8} ${y - 10}, ${x + 8} ${y - 10}, ${x + 9} ${y - 5} L${x + 12} ${y + 9} Z`,
+        { fill: url("dark") },
+      ),
+      el("circle", { cx: x, cy: y - 2, r: 3, fill: C.bg, stroke: C.light, "stroke-opacity": 0.2 }),
+    );
+
+  // Turn-signal reflector facets at the inner end
+  const facets = [248, 258, 268, 278, 288]
+    .map((x) => {
+      const bottom = Math.min(176, 172 + (280 - x) * 0.209) - 3;
+      return line(`M${x} 131 L${x - 4} ${bottom.toFixed(1)}`, C.light, 1, {
+        "stroke-opacity": 0.12,
+      });
+    })
+    .join("");
+
+  return subject(
+    { x: 206, rx: 118 },
+    g(
+      { transform: "translate(0 16)" },
+      // Mounting tabs, the bracket it stands on, and the rear connector
+      tab(222, 94, 4),
+      tab(352, 122, 74),
+      path("M252 182 L272 178 L276 212 L254 214 Z", { fill: url("dark") }),
+      line("M272 178 L276 212", url("rim"), 1.25),
+      path("M336 140 L354 136 L356 154 L338 158 Z", { fill: url("metal-v") }),
+      // Housing, its lit top edge and the fill light along the inner end
+      housing,
+      line("M152 106 L 320 94 C 336 93, 346 102, 343 116", C.light, 1, { "stroke-opacity": 0.3 }),
+      line("M343 116 L 336 146 C 333 158, 322 165, 308 166", url("rim"), 1.5),
+      // Behind the glass: glossy black interior with a trim strip
+      path(face, { fill: C.bg }),
+      path(interior, { fill: url("dark") }),
+      line("M146 194 L 276 167", C.muted, 1.5, { "stroke-opacity": 0.22 }),
+      // Light-guide brow along the top and down the outer end (frosted, switched off)
+      line("M106 182 C 102 160, 106 140, 130 136 L 292 123", C.soft, 3.5, {
+        "stroke-linecap": "round",
+        "stroke-opacity": 0.32,
+      }),
+      line("M106 182 C 102 160, 106 140, 130 136 L 292 123", C.light, 1, {
+        "stroke-linecap": "round",
+        "stroke-opacity": 0.55,
+      }),
+      facets,
+      // High-beam module: a reflector bowl with an LED chip
+      ellipse(210, 160, 18, 20, { fill: url("chrome") }),
+      ellipse(210, 160, 14, 16, { fill: url("metal") }),
+      ellipse(211, 161, 7, 8, { fill: C.surface }),
+      el("rect", { x: 208.5, y: 158.5, width: 5, height: 5, rx: 1, fill: C.soft, "fill-opacity": 0.7 }),
+      // Projector
+      projectorGlass(150, 168, 25, 26),
+      // Clear lens: edge, inner edge and specular streaks following its curve
+      path(face, { fill: C.light, "fill-opacity": 0.03 }),
+      line(face, C.light, 1.25, { "stroke-opacity": 0.55 }),
+      line(interior, C.light, 0.75, { "stroke-opacity": 0.1 }),
+      line("M98 150 C 104 134, 126 126, 214 120", url("spec"), 4, {
+        "stroke-linecap": "round",
+        "stroke-opacity": 0.55,
+      }),
+      line("M118 198 C 170 186, 232 176, 298 166", C.light, 2.5, {
+        "stroke-linecap": "round",
+        "stroke-opacity": 0.07,
+      }),
+      line(
+        "M296 108 C 312 107, 322 116, 319 130 L 312 160 C 309 172, 298 179, 284 180",
+        url("rim"),
+        1.5,
+      ),
+    ),
+  );
+}
+
+/** D-series xenon capsule, or a halogen bulb. Shown switched off. */
 function bulb(kind: "xenon" | "halogen"): string {
   if (kind === "halogen") {
     return subject(
@@ -393,7 +495,7 @@ function bulb(kind: "xenon" | "halogen"): string {
         path("M178 186 L222 186 L222 228 L178 228 Z", { fill: url("metal") }),
         line("M222 186 L222 228", url("rim"), 1.5),
         ellipse(200, 186, 44, 8, { fill: url("chrome") }),
-        line("M244 186 A44 8 0 0 1 156 186", C.accent, 1, { "stroke-opacity": 0.7 }),
+        line("M244 186 A44 8 0 0 1 156 186", C.light, 1, { "stroke-opacity": 0.45 }),
         // Glass envelope with its dark tip
         path("M184 182 L184 98 C 184 84, 216 84, 216 98 L 216 182 Z", {
           fill: C.light,
@@ -406,15 +508,10 @@ function bulb(kind: "xenon" | "halogen"): string {
         line("M190 104 L190 170", url("spec"), 3, { "stroke-linecap": "round" }),
         // Filament and supports
         line("M196 182 L196 132 M204 182 L204 132", C.muted, 1),
-        line("M188 128 l3 -4 l3 8 l3 -8 l3 8 l3 -8 l3 8 l3 -8 l3 4", C.light, 1.5, {
+        line("M188 128 l3 -4 l3 8 l3 -8 l3 8 l3 -8 l3 8 l3 -8 l3 4", C.soft, 1.5, {
           "stroke-linejoin": "round",
         }),
       ].join(""),
-      g(
-        {},
-        ellipse(200, 128, 74, 74, { fill: url("emit"), opacity: 0.75 }),
-        ellipse(200, 128, 22, 12, { fill: C.halogen, "fill-opacity": 0.18 }),
-      ),
     );
   }
 
@@ -424,7 +521,7 @@ function bulb(kind: "xenon" | "halogen"): string {
       // Plastic base with ribs
       path("M170 172 L230 172 L230 228 L170 228 Z", { fill: url("dark") }),
       ...[184, 196, 208].map((y) =>
-        line(`M170 ${y} L230 ${y}`, C.fg, 1, { "stroke-opacity": 0.07 }),
+        line(`M170 ${y} L230 ${y}`, C.light, 1, { "stroke-opacity": 0.07 }),
       ),
       line("M230 172 L230 228", url("rim"), 1.5),
       // Metal mounting ring with tabs
@@ -444,13 +541,13 @@ function bulb(kind: "xenon" | "halogen"): string {
       line("M194 74 L194 150", url("spec"), 2.5, { "stroke-linecap": "round" }),
       // Arc capsule and electrodes
       line("M200 66 L200 90 M200 118 L200 164", C.muted, 1.25),
-      ellipse(200, 104, 7, 15, { fill: C.light, "fill-opacity": 0.3 }),
-      ellipse(200, 104, 3, 6, { fill: C.light }),
+      ellipse(200, 104, 7, 15, { fill: C.light, "fill-opacity": 0.16 }),
+      ellipse(200, 104, 7, 15, { fill: "none", stroke: C.light, "stroke-opacity": 0.4 }),
+      ellipse(200, 104, 2, 4, { fill: C.soft }),
       // Return wire
       line("M222 164 L222 70 C 222 62, 214 60, 206 62", C.muted, 1.25),
-      line("M222 164 L222 70", C.accent, 0.75, { "stroke-opacity": 0.6 }),
+      line("M222 164 L222 70", C.light, 0.75, { "stroke-opacity": 0.3 }),
     ].join(""),
-    ellipse(200, 104, 78, 78, { fill: url("emit") }),
   );
 }
 
@@ -463,7 +560,7 @@ function ballast(): string {
     const x2 = 250 + (292 - 250) * t;
     const y2 = 156 + (134 - 156) * t;
     return (
-      line(`M${x1} ${y1} L${x2} ${y2}`, C.bg, 2.5, { "stroke-opacity": 0.8 }) +
+      line(`M${x1} ${y1} L${x2} ${y2}`, C.surface, 2.5, { "stroke-opacity": 0.8 }) +
       line(`M${x1} ${y1 - 1.5} L${x2} ${y2 - 1.5}`, C.light, 0.75, { "stroke-opacity": 0.3 })
     );
   }).join("");
@@ -472,9 +569,9 @@ function ballast(): string {
     { x: 206, rx: 108 },
     [
       // Lead and connector
-      line("M286 190 C 306 196, 318 208, 316 224", C.surface2, 6, { "stroke-linecap": "round" }),
+      line("M286 190 C 306 196, 318 208, 316 224", C.graphite, 6, { "stroke-linecap": "round" }),
       path("M306 214 L326 214 L326 230 L306 230 Z", { fill: url("dark") }),
-      line("M326 214 L326 230", C.accent, 1.25),
+      line("M326 214 L326 230", url("rim"), 1.25),
       // Front, top and right faces
       path("M112 146 L250 156 L250 226 L112 216 Z", { fill: url("metal-v") }),
       path("M112 146 L250 156 L292 134 L156 126 Z", { fill: url("metal") }),
@@ -482,10 +579,10 @@ function ballast(): string {
       line("M292 134 L292 202 L250 226", url("rim"), 1.5),
       fins,
       line("M112 146 L250 156", C.light, 1, { "stroke-opacity": 0.55 }),
-      // Label plate and status light
+      // Label plate and status light (off)
       path("M128 168 L198 173 L198 202 L128 197 Z", { fill: C.bg, "fill-opacity": 0.55 }),
       line("M136 178 L180 181 M136 186 L170 188.5", C.muted, 1.5, { "stroke-opacity": 0.5 }),
-      el("circle", { cx: 226, cy: 185, r: 3, fill: C.accent, "fill-opacity": 0.9 }),
+      el("circle", { cx: 226, cy: 185, r: 3, fill: C.surface, stroke: C.light, "stroke-opacity": 0.3 }),
     ].join(""),
   );
 }
@@ -510,7 +607,7 @@ function shroud(): string {
         "stroke-opacity": 0.35,
         "stroke-linecap": "round",
       }),
-      line("M244 120 A50 56 0 0 1 222 200", C.accent, 1.25, { "stroke-opacity": 0.6 }),
+      line("M244 120 A50 56 0 0 1 222 200", C.light, 1.25, { "stroke-opacity": 0.3 }),
     ].join(""),
   );
 }
@@ -560,7 +657,7 @@ function adapter(): string {
   );
 }
 
-/** Round LED driving light with a glowing ring. */
+/** Round LED driving light with a frosted light ring (switched off). */
 function ledLight(): string {
   const f = { x: 186, y: 136, rx: 64, ry: 70 };
   return subject(
@@ -582,8 +679,11 @@ function ledLight(): string {
       ...[38, 28, 18].map((r) =>
         ellipse(f.x, f.y, r, r * 1.09, { fill: "none", stroke: C.light, "stroke-opacity": 0.1 }),
       ),
-      el("circle", { cx: f.x, cy: f.y, r: 8, fill: C.surface2 }),
-      el("circle", { cx: f.x, cy: f.y, r: 4, fill: C.light }),
+      // Light ring: frosted diffuser with a fine highlight
+      ellipse(f.x, f.y, 44, 48, { fill: "none", stroke: C.soft, "stroke-opacity": 0.3, "stroke-width": 5 }),
+      ellipse(f.x, f.y, 44, 48, { fill: "none", stroke: C.light, "stroke-opacity": 0.5, "stroke-width": 1 }),
+      el("circle", { cx: f.x, cy: f.y, r: 8, fill: C.graphite }),
+      el("circle", { cx: f.x, cy: f.y, r: 4, fill: C.soft, "fill-opacity": 0.8 }),
       line(
         `M${f.x - 46} ${f.y - 22} C ${f.x - 42} ${f.y - 48}, ${f.x - 22} ${f.y - 60}, ${f.x} ${f.y - 60}`,
         url("spec"),
@@ -591,17 +691,6 @@ function ledLight(): string {
         { "stroke-linecap": "round" },
       ),
     ].join(""),
-    g(
-      {},
-      ellipse(f.x, f.y, f.rx + 30, f.ry + 30, { fill: url("emit"), opacity: 0.55 }),
-      ellipse(f.x, f.y, 44, 48, {
-        fill: "none",
-        stroke: C.accent,
-        "stroke-opacity": 0.35,
-        "stroke-width": 7,
-      }),
-      ellipse(f.x, f.y, 44, 48, { fill: "none", stroke: C.light, "stroke-width": 2 }),
-    ),
   );
 }
 
@@ -633,7 +722,7 @@ function fitting(): string {
       // Loose end of the cord
       line(
         `M${r - 14} ${top.y + h + 12} C ${r + 6} ${top.y + h + 18}, ${r + 26} ${top.y + h + 14}, ${r + 46} ${top.y + h + 26}`,
-        C.surface2,
+        C.graphite,
         8,
         { "stroke-linecap": "round" },
       ),
@@ -675,6 +764,7 @@ const parts: Record<Shot, () => string> = {
   "projector-led": () => projector("led"),
   "projector-xenon": () => projector("xenon"),
   lens,
+  headlight,
   "bulb-xenon": () => bulb("xenon"),
   "bulb-halogen": () => bulb("halogen"),
   ballast,
