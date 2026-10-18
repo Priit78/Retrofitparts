@@ -1,7 +1,10 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { SearchField } from "./FilterBar";
+import { categories, products } from "@/data/products";
+import type { CatalogFilters } from "@/lib/catalog";
+import { facetCounts } from "@/lib/catalog-ui";
+import { FilterSidebar, SearchField } from "./FilterBar";
 
 /**
  * Stands in for the catalog: `query` is what the URL holds, updated a little after each search
@@ -91,5 +94,51 @@ describe("SearchField", () => {
     render(<Harness onSearch={vi.fn()} />);
     fireEvent.click(screen.getByText("link"));
     expect(screen.getByRole("searchbox")).toHaveValue("hella");
+  });
+});
+
+describe("FilterSidebar categories", () => {
+  function renderSidebar(filters: CatalogFilters, onChange = vi.fn()) {
+    const ids = categories.map((c) => c.id);
+    render(
+      <FilterSidebar
+        locale="en"
+        filters={filters}
+        onChange={onChange}
+        onClear={vi.fn()}
+        searchReset={0}
+        counts={facetCounts(products, ids, filters, "en")}
+        brands={[]}
+        makes={[]}
+      />,
+    );
+    const group = screen.getByRole("group", { name: "Category" });
+    const button = (id: string) =>
+      within(group).getByRole("button", {
+        name: new RegExp(`^${categories.find((c) => c.id === id)?.name.en ?? "All"}`),
+      });
+    return { onChange, button };
+  }
+
+  it("marks every category of a multi-category link as pressed, and not All", () => {
+    const { button } = renderSidebar({ category: ["xenon-projectors", "xenon-bulbs", "ballasts"] });
+    for (const id of ["xenon-projectors", "xenon-bulbs", "ballasts"]) {
+      expect(button(id)).toHaveAttribute("aria-pressed", "true");
+    }
+    expect(button("lenses")).toHaveAttribute("aria-pressed", "false");
+    expect(button("all")).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("selects just the clicked category, and All clears", () => {
+    const { button, onChange } = renderSidebar({ category: ["led-projectors", "led-lights"] });
+    fireEvent.click(button("led-lights"));
+    expect(onChange).toHaveBeenLastCalledWith({ category: ["led-lights"] }, { reveal: true });
+    fireEvent.click(button("all"));
+    expect(onChange).toHaveBeenLastCalledWith({ category: undefined }, { reveal: true });
+  });
+
+  it("presses All when no category is chosen", () => {
+    const { button } = renderSidebar({});
+    expect(button("all")).toHaveAttribute("aria-pressed", "true");
   });
 });

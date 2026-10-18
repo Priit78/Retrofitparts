@@ -27,9 +27,13 @@ import { useModal } from "./useModal";
 const EASE = [0.16, 1, 0.3, 1] as const;
 const SEARCH_DEBOUNCE_MS = 200;
 
-const labelClass = "font-mono text-[11px] font-medium tracking-[0.16em] text-muted uppercase";
+const labelClass = "font-mono text-xs tracking-[0.08em] text-muted uppercase";
+/** Inputs and selects: flat, a 2 px radius and a border that holds 3:1 against the page. */
 const controlClass =
-  "block h-11 w-full rounded-xl border border-fg/40 bg-surface-2/70 text-[15px] text-fg transition-[border-color,background-color,box-shadow] duration-300 ease-out-expo hover:border-fg/60 focus:border-accent focus:bg-surface-2 focus:ring-4 focus:ring-accent/15";
+  "block h-11 w-full rounded-[2px] border border-fg/40 bg-surface text-[15px] text-fg transition-[border-color,background-color] duration-300 ease-out-expo hover:border-fg/60 focus:border-fg/80 focus:bg-surface-2";
+/** Square icon buttons and the mobile "Filters" button. */
+const iconButtonClass =
+  "inline-flex shrink-0 items-center justify-center rounded-[2px] border border-line text-fg transition-[background-color,border-color] duration-300 hover:border-fg/50 hover:bg-fg/[0.04]";
 
 export interface FilterProps {
   locale: Locale;
@@ -176,7 +180,7 @@ export function SearchField({
             push("");
             inputRef.current?.focus();
           }}
-          className="absolute top-1/2 right-1.5 inline-flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-muted transition-colors hover:bg-white/[0.06] hover:text-fg"
+          className="absolute top-1/2 right-1.5 inline-flex size-8 -translate-y-1/2 items-center justify-center rounded-[2px] text-muted transition-colors hover:bg-fg/[0.06] hover:text-fg"
         >
           <X aria-hidden className="size-4" strokeWidth={1.75} />
         </button>
@@ -253,44 +257,43 @@ function CategoryOptions({
       <p id={labelId} className={cn(labelClass, "mb-3")}>
         {t.category[locale]}
       </p>
-      <ul className={variant === "list" ? "-mx-3 flex flex-col" : "flex flex-wrap gap-2"}>
+      <ul className={variant === "list" ? "flex flex-col border-t border-line" : "flex flex-wrap gap-2"}>
         {options.map((option) => {
-          const active = filters.category === option.id;
+          // A link can select several categories (the landing tiles do); each one shows as
+          // pressed. A click still selects just that one, and "All" clears the category.
+          const active = option.id ? Boolean(filters.category?.includes(option.id)) : !filters.category;
           // Empty categories stay clickable and readable: in the sheet their label drops from
-          // `fg` to `muted` (5.9:1); in the list every inactive row is already `muted` (6.2:1).
-          // No opacity dimming, which took them below AA.
+          // `fg` to `muted`; in the list every inactive row is already `muted`. Both hold AA on
+          // the page and on the sheet. No opacity dimming, which took them below AA.
           const empty = option.count === 0 && !active;
           return (
-            <li key={option.id ?? "all"}>
+            <li key={option.id ?? "all"} className={variant === "list" ? "border-b border-line" : undefined}>
               <button
                 type="button"
                 aria-pressed={active}
                 onClick={() =>
-                  onChange({ category: option.id }, { reveal: variant === "list" })
+                  onChange(
+                    { category: option.id ? [option.id] : undefined },
+                    { reveal: variant === "list" },
+                  )
                 }
                 className={cn(
-                  "group/chip flex items-center text-left transition-[background-color,border-color,color] duration-300",
+                  "flex items-center text-left transition-[background-color,border-color,color] duration-300",
                   variant === "list"
-                    ? "relative w-full justify-between gap-3 rounded-lg px-3 py-2 text-sm"
-                    : "min-h-10 gap-2 rounded-full border px-3.5 text-sm",
-                  variant === "list" &&
-                    (active
-                      ? "bg-white/[0.06] text-light"
-                      : "text-muted hover:bg-white/[0.03] hover:text-fg"),
+                    ? "relative w-full justify-between gap-3 py-2 pr-0.5 pl-3.5 text-sm"
+                    : "min-h-10 gap-2 rounded-[2px] border px-3.5 text-sm",
+                  variant === "list" && (active ? "font-medium text-fg" : "text-muted hover:text-fg"),
                   variant === "chips" &&
                     (active
-                      ? "border-light bg-light text-bg"
-                      : cn(
-                          "border-line bg-white/[0.03] hover:border-accent/50",
-                          empty ? "text-muted" : "text-fg",
-                        )),
+                      ? "border-fg bg-fg text-bg"
+                      : cn("border-line hover:border-fg/50", empty ? "text-muted" : "text-fg")),
                 )}
               >
                 {variant === "list" ? (
                   <span
                     aria-hidden
                     className={cn(
-                      "absolute top-2 bottom-2 left-0 w-0.5 rounded-full bg-accent shadow-[0_0_10px_var(--color-accent)] transition-opacity duration-300",
+                      "absolute top-2 bottom-2 left-0 w-0.5 bg-fg transition-opacity duration-300",
                       active ? "opacity-100" : "opacity-0",
                     )}
                   />
@@ -298,8 +301,8 @@ function CategoryOptions({
                 <span className="min-w-0">{option.name}</span>
                 <span
                   className={cn(
-                    "font-mono text-xs tabular-nums",
-                    variant === "chips" && active ? "text-bg/70" : "text-muted",
+                    "font-mono text-xs font-normal tabular-nums",
+                    variant === "chips" && active ? "text-bg/70" : active ? "text-soft" : "text-muted",
                   )}
                 >
                   {option.count}
@@ -356,7 +359,7 @@ function ClearButton({
       aria-disabled={!active}
       onClick={() => active && onClear({ reveal: true })}
       className={cn(
-        "inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-line px-5 text-sm font-medium text-fg transition-[background-color,border-color,opacity] duration-300 hover:border-accent/50 hover:bg-white/[0.06] aria-disabled:cursor-default aria-disabled:opacity-40 aria-disabled:hover:border-line aria-disabled:hover:bg-transparent",
+        "inline-flex min-h-11 items-center justify-center gap-2 rounded-[2px] border border-fg/35 px-5 text-sm font-semibold text-fg transition-[background-color,border-color,opacity] duration-300 hover:border-fg/70 hover:bg-fg/[0.04] aria-disabled:cursor-default aria-disabled:opacity-40 aria-disabled:hover:border-fg/35 aria-disabled:hover:bg-transparent",
         className,
       )}
     >
@@ -368,12 +371,19 @@ function ClearButton({
 
 /* ----------------------------------------------------------------------------------------- */
 
-/** Desktop filters: a sticky column next to the grid (hidden below `lg`). */
+/**
+ * Desktop filters: a sticky column next to the grid (hidden below `lg`). With a dozen categories
+ * it can be taller than a laptop screen, so it scrolls on its own rather than hiding the make,
+ * brand and Clear controls below the fold; the padding keeps focus rings inside its clip.
+ */
 export function FilterSidebar(props: FilterProps) {
   const { locale, filters, onChange, onClear, searchReset } = props;
   return (
     <aside aria-label={catalog.filters.title[locale]} className="hidden lg:block">
-      <div className="sticky top-24 flex flex-col gap-7 pb-10">
+      <div
+        data-lenis-prevent=""
+        className="sticky top-22 -m-2 flex max-h-[calc(100svh-5.5rem)] flex-col gap-6 overflow-y-auto p-2 pb-10 [scrollbar-color:var(--color-line)_transparent] [scrollbar-width:thin]"
+      >
         <SearchField
           locale={locale}
           query={filters.q ?? ""}
@@ -423,9 +433,7 @@ export function FilterBar(
   }, [open]);
 
   return (
-    <div className="sticky top-16 z-30 -mx-4 mb-2 border-b border-line px-4 py-3 md:-mx-6 md:px-6 lg:hidden">
-      {/* The blur sits on its own layer: on the bar itself it would trap the fixed sheet. */}
-      <div aria-hidden className="absolute inset-0 -z-10 bg-bg/85 backdrop-blur-xl" />
+    <div className="sticky top-16 z-30 -mx-4 mb-2 border-b border-line bg-bg px-4 py-3 md:-mx-6 md:px-6 lg:hidden">
       <div className="flex items-center gap-2.5">
         <SearchField
           locale={locale}
@@ -439,12 +447,12 @@ export function FilterBar(
           aria-haspopup="dialog"
           aria-expanded={open}
           onClick={() => setOpen(true)}
-          className="relative inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border border-fg/40 bg-surface-2/70 px-3.5 text-sm font-medium text-fg transition-[border-color,background-color] duration-300 hover:border-fg/60"
+          className="relative inline-flex h-11 shrink-0 items-center gap-2 rounded-[2px] border border-fg/40 bg-surface px-3.5 text-sm font-semibold text-fg transition-[border-color,background-color] duration-300 hover:border-fg/60"
         >
-          <SlidersHorizontal aria-hidden className="size-[18px]" strokeWidth={1.75} />
+          <SlidersHorizontal aria-hidden className="size-[18px]" strokeWidth={1.5} />
           <span className="max-[359px]:sr-only">{t.open[locale]}</span>
           {active > 0 ? (
-            <span className="grid size-5 place-items-center rounded-full bg-accent font-mono text-[11px] font-semibold text-bg">
+            <span className="grid size-5 place-items-center rounded-[2px] bg-fg font-mono text-[11px] font-semibold text-bg">
               <span aria-hidden>{active}</span>
               <span className="sr-only">, {t.activeCount[locale](active)}</span>
             </span>
@@ -473,19 +481,15 @@ export function FilterBar(
               aria-modal="true"
               aria-labelledby={titleId}
               tabIndex={-1}
-              className="absolute inset-x-0 bottom-0 flex max-h-[88svh] flex-col overflow-hidden rounded-t-3xl border-t border-line bg-surface outline-none"
+              className="absolute inset-x-0 bottom-0 flex max-h-[88svh] flex-col overflow-hidden rounded-t-[2px] border-t border-line bg-surface outline-none"
               initial={reduceMotion ? false : { y: "100%" }}
               animate={{ y: 0 }}
               exit={reduceMotion ? { opacity: 0 } : { y: "100%" }}
               transition={{ duration: reduceMotion ? 0 : 0.5, ease: EASE }}
             >
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-x-10 top-0 h-px bg-linear-to-r from-transparent via-accent/70 to-transparent"
-              />
               <div className="relative flex shrink-0 items-center justify-between gap-4 px-5 pt-6 pb-3 sm:px-7">
-                <span aria-hidden className="absolute top-2 left-1/2 h-1 w-10 -translate-x-1/2 rounded-full bg-fg/15" />
-                <h2 id={titleId} className="text-xl leading-tight font-semibold tracking-tight text-fg">
+                <span aria-hidden className="absolute top-2 left-1/2 h-1 w-10 -translate-x-1/2 rounded-[2px] bg-fg/15" />
+                <h2 id={titleId} className="text-xl leading-tight font-semibold tracking-[-0.02em] text-fg">
                   {t.title[locale]}
                 </h2>
                 <button
@@ -493,7 +497,7 @@ export function FilterBar(
                   type="button"
                   aria-label={t.close[locale]}
                   onClick={() => setOpen(false)}
-                  className="inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-line bg-white/[0.03] text-fg transition-[background-color,border-color] duration-300 hover:border-accent/50 hover:bg-white/[0.06]"
+                  className={cn(iconButtonClass, "size-11")}
                 >
                   <X aria-hidden className="size-[18px]" strokeWidth={1.75} />
                 </button>
@@ -545,22 +549,34 @@ export function ResultsHeader({
 }) {
   const t = catalog.filters;
   const sortId = useId();
-  const category = categories.find((c) => c.id === filters.category);
-  const pills: { key: keyof CatalogFilters; label: ReactNode; text: string }[] = [];
-  if (category) {
-    pills.push({ key: "category", label: category.name[locale], text: category.name[locale] });
+  const pills: { key: string; label: ReactNode; text: string; remove: Partial<CatalogFilters> }[] = [];
+  // One pill per category; removing one keeps the others (the last one clears the filter).
+  for (const id of filters.category ?? []) {
+    const name = categories.find((c) => c.id === id)?.name[locale] ?? id;
+    const rest = filters.category?.filter((other) => other !== id) ?? [];
+    pills.push({
+      key: `category-${id}`,
+      label: name,
+      text: name,
+      remove: { category: rest.length > 0 ? rest : undefined },
+    });
   }
   // The same spelling as the selects show (`?make=bmw` reads "BMW").
   if (filters.make) {
     const make = selectOptions(makes, filters.make).selected;
-    pills.push({ key: "make", label: make, text: make });
+    pills.push({ key: "make", label: make, text: make, remove: { make: undefined } });
   }
   if (filters.brand) {
     const brand = selectOptions(brands, filters.brand).selected;
-    pills.push({ key: "brand", label: brand, text: brand });
+    pills.push({ key: "brand", label: brand, text: brand, remove: { brand: undefined } });
   }
   if (filters.q) {
-    pills.push({ key: "q", label: t.queryPill[locale](filters.q), text: filters.q });
+    pills.push({
+      key: "q",
+      label: t.queryPill[locale](filters.q),
+      text: filters.q,
+      remove: { q: undefined },
+    });
   }
 
   return (
@@ -568,7 +584,7 @@ export function ResultsHeader({
       <p
         aria-live="polite"
         aria-atomic="true"
-        className="font-mono text-xs tracking-[0.16em] whitespace-nowrap text-fg uppercase tabular-nums"
+        className="font-mono text-xs tracking-[0.08em] whitespace-nowrap text-fg uppercase tabular-nums"
       >
         {t.results[locale](resultCount)}
       </p>
@@ -580,11 +596,11 @@ export function ResultsHeader({
               <button
                 type="button"
                 aria-label={t.remove[locale](pill.text)}
-                onClick={() => onChange({ [pill.key]: undefined })}
-                className="group/pill inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-full border border-accent/30 bg-accent/[0.07] py-1 pr-2 pl-3 text-[13px] text-light transition-[background-color,border-color] duration-300 hover:border-accent/60 hover:bg-accent/[0.12]"
+                onClick={() => onChange(pill.remove)}
+                className="group/pill inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-[2px] border border-fg/35 py-1 pr-2 pl-3 text-[13px] text-fg transition-[background-color,border-color] duration-300 hover:border-fg/70 hover:bg-fg/[0.04]"
               >
                 <span className="truncate">{pill.label}</span>
-                <X aria-hidden className="size-3.5 shrink-0 text-muted transition-colors group-hover/pill:text-light" strokeWidth={2} />
+                <X aria-hidden className="size-3.5 shrink-0 text-muted transition-colors group-hover/pill:text-fg" strokeWidth={1.75} />
               </button>
             </li>
           ))}
@@ -603,7 +619,7 @@ export function ResultsHeader({
               const sort = event.target.value as CatalogSort;
               onChange({ sort: sort === sorts[0] ? undefined : sort });
             }}
-            className="h-10 cursor-pointer appearance-none rounded-full border border-fg/40 bg-surface-2/70 pr-9 pl-4 text-sm text-fg transition-[border-color] duration-300 hover:border-fg/60 focus:border-accent focus:ring-4 focus:ring-accent/15"
+            className="h-10 cursor-pointer appearance-none rounded-[2px] border border-fg/40 bg-surface pr-9 pl-3.5 text-sm text-fg transition-[border-color] duration-300 hover:border-fg/60 focus:border-fg/80"
           >
             {sorts.map((sort) => (
               <option key={sort} value={sort}>

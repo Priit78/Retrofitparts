@@ -15,7 +15,7 @@ describe("facetCounts", () => {
   });
 
   it("ignores the selected category, so every toggle shows what it would give", () => {
-    const withCategory = facetCounts(products, ids, { category: "lenses", make: "BMW" }, "et");
+    const withCategory = facetCounts(products, ids, { category: ["lenses"], make: "BMW" }, "et");
     const without = facetCounts(products, ids, { make: "BMW" }, "et");
     expect(withCategory).toEqual(without);
     expect(withCategory.byCategory.lenses).toBe(

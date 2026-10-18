@@ -1,6 +1,6 @@
 import type { CatalogSort } from "@/lib/catalog";
 import type { Localized } from "@/lib/i18n";
-import type { Product } from "@/data/types";
+import type { CategoryId, Product } from "@/data/types";
 
 type Count = Localized<(n: number) => string>;
 
@@ -20,8 +20,8 @@ export const catalog = {
   meta: {
     title: { et: "Tootekataloog", en: "Product catalog" },
     description: {
-      et: "Bi-LED ja bi-xenon projektorid, tuleklaasid, xenon-lambid, ballastid ja paigaldustarvikud. Hinnad sisaldavad käibemaksu. Küsi pakkumist otse tootelehelt.",
-      en: "Bi-LED and bi-xenon projectors, headlight lenses, xenon bulbs, ballasts and fitting parts. Prices include VAT. Request an offer straight from the product page.",
+      et: "Bi-LED- ja bi-xenon-projektorid, tuleklaasid, komplektsed esituled, xenon-lambid, ballastid ja paigaldustarvikud. Hinnad sisaldavad käibemaksu. Küsi pakkumist otse tootelehelt.",
+      en: "Bi-LED and bi-xenon projectors, headlight lenses, complete headlights, xenon bulbs, ballasts and fitting parts. Prices include VAT. Request an offer straight from the product page.",
     },
   },
 
@@ -32,8 +32,8 @@ export const catalog = {
       en: "Projectors, lenses and everything a headlight needs",
     },
     intro: {
-      et: "Tooted, mida müüme ja oma töökojas paigaldame. Hinnad sisaldavad käibemaksu. Morimoto, Bimmerjakes ja Strands kataloogidest tellime ka tooteid, mida siin ei ole.",
-      en: "The parts we sell and fit in our workshop. Prices include VAT. We can also order products from the Morimoto, Bimmerjakes and Strands catalogs that are not listed here.",
+      et: "Müüme ja paigaldame oma töökojas kõike alates komplektsetest esituledest kuni paigaldustarvikuteni. Hinnad sisaldavad käibemaksu. Morimoto, Bimmerjakes ja Strands kataloogidest tellime ka tooteid, mida siin ei ole.",
+      en: "We sell all of it and fit it in our own workshop, from complete headlight units to fitting parts. Prices include VAT. We can also order products from the Morimoto, Bimmerjakes and Strands catalogs that are not listed here.",
     },
     /** Labels under the figures (the number itself is shown separately). */
     stats: {
@@ -187,21 +187,51 @@ export const catalog = {
     illustration: { et: "Illustreeriv pilt", en: "Illustration" },
   },
 
+  /** The landing page's catalog section: three photo tiles and a link to the whole catalog. */
   teaser: {
     eyebrow: { et: "Kataloog", en: "Catalog" },
     title: {
-      et: "Kõik, mida esituli vajab",
-      en: "Everything a headlight needs",
+      et: "Osad, mida müüme ja paigaldame",
+      en: "Parts we sell and fit",
     },
     intro: {
-      et: "Projektorid, tuleklaasid, lambid, ballastid ja paigaldustarvikud. Hinnad sisaldavad käibemaksu.",
-      en: "Projectors, lenses, bulbs, ballasts and fitting parts. Prices include VAT.",
+      et: "Projektorid, tuleklaasid, komplektsed esituled, lambid, ballastid ja paigaldustarvikud. Hinnad sisaldavad käibemaksu.",
+      en: "Projectors, lenses, complete headlights, bulbs, ballasts and fitting parts. Prices include VAT.",
     },
-    categoriesLabel: { et: "Kategooriad", en: "Categories" },
-    featured: { et: "Esiletõstetud tooted", en: "Featured products" },
+    tiles: {
+      lenses: {
+        title: { et: "Tuleklaasid", en: "Headlight lenses" },
+        alt: {
+          et: "Põlev kaasaegne esituli, klaasil vihmapiisad",
+          en: "A lit modern headlight with raindrops on the lens",
+        },
+      },
+      led: {
+        title: { et: "LED-projektorid ja -kaugtuled", en: "LED projectors and high beams" },
+        alt: {
+          et: "Matthalli auto LED-esituli lähivaates",
+          en: "A matte grey car's LED headlight, close up",
+        },
+      },
+      xenon: {
+        title: { et: "Xenon", en: "Xenon" },
+        alt: {
+          et: "Öösel põlev esituli, autol vihmapiisad",
+          en: "A headlight shining at night, raindrops on the car",
+        },
+      },
+    } satisfies Record<string, { title: Localized<string>; alt: Localized<string> }>,
+    /** Short names for the categories a tile groups, listed under its title with their counts. */
+    parts: {
+      "led-projectors": { et: "Projektorid", en: "Projectors" },
+      "led-lights": { et: "Kaugtuled ja rõngad", en: "High beams and rings" },
+      "xenon-projectors": { et: "Projektorid", en: "Projectors" },
+      "xenon-bulbs": { et: "Lambid", en: "Bulbs" },
+      ballasts: { et: "Ballastid ja süütajad", en: "Ballasts and igniters" },
+    } satisfies Partial<Record<CategoryId, Localized<string>>>,
     viewAll: {
-      et: (n: number) => `Vaata kõiki ${n} toodet`,
-      en: (n: number) => `View all ${n} products`,
+      et: (n: number) => `Vaata kogu kataloogi (${productCount.et(n)})`,
+      en: (n: number) => `View the full catalog (${productCount.en(n)})`,
     },
   },
 };

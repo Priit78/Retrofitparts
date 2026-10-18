@@ -43,7 +43,7 @@ describe("parseFilters", () => {
         sort: "price-desc",
       }),
     ).toEqual({
-      category: "lenses",
+      category: ["lenses"],
       brand: "Hella",
       make: "BMW",
       q: "e90",
@@ -54,9 +54,31 @@ describe("parseFilters", () => {
   it("reads URLSearchParams", () => {
     const params = new URLSearchParams("category=adapters&make=Ford&sort=featured");
     expect(parseFilters(params)).toEqual({
-      category: "adapters",
+      category: ["adapters"],
       make: "Ford",
       sort: "featured",
+    });
+  });
+
+  describe("several categories", () => {
+    it("reads a comma-separated list, escaped or not", () => {
+      expect(parseFilters({ category: "led-projectors,led-lights" })).toEqual({
+        category: ["led-projectors", "led-lights"],
+      });
+      expect(parseFilters(new URLSearchParams("category=led-projectors%2Cled-lights"))).toEqual({
+        category: ["led-projectors", "led-lights"],
+      });
+    });
+
+    it("drops unknown ids and duplicates, and keeps the display order", () => {
+      expect(
+        parseFilters({ category: "ballasts, foo,xenon-projectors,ballasts,xenon-bulbs" }),
+      ).toEqual({ category: ["xenon-projectors", "xenon-bulbs", "ballasts"] });
+    });
+
+    it("means every category when nothing valid is left", () => {
+      expect(parseFilters({ category: "foo,bar" })).toEqual({});
+      expect(parseFilters({ category: ",, ," })).toEqual({});
     });
   });
 
@@ -79,7 +101,7 @@ describe("filtersToQuery", () => {
   });
 
   it("writes keys in a fixed order", () => {
-    expect(filtersToQuery({ make: "BMW", category: "lenses" })).toBe(
+    expect(filtersToQuery({ make: "BMW", category: ["lenses"] })).toBe(
       "?category=lenses&make=BMW",
     );
     expect(
@@ -88,9 +110,15 @@ describe("filtersToQuery", () => {
         q: "e90",
         make: "BMW",
         brand: "Hella",
-        category: "lenses",
+        category: ["lenses"],
       }),
     ).toBe("?category=lenses&brand=Hella&make=BMW&q=e90&sort=price-asc");
+  });
+
+  it("writes several categories as a readable comma-separated list", () => {
+    expect(filtersToQuery({ category: ["led-projectors", "led-lights"], make: "BMW" })).toBe(
+      "?category=led-projectors,led-lights&make=BMW",
+    );
   });
 
   it("skips empty values", () => {
@@ -100,9 +128,10 @@ describe("filtersToQuery", () => {
   it("round-trips through parseFilters", () => {
     const samples: CatalogFilters[] = [
       {},
-      { category: "lenses", make: "BMW" },
-      { category: "xenon-bulbs", brand: "The Retrofit Source", sort: "price-asc" },
-      { make: "Mercedes-Benz", q: "õhuti & sild/ääris", sort: "price-desc" },
+      { category: ["lenses"], make: "BMW" },
+      { category: ["xenon-bulbs"], brand: "The Retrofit Source", sort: "price-asc" },
+      { category: ["xenon-projectors", "xenon-bulbs", "ballasts"], sort: "price-desc" },
+      { make: "Mercedes-Benz", q: "õhuti & sild/ääris, 2,5", sort: "price-desc" },
       { sort: "featured" },
     ];
     for (const filters of samples) {
@@ -124,10 +153,19 @@ describe("filterProducts", () => {
   });
 
   it("filters by category", () => {
-    const result = filterProducts(products, { category: "lenses" }, "et");
+    const result = filterProducts(products, { category: ["lenses"] }, "et");
     expect(result.length).toBe(products.filter((p) => p.category === "lenses").length);
     expect(result.length).toBeGreaterThan(0);
     expect(result.every((p) => p.category === "lenses")).toBe(true);
+  });
+
+  it("matches any of several categories, counting exactly their products", () => {
+    const group = ["xenon-projectors", "xenon-bulbs", "ballasts"] as const;
+    const filters = parseFilters({ category: group.join(",") });
+    const result = filterProducts(products, filters, "et");
+    const expected = products.filter((p) => (group as readonly string[]).includes(p.category));
+    expect(result).toHaveLength(expected.length);
+    expect(new Set(result.map((p) => p.category))).toEqual(new Set(group));
   });
 
   it("filters by car make", () => {
@@ -143,7 +181,7 @@ describe("filterProducts", () => {
   });
 
   it("combines filters", () => {
-    const result = filterProducts(products, { category: "adapters", make: "Ford" }, "et");
+    const result = filterProducts(products, { category: ["adapters"], make: "Ford" }, "et");
     expect(result.length).toBeGreaterThan(0);
     expect(result.every((p) => p.category === "adapters" && p.makes.includes("Ford"))).toBe(
       true,
@@ -232,7 +270,7 @@ describe("filterProducts", () => {
     });
 
     it("breaks price ties by the name in the page locale", () => {
-      const result = filterProducts(products, { category: "shrouds", sort: "price-asc" }, "en");
+      const result = filterProducts(products, { category: ["shrouds"], sort: "price-asc" }, "en");
       const same = result.filter((p) => p.price === 30.49).map((p) => p.name.en);
       expect(same.length).toBeGreaterThan(1);
       expect(same).toEqual([...same].sort((a, b) => a.localeCompare(b, "en")));
