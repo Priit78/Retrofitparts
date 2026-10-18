@@ -5,9 +5,11 @@
  * second or so after a wheel flick.
  */
 
-/** The part of a Lenis instance that `jumpTo` uses. */
+/** The parts of a Lenis instance that `jumpTo` and `remeasureScroller` use. */
 export interface Scroller {
   scrollTo(target: number, options: { immediate: boolean; force: boolean }): void;
+  /** Measures the page and the viewport again (Lenis clamps its jumps to what it measured). */
+  resize?(): void;
 }
 
 let current: Scroller | null = null;
@@ -28,4 +30,12 @@ export function registerScroller(scroller: Scroller): () => void {
 export function jumpTo(top: number): void {
   if (current) current.scrollTo(top, { immediate: true, force: true });
   else window.scrollTo({ top, behavior: "instant" });
+}
+
+/**
+ * Has the registered scroller measure the page again, before a jump right after a layout change:
+ * Lenis re-measures only a moment after a resize, and would clamp the jump to the old length.
+ */
+export function remeasureScroller(): void {
+  current?.resize?.();
 }

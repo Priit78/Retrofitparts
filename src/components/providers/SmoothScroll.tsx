@@ -2,6 +2,7 @@
 
 import Lenis from "lenis";
 import { useEffect } from "react";
+import { keepPlace } from "@/lib/keep-place";
 import { registerScroller } from "@/lib/scroller";
 
 /**
@@ -54,8 +55,13 @@ function focusTarget(el: HTMLElement) {
  *
  * The instance is registered as the page's scroller (lib/scroller.ts), so a chapter's instant
  * `seek` goes through Lenis rather than being overridden by its running animation.
+ *
+ * It also keeps the reader's place across resizes, rotations and reduced-motion switches
+ * (lib/keep-place.ts), with or without Lenis.
  */
 export function SmoothScroll() {
+  useEffect(() => keepPlace(), []);
+
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const lenis = new Lenis({ autoRaf: true, lerp: 0.1 });

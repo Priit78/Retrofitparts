@@ -414,6 +414,58 @@ test.describe("keyboard focus in the catalog strip", () => {
   });
 });
 
+test.describe("keeping the reader's place", () => {
+  /** Lets two animation frames run, so a scroll has been recorded. */
+  const frames = (page: Page) =>
+    page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+  /** Where `id`'s top is in the viewport, and whether it holds the viewport's middle. */
+  const where = (page: Page, id: string) =>
+    page.locator(`[id="${id}"]`).evaluate((el) => {
+      const box = el.getBoundingClientRect();
+      const middle = window.innerHeight / 2;
+      return { top: box.top, holdsMiddle: box.top <= middle && box.bottom >= middle };
+    });
+
+  test.describe("at 1440×900", () => {
+    test.use({ viewport: { width: 1440, height: 900 } });
+
+    test("a shorter window keeps About where it was", async ({ page }) => {
+      await page.goto("/et");
+      await expect(page.locator("#problem")).toHaveAttribute("data-animated", "");
+      await page.locator("#about").evaluate((el) => {
+        window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 100, behavior: "instant" });
+      });
+      await expect.poll(async () => Math.round((await where(page, "about")).top)).toBe(100);
+      await frames(page);
+
+      // The story's tracks are in vh: everything above About gets shorter.
+      await page.setViewportSize({ width: 1440, height: 800 });
+
+      await expect.poll(async () => Math.abs((await where(page, "about")).top - 100)).toBeLessThanOrEqual(40);
+    });
+  });
+
+  test.describe("at 390×844", () => {
+    test.use({ viewport: { width: 390, height: 844 } });
+
+    test("rotating a phone in the middle of the process chapter stays in it", async ({ page }) => {
+      await page.goto("/et");
+      await expect(page.locator("#process")).toHaveAttribute("data-animated", "");
+      await seekChapter(page, "process", 0.5);
+      await expect.poll(async () => (await where(page, "process")).holdsMiddle).toBe(true);
+      await frames(page);
+
+      await page.setViewportSize({ width: 844, height: 390 });
+
+      await expect(page.locator("#process")).not.toHaveAttribute("data-animated");
+      await expect.poll(async () => (await where(page, "process")).holdsMiddle).toBe(true);
+      // And it stays there once the page has settled.
+      await page.waitForTimeout(700);
+      expect((await where(page, "process")).holdsMiddle).toBe(true);
+    });
+  });
+});
+
 test.describe("without JS", () => {
   test.use({ javaScriptEnabled: false });
 

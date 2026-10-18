@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { jumpTo, registerScroller } from "./scroller";
+import { jumpTo, registerScroller, remeasureScroller } from "./scroller";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -49,5 +49,22 @@ describe("jumpTo", () => {
       unregisterOlder();
       unregisterNewer();
     }
+  });
+});
+
+describe("remeasureScroller", () => {
+  it("has the registered scroller measure the page again", () => {
+    const lenis = { scrollTo: vi.fn(), resize: vi.fn() };
+    const unregister = registerScroller(lenis);
+    try {
+      remeasureScroller();
+      expect(lenis.resize).toHaveBeenCalledTimes(1);
+    } finally {
+      unregister();
+    }
+  });
+
+  it("does nothing without one", () => {
+    expect(() => remeasureScroller()).not.toThrow();
   });
 });
