@@ -30,13 +30,14 @@ const delay = (seconds: number) => ({ "--hero-delay": `${seconds}s` }) as CSSPro
 /*
  * Where the trust row shows. The stage holds it, except when the stage is pinned (one screen
  * high) and has no room for it: below `lg`, where the photo band takes the space under the copy,
- * and from `lg` on screens under 40rem (640 px) high (the centred copy and the row need up to
- * 638 px, measured at 1024–1920 px wide in both locales). There the copy after the chapter shows
- * instead, in the flow, and never fades. The two are exactly complementary (Hero.test.tsx checks
- * it), so the row reaches the accessibility tree once.
+ * and from `lg` on screens under 42rem (672 px) high (the centred copy and the row need up to
+ * 638 px, measured at 1024–1920 px wide in both locales; the rest keeps the eyebrow clear of
+ * the header). There the copy after the chapter shows instead, in the flow, and never fades.
+ * The two are exactly complementary (Hero.test.tsx checks it), so the row reaches the
+ * accessibility tree once.
  */
-export const TRUST_IN_STAGE = "pinned:hidden pinned:lg:[@media(min-height:40rem)]:block";
-export const TRUST_AFTER_CHAPTER = "hidden pinned:block pinned:lg:[@media(min-height:40rem)]:hidden";
+export const TRUST_IN_STAGE = "pinned:hidden pinned:lg:[@media(min-height:42rem)]:block";
+export const TRUST_AFTER_CHAPTER = "hidden pinned:block pinned:lg:[@media(min-height:42rem)]:hidden";
 
 function TrustList({ locale }: { locale: Locale }) {
   return (
@@ -118,11 +119,7 @@ export function HeroStage({ locale }: { locale: Locale }) {
               // Below 626 px the 22 rem box is cover-scaled to its height, so the photo renders
               // 626 px wide; above that it spans the viewport (80 % of it from `lg`, plus crop).
               // Anchored right below `lg`, so the whole headlight sits in the band.
-              // Pinned below `lg` (the PINNED_QUERY condition), the box grows with the band: the
-              // screen less the copy, which ends at least 416 px down, plus the 16 px overlap.
-              // Cover-scaled at 16:9 that is 1.7778 × (100vh − 400 px) wide. A browser that
-              // can't read `max()` here skips that entry and uses the two after it.
-              sizes="(min-width: 64rem) 100vw, (prefers-reduced-motion: no-preference) and (min-height: 32rem) max(626px, 100vw, calc(177.78vh - 711px)), (min-width: 39.125rem) 100vw, 626px"
+              sizes="(min-width: 39.125rem) 100vw, 626px"
               className="object-cover object-[100%_90%] lg:object-[100%_60%]"
             />
           </HeroZoom>
@@ -140,7 +137,7 @@ export function HeroStage({ locale }: { locale: Locale }) {
             paddings are only minimums around the centred copy: it clears the 80 px header, and
             keeps 48 px above the trust row when the stage holds it (16 px to the screen's edge
             when it doesn't). Below `lg`, screens up to 544 px high get 16 px less top room. */}
-        <Container className="pt-28 pb-52 sm:pt-32 sm:pb-70 lg:pt-40 lg:pb-[90px] pinned:max-lg:pb-0 pinned:max-lg:[@media(max-height:34rem)]:pt-20 pinned:lg:pt-20 pinned:lg:pb-4 pinned:lg:[@media(min-height:40rem)]:pb-12">
+        <Container className="pt-28 pb-52 sm:pt-32 sm:pb-70 lg:pt-40 lg:pb-[90px] pinned:max-lg:pb-0 pinned:max-lg:[@media(max-height:34rem)]:pt-20 pinned:lg:pt-20 pinned:lg:pb-4 pinned:lg:[@media(min-height:42rem)]:pb-12">
           {/* The copy drifts up and fades out between p 0.08 and 0.38. The buttons stay inside:
               focusing one after scrolling brings the copy back into view. */}
           <Beat range={[0, 0.38]} fade={0.3} lift={50}>
