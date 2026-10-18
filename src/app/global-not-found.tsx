@@ -23,7 +23,7 @@ export default function GlobalNotFound() {
     <html lang="et" className={cn(albert.variable, plex.variable)}>
       <body>
         <main className="mx-auto flex min-h-svh max-w-[1280px] flex-col items-start justify-center gap-6 px-4 md:px-6">
-          <p className="font-mono text-xs tracking-[0.2em] text-muted uppercase">404</p>
+          <p className="font-mono text-xs tracking-[0.08em] text-muted uppercase">404</p>
           <h1 className="text-4xl font-semibold tracking-tight md:text-6xl">{common.notFoundTitle.et}</h1>
           <p className="text-muted">
             {common.notFoundBody.et} <span lang="en">{common.notFoundBody.en}</span>
