@@ -76,7 +76,7 @@ describe("chapter CSS", () => {
 
   it("pins a chapter at every width by default", () => {
     const pinned = split(PINNED).inside;
-    expect(pinned).toContain(`${base}:where(html.js *) { height: var(--chapter-len); }`);
+    expect(pinned).toContain(`${base}:where(html.js *) { height: var(--chapter-len); scroll-margin-top: 0; }`);
     expect(pinned).toContain(
       `@media (width >= 48rem) { ${base}:where(html.js *) { height: var(--chapter-len-md); } }`,
     );
@@ -91,7 +91,7 @@ describe("chapter CSS", () => {
 
   it('pins a data-pin-from="lg" chapter from 1024 px only', () => {
     const pinnedLg = split(PINNED_LG).inside;
-    expect(pinnedLg).toContain(`${lg}:where(html.js *) { height: var(--chapter-len-md); }`);
+    expect(pinnedLg).toContain(`${lg}:where(html.js *) { height: var(--chapter-len-md); scroll-margin-top: 0; }`);
     expect(pinnedLg).toContain(`${lg} > .chapter-stage:where(html.js *) { ${stage} }`);
     expect(pinnedLg).toContain(
       `${lg} [data-pinned-hidden]:where(html.js *) { opacity: 0; pointer-events: none; }`,

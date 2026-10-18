@@ -120,9 +120,13 @@
      only; otherwise both are plain blocks and every beat reads in order. `data-pinned-hidden`
      hides later beats, and keeps them from catching clicks, until the chapter animates them, so
      the stage never shows them stacked before hydration. */
+  /* Pinned, a link to the chapter lands at its start, p = 0: the stage, one screen high, keeps
+     its own room for the header, so the 5rem margin other sections take would push its bottom
+     below the fold. Static, it keeps that margin. */
   .chapter:not([data-pin-from="lg"]) {
     @variant pinned {
       height: var(--chapter-len);
+      scroll-margin-top: 0;
     }
 
     @variant pinned {
@@ -163,6 +167,7 @@
   .chapter[data-pin-from="lg"] {
     @variant pinned-lg {
       height: var(--chapter-len-md);
+      scroll-margin-top: 0;
     }
   }
 

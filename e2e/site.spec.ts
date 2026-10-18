@@ -392,6 +392,42 @@ test.describe("navigation to a section", () => {
     expect(top, `${id} is not under the header`).toBeGreaterThanOrEqual(header - 1);
   }
 
+  /**
+   * A pinned chapter lands at its start (p = 0): its top at the viewport's, its first line
+   * (kicker or heading) below the fixed header, and its whole stage in view: no visible text
+   * below the fold.
+   */
+  async function expectChapterInView(page: Page, id: string) {
+    const { top } = await landing(page, id);
+    expect(Math.abs(top), `${id} starts at the top`).toBeLessThanOrEqual(2);
+    const text = await page.locator(`[id="${id}"] .chapter-stage`).evaluate((stage) => {
+      let highest = Infinity;
+      let lowest = -Infinity;
+      const walker = document.createTreeWalker(stage, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        if (!node.textContent?.trim()) continue;
+        let shown = 1;
+        for (let el: Element | null = node.parentElement; el; el = el.parentElement) {
+          const style = getComputedStyle(el);
+          if (style.display === "none" || style.visibility === "hidden") shown = 0;
+          shown *= Number(style.opacity);
+        }
+        if (shown < 0.5) continue;
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        for (const rect of range.getClientRects()) {
+          if (!rect.height) continue;
+          highest = Math.min(highest, rect.top);
+          lowest = Math.max(lowest, rect.bottom);
+        }
+      }
+      const header = document.getElementById("site-header")?.getBoundingClientRect().bottom ?? 0;
+      return { highest, lowest, header, height: window.innerHeight };
+    });
+    expect(text.highest, `${id}'s first line is below the header`).toBeGreaterThanOrEqual(text.header - 1);
+    expect(text.lowest, `${id}'s stage is fully in view`).toBeLessThanOrEqual(text.height);
+  }
+
   /** Records the scroll position on every frame; the check fails on any step back (a double jump). */
   async function recordScroll(page: Page) {
     await page.evaluate(() => {
@@ -427,17 +463,18 @@ test.describe("navigation to a section", () => {
     await expect(page.locator('[id="services"]')).toBeFocused();
   });
 
-  test("the header link to the process chapter lands at its start, below the header", async ({ page }) => {
+  const processLabel = site.nav.find((item) => item.href === "#process")!.label.et;
+  const processLink = (page: Page) =>
+    page.getByRole("navigation", { name: layout.header.mainNav.et }).getByRole("link", { name: processLabel });
+
+  test("the header link to the process chapter shows its whole stage, below the header", async ({ page }) => {
     await page.goto("/et");
     await hydrated(headerLink(page));
-    const processLink = page
-      .getByRole("navigation", { name: layout.header.mainNav.et })
-      .getByRole("link", { name: site.nav.find((item) => item.href === "#process")!.label.et });
     const expectOneWay = await recordScroll(page);
 
-    await processLink.click();
+    await processLink(page).click();
 
-    await expectLandedBelowHeader(page, "process");
+    await expectChapterInView(page, "process");
     await expectOneWay();
     await expect(page).toHaveURL("/et#process");
   });
@@ -464,23 +501,35 @@ test.describe("navigation to a section", () => {
     await expectLandedBelowHeader(page, "services");
   });
 
+  test("from the catalog, the process link opens the landing page with the chapter's whole stage", async ({
+    page,
+  }) => {
+    await page.goto("/et/catalog");
+    await hydrated(processLink(page));
+    await processLink(page).click();
+    await expect(page).toHaveURL("/et#process");
+    await expectChapterInView(page, "process");
+  });
+
   test.describe("at 1440 px", () => {
     test.use({ viewport: { width: 1440, height: 900 } });
 
-    test("the chapter index jumps to the fix chapter's start, below the header", async ({ page }) => {
-      await page.goto("/et");
-      const index = page.getByRole("navigation", { name: story.index.label.et });
-      await hydrated(index);
-      const label = story.chapters.find((chapter) => chapter.id === "anatomy")!.label.et;
-      const expectOneWay = await recordScroll(page);
+    for (const id of ["anatomy", "difference", "catalog-teaser"] as const) {
+      test(`the chapter index jumps to #${id}'s start, with its whole stage in view`, async ({ page }) => {
+        await page.goto("/et");
+        const index = page.getByRole("navigation", { name: story.index.label.et });
+        await hydrated(index);
+        const label = story.chapters.find((chapter) => chapter.id === id)!.label.et;
+        const expectOneWay = await recordScroll(page);
 
-      await index.getByRole("link", { name: label, exact: true }).click();
+        await index.getByRole("link", { name: label, exact: true }).click();
 
-      await expectLandedBelowHeader(page, "anatomy");
-      await expectOneWay();
-      await expect(page).toHaveURL("/et#anatomy");
-      await expect(index.getByRole("link", { name: label, exact: true })).toHaveAttribute("aria-current", "location");
-    });
+        await expectChapterInView(page, id);
+        await expectOneWay();
+        await expect(page).toHaveURL(`/et#${id}`);
+        await expect(index.getByRole("link", { name: label, exact: true })).toHaveAttribute("aria-current", "location");
+      });
+    }
   });
 
   test.describe("on a phone", () => {
@@ -497,6 +546,17 @@ test.describe("navigation to a section", () => {
       await expect(menu).toBeHidden();
       await expect(page).toHaveURL("/et#services");
       await expectLandedBelowHeader(page, "services");
+    });
+
+    test("the menu link to the process chapter shows its whole stage", async ({ page }) => {
+      await page.goto("/et");
+      const open = page.getByRole("button", { name: layout.header.openMenu.et });
+      await hydrated(open);
+      await open.click();
+      await page.getByRole("dialog", { name: layout.header.menu.et }).getByRole("link", { name: processLabel }).click();
+
+      await expect(page).toHaveURL("/et#process");
+      await expectChapterInView(page, "process");
     });
   });
 });
