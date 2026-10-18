@@ -40,6 +40,8 @@ const titleClass = cn(
   // gets a smaller one, so the photo above keeps the full width.
   "pinned:md:text-[clamp(2rem,6svh,3.25rem)]",
   "pinned:max-md:[@media(max-height:43rem)]:mt-2 pinned:max-md:[@media(max-height:43rem)]:text-[26px]",
+  // A short landscape tablet (up to 544 px high, the beats beside the photo) gets room back too.
+  "pinned:md:max-lg:landscape:[@media(max-height:34rem)]:mt-2 pinned:md:max-lg:landscape:[@media(max-height:34rem)]:text-[28px]",
 );
 
 /** The chapter's kicker on each beat. Static, only the first one shows (and is read). */
@@ -68,6 +70,7 @@ function Compare({ locale }: { locale: Locale }) {
       className={cn(
         "mt-8 grid gap-10 sm:grid-cols-2 sm:gap-6 pinned:mt-6 pinned:grid-cols-2 pinned:gap-4 pinned:sm:gap-6",
         "pinned:max-md:[@media(max-height:43rem)]:mt-3",
+        "pinned:md:max-lg:landscape:[@media(max-height:34rem)]:mt-3",
       )}
     >
       {columns.map((column) => {
@@ -90,6 +93,7 @@ function Compare({ locale }: { locale: Locale }) {
               className={cn(
                 "mt-4 space-y-3 pinned:max-sm:mt-3 pinned:max-sm:space-y-2",
                 "pinned:max-md:[@media(max-height:43rem)]:space-y-1.5",
+                "pinned:md:max-lg:landscape:[@media(max-height:34rem)]:mt-3 pinned:md:max-lg:landscape:[@media(max-height:34rem)]:space-y-1.5",
               )}
             >
               {column.points.map((point) => (
