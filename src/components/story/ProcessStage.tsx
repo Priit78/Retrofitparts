@@ -107,7 +107,10 @@ export function ProcessStage({ steps }: { steps: ProcessStageStep[] }) {
                   fill
                   sizes={photoSizes}
                   // Step 1 shows as soon as the chapter pins; the others load as it comes near.
+                  // Step 1 at low priority: React preloads every eager image in the page's head,
+                  // where it would share the bandwidth with the hero photo (the LCP).
                   loading={index === 0 ? "eager" : "lazy"}
+                  fetchPriority={index === 0 ? "low" : undefined}
                   className="object-cover"
                 />
                 <div aria-hidden className={cn("absolute inset-0 hidden pinned:block", scrimStops)} style={scrimStyle} />

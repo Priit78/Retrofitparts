@@ -162,7 +162,7 @@ describe("ProcessStage", () => {
     expect(seek).not.toHaveBeenCalled();
   });
 
-  it("gives every step a decorative photo, and loads only the first one eagerly", () => {
+  it("gives every step a decorative photo, and loads only the first one eagerly, at low priority", () => {
     const { container } = renderStage("et", 0);
     const photos = [...container.querySelectorAll("img")];
     expect(photos).toHaveLength(4);
@@ -177,6 +177,8 @@ describe("ProcessStage", () => {
       );
     }
     expect(photos.map((photo) => photo.getAttribute("loading"))).toEqual(["eager", "lazy", "lazy", "lazy"]);
+    // Low priority keeps React from preloading it in the head, beside the hero photo.
+    expect(photos.map((photo) => photo.getAttribute("fetchpriority"))).toEqual(["low", null, null, null]);
   });
 
   it("fills the four progress segments as the chapter advances", () => {
