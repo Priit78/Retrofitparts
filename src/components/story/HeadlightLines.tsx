@@ -104,14 +104,11 @@ const translate = ({ x, y }: Offset) => (x === 0 && y === 0 ? undefined : `trans
 
 export function HeadlightLines({
   label,
-  active,
   offsets,
   className,
 }: {
   /** Accessible name: the four parts, front to back. */
   label: string;
-  /** Index of the highlighted layer, if any. */
-  active?: number;
   /** Each layer's offset, front to back; omitted, the headlight is assembled. */
   offsets?: readonly Offset[];
   className?: string;
@@ -157,7 +154,6 @@ export function HeadlightLines({
           <g
             key={index}
             data-layer={index}
-            data-active={index === active ? "" : undefined}
             transform={offsets?.[index] ? translate(offsets[index]) : undefined}
             className="transition-[color,stroke-width] duration-500 ease-out-expo data-active:text-fg data-active:[stroke-width:1.6]"
           >

@@ -8,10 +8,10 @@ import {
   useEffect,
   useMemo,
   useRef,
-  useSyncExternalStore,
   type CSSProperties,
   type ReactNode,
 } from "react";
+import { useHydratedMediaQuery } from "@/components/ui/useHydratedMediaQuery";
 import { cn } from "@/lib/cn";
 import { jumpTo } from "@/lib/scroller";
 import { PINNED_LG_QUERY, PINNED_QUERY } from "./pinned";
@@ -44,26 +44,6 @@ const ChapterContext = createContext<ChapterState>({
 
 export function useChapter(): ChapterState {
   return use(ChapterContext);
-}
-
-/**
- * Whether `query` matches, kept live. The server snapshot makes it `false` on the server and
- * during hydration, so this is "hydrated and matching".
- */
-export function useHydratedMediaQuery(query: string): boolean {
-  const subscribe = useCallback(
-    (onChange: () => void) => {
-      const mql = window.matchMedia(query);
-      mql.addEventListener?.("change", onChange);
-      return () => mql.removeEventListener?.("change", onChange);
-    },
-    [query],
-  );
-  return useSyncExternalStore(
-    subscribe,
-    () => window.matchMedia(query).matches,
-    () => false,
-  );
 }
 
 /**

@@ -3,10 +3,10 @@
 import { motion, useScroll } from "motion/react";
 import { useEffect, useState } from "react";
 import { mono } from "@/components/ui/styles";
+import { useHydratedMediaQuery } from "@/components/ui/useHydratedMediaQuery";
 import { story } from "@/content/story";
 import { cn } from "@/lib/cn";
 import type { Locale } from "@/lib/i18n";
-import { useHydratedMediaQuery } from "./ScrollChapter";
 
 /** No chapter is current: the visitor is past the story, in the sections after it. */
 const NONE = -1;

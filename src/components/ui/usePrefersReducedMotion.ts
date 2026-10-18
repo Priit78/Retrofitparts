@@ -1,14 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-
-const query = "(prefers-reduced-motion: reduce)";
-
-function subscribe(onChange: () => void) {
-  const mql = window.matchMedia(query);
-  mql.addEventListener?.("change", onChange);
-  return () => mql.removeEventListener?.("change", onChange);
-}
+import { useHydratedMediaQuery } from "./useHydratedMediaQuery";
 
 /**
  * Hydration-safe reduced-motion flag: `false` on the server and during hydration, then the
@@ -16,9 +8,5 @@ function subscribe(onChange: () => void) {
  * markup that depends on it would mismatch the server HTML.)
  */
 export function usePrefersReducedMotion(): boolean {
-  return useSyncExternalStore(
-    subscribe,
-    () => window.matchMedia(query).matches,
-    () => false,
-  );
+  return useHydratedMediaQuery("(prefers-reduced-motion: reduce)");
 }
