@@ -16,14 +16,16 @@ import { ScrollChapter } from "./ScrollChapter";
 /**
  * The photo column: 7/12 of the container from lg. From 640 px to lg the static pair sits side
  * by side (half width) while the pinned frame spans the container; static there means reduced
- * motion or a viewport too short to pin (pinned.ts). Phones get the full width. (Without JS a
- * tablet fetches the full-width size: harmless.)
+ * motion or a viewport too short to pin (pinned.ts). A landscape tablet pins the frame beside
+ * the beats, in 5/12 of the container. Phones get the full width. (Without JS a portrait tablet
+ * fetches the full-width size: harmless.)
  */
 const PHOTO_SIZES = [
   "(min-width: 1280px) 690px",
   "(min-width: 1024px) 56vw",
   "(min-width: 640px) and (prefers-reduced-motion: reduce) 50vw",
   "(min-width: 640px) and (max-height: 511px) 50vw",
+  "(min-width: 768px) and (orientation: landscape) 50vw",
   "100vw",
 ].join(", ");
 
