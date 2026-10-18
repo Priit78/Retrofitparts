@@ -4,7 +4,7 @@ import { ScrollDrivenSlider, SliderFigure, SliderHint } from "@/components/diffe
 import { ScrollChapter } from "@/components/story/ScrollChapter";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
-import { mono, monoLabel } from "@/components/ui/styles";
+import { mono, monoLabel, sectionTitleType } from "@/components/ui/styles";
 import { difference as t } from "@/content/difference";
 import { story } from "@/content/story";
 import type { Locale } from "@/lib/i18n";
@@ -53,7 +53,7 @@ export function Difference({ locale }: { locale: Locale }) {
                   <p className={`${monoLabel} mb-4 pinned:mb-3`}>{t.eyebrow[locale]}</p>
                   <h2
                     id={HEADING_ID}
-                    className="text-[32px] leading-[1.05] font-semibold tracking-[-0.025em] text-balance text-fg pinned:text-[28px] md:text-[52px] pinned:md:text-[38px]"
+                    className={`${sectionTitleType} pinned:text-[28px] md:text-[52px] pinned:md:text-[38px]`}
                   >
                     {t.title[locale]}
                   </h2>

@@ -1,5 +1,5 @@
 import { Container } from "@/components/ui/Container";
-import { monoLabel } from "@/components/ui/styles";
+import { monoLabel, sectionTitle } from "@/components/ui/styles";
 import { polish } from "@/content/polish";
 import { story } from "@/content/story";
 import { cn } from "@/lib/cn";
@@ -40,7 +40,8 @@ export function AnatomyStage({ locale }: { locale: Locale }) {
         <h2
           id={HEADING_ID}
           className={cn(
-            "mt-4 text-[32px] leading-[1.05] font-semibold tracking-[-0.025em] text-balance text-fg md:text-[52px]",
+            "mt-4",
+            sectionTitle,
             // Pinned, the large heading scales with the screen's height; phones get a smaller one.
             "pinned:md:text-[clamp(2rem,6svh,3.25rem)] pinned:max-md:text-[28px]",
             "pinned:max-md:[@media(max-height:40rem)]:mt-2 pinned:max-md:[@media(max-height:40rem)]:text-[26px]",

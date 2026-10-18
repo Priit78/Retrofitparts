@@ -17,5 +17,14 @@ export const monoLabel = `${mono} text-muted`;
 export const textLink =
   "text-fg underline decoration-fg/35 underline-offset-4 transition-colors duration-300 hover:decoration-fg";
 
+/**
+ * A section title's type, without its size from `md`: for a title that sets its own pinned sizes
+ * around it (the difference chapter).
+ */
+export const sectionTitleType = "text-[32px] leading-[1.05] font-semibold tracking-[-0.025em] text-balance text-fg";
+
+/** A section's title: SectionHeading's, and the chapters that render their own heading. */
+export const sectionTitle = `${sectionTitleType} md:text-[52px]`;
+
 /** A section's intro paragraph: under SectionHeading's title, or beside it in a chapter. */
 export const sectionIntro = "mt-5 max-w-[44ch] text-base leading-relaxed text-pretty text-soft md:text-[17px]";

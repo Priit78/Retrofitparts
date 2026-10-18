@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import headlightPolished from "@/assets/photos/headlight-polished.jpg";
 import headlightUnpolished from "@/assets/photos/headlight-unpolished.jpg";
 import { Container } from "@/components/ui/Container";
-import { mono, monoLabel } from "@/components/ui/styles";
+import { mono, monoLabel, sectionTitle } from "@/components/ui/styles";
 import { polish } from "@/content/polish";
 import { story } from "@/content/story";
 import { cn } from "@/lib/cn";
@@ -33,7 +33,8 @@ const PHOTO_SIZES = [
 const beatClass =
   "pinned:[grid-area:1/1] pinned:self-start pinned:md:max-lg:landscape:self-center pinned:lg:self-center";
 const titleClass = cn(
-  "mt-4 text-[32px] leading-[1.05] font-semibold tracking-[-0.025em] text-balance text-fg md:text-[52px]",
+  "mt-4",
+  sectionTitle,
   // Pinned, the large title scales with the screen's height; a short phone (up to 688 px high)
   // gets a smaller one, so the photo above keeps the full width.
   "pinned:md:text-[clamp(2rem,6svh,3.25rem)]",

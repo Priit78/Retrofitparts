@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
-import { monoLabel, sectionIntro } from "./styles";
+import { monoLabel, sectionIntro, sectionTitle } from "./styles";
 
 export function SectionHeading({
   id,
@@ -23,10 +23,7 @@ export function SectionHeading({
   return (
     <div className={cn("max-w-3xl", align === "center" && "mx-auto text-center", className)}>
       {eyebrow ? <p className={cn(monoLabel, "mb-4")}>{eyebrow}</p> : null}
-      <Heading
-        id={id}
-        className="text-[32px] leading-[1.05] font-semibold tracking-[-0.025em] text-balance text-fg md:text-[52px]"
-      >
+      <Heading id={id} className={sectionTitle}>
         {title}
       </Heading>
       {intro ? (

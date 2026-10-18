@@ -7,7 +7,7 @@ import retrofitInProgress from "@/assets/photos/retrofit-in-progress.jpg";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { fillTemplate, fillText } from "@/components/ui/fillTemplate";
-import { monoLabel, textLink } from "@/components/ui/styles";
+import { monoLabel, sectionTitle, textLink } from "@/components/ui/styles";
 import { common } from "@/content/common";
 import { processCopy, type ProcessStep } from "@/content/process";
 import { site } from "@/content/site";
@@ -74,7 +74,7 @@ export function ProcessChapter({ locale }: { locale: Locale }) {
             id="process-title"
             // Smaller where the pinned block is tight: a short phone, a narrow side-by-side
             // column, a short landscape screen.
-            className="text-[32px] leading-[1.05] font-semibold tracking-[-0.025em] text-balance text-fg md:text-[52px] pinned:max-md:[@media(max-height:36rem)]:text-[28px] pinned:md:landscape:max-lg:text-[40px] pinned:md:landscape:[@media(max-height:36rem)]:text-[40px]"
+            className={`${sectionTitle} pinned:max-md:[@media(max-height:36rem)]:text-[28px] pinned:md:landscape:max-lg:text-[40px] pinned:md:landscape:[@media(max-height:36rem)]:text-[40px]`}
           >
             {processCopy.title[locale]}
           </h2>
