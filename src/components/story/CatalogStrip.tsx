@@ -9,6 +9,9 @@ import { useChapter } from "./ScrollChapter";
 const START = 0.1;
 const END = 0.92;
 
+/** Pixels a focused tile keeps from the screen's edges, so its focus ring is never cut off. */
+const RING_ROOM = 8;
+
 /**
  * The width the strip shows its tiles in: the layout viewport, without a classic scrollbar.
  * `innerWidth` where nothing is laid out (jsdom).
@@ -56,9 +59,14 @@ function widthOf(track: HTMLElement): number {
  *   negative. It is measured again when the track or a tile changes size (ResizeObserver) and
  *   when the window is resized.
  *
+ * The strip is full-bleed: the track's untranslated left edge is at viewport x = 0, and its
+ * padding lines the tiles up with the page container. The travel and the keyboard maths rely on
+ * that; inside an inset box they would be off by the inset.
+ *
  * The outer box clips the track sideways (`overflow-x: clip`, which is not a scroll container),
  * so a focused tile can never scroll the stage instead. When keyboard focus lands on a tile
- * that is off-screen, the chapter scrolls to the progress that brings the tile into view
+ * that is off-screen, or within 8 px of the screen's edge where its focus ring would be cut off,
+ * the chapter scrolls to the progress that brings the tile into view
  * (`seek`), by the inverse of the travel mapping. Focus that comes with a pointer press is left
  * alone: the pressed tile shows at least in part, and the strip must not move under the pointer.
  *
@@ -99,7 +107,8 @@ export function CatalogStrip({ className, children }: { className?: string; chil
       if (!tile) return;
       const width = viewportWidth();
       const box = tile.getBoundingClientRect();
-      if (box.left >= 0 && box.right <= width) return;
+      // In view with room for the focus ring (2 px, 4 px out) on both sides.
+      if (box.left >= RING_ROOM && box.right <= width - RING_ROOM) return;
 
       // Where the tile sits in the track, whatever the current translation.
       const start = box.left - track.getBoundingClientRect().left;
@@ -107,7 +116,7 @@ export function CatalogStrip({ className, children }: { className?: string; chil
       const style = getComputedStyle(track);
       // The nearest translation that shows the whole tile, with the track's padding beside it.
       const x =
-        box.left < 0
+        box.left < RING_ROOM
           ? -(start - lengthOf(style.paddingLeft))
           : width - end - lengthOf(style.paddingRight);
       const share = Math.min(1, Math.max(0, -x / travel));

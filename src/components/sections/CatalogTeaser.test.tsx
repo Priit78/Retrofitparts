@@ -84,6 +84,31 @@ describe("CatalogTeaser", () => {
     expect(img).toHaveAttribute("alt", catalog.teaser.tiles.headlights.alt.en);
   });
 
+  it("leaves out the complete-headlights tile while no headlight has a photo", async () => {
+    vi.resetModules();
+    vi.doMock("@/data/products", async (importOriginal) => {
+      const data = await importOriginal<typeof import("@/data/products")>();
+      return {
+        ...data,
+        products: data.products.map((product) =>
+          product.category === "headlights" ? { ...product, image: undefined } : product,
+        ),
+      };
+    });
+    try {
+      const { CatalogTeaser: WithoutPhotos } = await import("./CatalogTeaser");
+      render(<WithoutPhotos locale="et" />);
+      const order = [...document.querySelectorAll("[data-teaser-tile]")].map((el) =>
+        el.getAttribute("data-teaser-tile"),
+      );
+      expect(order).toEqual(["lenses", "led", "xenon", "all"]);
+      expect(screen.queryByText(catalog.teaser.tiles.headlights.title.et)).toBeNull();
+    } finally {
+      vi.doUnmock("@/data/products");
+      vi.resetModules();
+    }
+  });
+
   it.each(["et", "en"] as const)(
     "shows on each tile exactly the number of products its link lists (%s)",
     (locale) => {

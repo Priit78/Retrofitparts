@@ -10,6 +10,7 @@ import { ScrollChapter } from "@/components/story/ScrollChapter";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { sectionIntro } from "@/components/ui/styles";
 import { catalog } from "@/content/catalog";
 import { site } from "@/content/site";
 import { categories, products } from "@/data/products";
@@ -25,6 +26,8 @@ interface PhotoMedia {
   position: string;
   /** Per-photo adjustments: tone, and on phones a zoom that keeps the crop clean. */
   photoClass?: string;
+  /** The photo's `sizes`, when its crop draws it much wider than the tile (default `photoSizes`). */
+  sizes?: string;
 }
 
 interface Tile {
@@ -35,10 +38,11 @@ interface Tile {
   categories: readonly [CategoryId, ...CategoryId[]];
 }
 
-/** The first complete headlight the client has photographed (a white-backdrop inventory shot). */
-const headlightUnit =
-  products.find((product) => product.category === "headlights" && product.image) ??
-  products.find((product) => product.category === "headlights");
+/**
+ * The first complete headlight the client has photographed (a white-backdrop inventory shot).
+ * Without one, the strip has no complete-headlights tile.
+ */
+const headlightUnit = products.find((product) => product.category === "headlights" && product.image);
 
 const tiles: readonly Tile[] = [
   { id: "lenses", media: { photo: catLens, position: "50% 50%" }, categories: ["lenses"] },
@@ -51,12 +55,17 @@ const tiles: readonly Tile[] = [
       photo: catLed,
       position: "72% 50%",
       // A matte light-grey car: toned down to sit with the two night shots. The 4:3 phone frame
-      // can't crop out the badge script and blue reflection at the lamp's outer end, so it zooms
-      // in from the right; the 4:5 frame at 72 % already leaves them out. The pinned strip's
-      // frame grows wider than 4:5 on shorter screens, so there it zooms the same way once the
-      // frame is wider than 5:6, and further from 3:2.
+      // can't crop out the badge script and blue reflection at the lamp's outer end (source x up
+      // to 440 of 1400), so it zooms in from the right; the 4:5 frame at 72 % already leaves them
+      // out. The pinned strip's frame grows wider than 4:5 on shorter screens, so there it zooms
+      // in steps that keep the frame's left edge past source x 455: ×1.15 from 0.81:1, ×1.4 from
+      // 1:1 and ×1.6 from 4:3. (Where two steps meet, either one is clean.)
       photoClass:
-        "brightness-[0.82] max-sm:origin-right max-sm:scale-[1.4] pinned-lg:[@container(min-aspect-ratio:5/6)]:origin-right pinned-lg:[@container_(min-aspect-ratio:5/6)_and_(max-aspect-ratio:3/2)]:scale-[1.4] pinned-lg:[@container(min-aspect-ratio:3/2)]:scale-[1.6]",
+        "brightness-[0.82] max-sm:origin-right max-sm:scale-[1.4] pinned-lg:[@container(min-aspect-ratio:81/100)]:origin-right pinned-lg:[@container_(min-aspect-ratio:81/100)_and_(max-aspect-ratio:1/1)]:scale-[1.15] pinned-lg:[@container_(min-aspect-ratio:1/1)_and_(max-aspect-ratio:4/3)]:scale-[1.4] pinned-lg:[@container(min-aspect-ratio:4/3)]:scale-[1.6]",
+      // Cover-cropped into a 4:5 frame and zoomed, this 3:2 photo is drawn up to about 2.1× the
+      // tile's width (1.6× on phones), so it asks for a wider file than the other tiles.
+      sizes:
+        "(min-width: 1400px) 895px, (min-width: 1024px) 64vw, (min-width: 640px) 750px, (min-width: 513px) 630px, 123vw",
     },
     categories: ["led-projectors", "led-lights"],
   },
@@ -147,9 +156,7 @@ export function CatalogTeaser({ locale }: { locale: Locale }) {
           />
         </Reveal>
         <Reveal delay={0.06} className="lg:col-span-4">
-          <p className="mt-5 max-w-[44ch] text-base leading-relaxed text-pretty text-soft md:text-[17px] lg:mt-0">
-            {t.intro[locale]}
-          </p>
+          <p className={cn(sectionIntro, "lg:mt-0")}>{t.intro[locale]}</p>
         </Reveal>
       </Container>
 
@@ -186,7 +193,7 @@ export function CatalogTeaser({ locale }: { locale: Locale }) {
                         src={tile.media.photo}
                         alt={copy.alt[locale]}
                         fill
-                        sizes={photoSizes}
+                        sizes={tile.media.sizes ?? photoSizes}
                         style={{ objectPosition: tile.media.position }}
                         className={cn("object-cover saturate-85", tile.media.photoClass)}
                       />

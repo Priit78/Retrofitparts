@@ -150,11 +150,16 @@ describe("CatalogStrip", () => {
     expect(track()).toHaveClass("overflow-x-auto", "snap-x", "snap-mandatory");
   });
 
-  it("drops its transform when the chapter stops animating", () => {
+  it("drops its transform when the chapter stops animating, and stops measuring", () => {
     const { rerender } = render(<Strip progress={0.92} />);
     expect(track().style.transform).toBe("translateX(-1560px)");
     rerender(<Strip progress={0.92} animated={false} />);
     expect(track().style.transform).toBe("");
+    act(() => {
+      window.dispatchEvent(new Event("resize"));
+    });
+    expect(track().style.transform).toBe("");
+    expect(observers.every((entry) => entry.targets.length === 0)).toBe(true);
   });
 
   describe("keyboard", () => {
@@ -177,6 +182,19 @@ describe("CatalogStrip", () => {
       act(() => tile("b").querySelector("a")?.focus());
       expect(seek).toHaveBeenCalledTimes(1);
       expect(seek.mock.calls[0][0]).toBeCloseTo(0.1 + (420 / 1560) * 0.82, 6);
+    });
+
+    it("also moves a tile whose edge is in view but too close to the screen's edge for its focus ring", () => {
+      const seek = vi.fn();
+      render(<Strip progress={0.1 + (224 / 1560) * 0.82} seek={seek} />);
+      track().style.paddingRight = "24px";
+      layOut(-224);
+      // Tile d spans 1036–1436 px: inside the 1440 px viewport, but its ring (6 px out) is not.
+      expect(tile("d").getBoundingClientRect().right).toBe(1436);
+      act(() => tile("d").querySelector("a")?.focus());
+      expect(seek).toHaveBeenCalledTimes(1);
+      // Its right edge comes to the track's padding line, 24 px in from the viewport's edge.
+      expect(seek.mock.calls[0][0]).toBeCloseTo(0.1 + ((1660 + 24 - 1440) / 1560) * 0.82, 6);
     });
 
     it("leaves the strip alone when the focused tile is already in view", () => {
