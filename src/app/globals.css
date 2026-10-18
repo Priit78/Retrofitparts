@@ -2,6 +2,8 @@
 /* Agent worktrees and scratch folders live inside the repo; never scan them for classes. */
 @source not "../../.claude";
 @source not "../../.superpowers";
+/* Its candidate class names are test input, not page styles. */
+@source not "./globals.test.ts";
 
 @theme {
   /* Direction A "Dark refined": graphite, warm white, no glow. */
@@ -26,6 +28,28 @@
   --font-display: var(--font-albert), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-albert), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-plex), ui-monospace, monospace;
+}
+
+/* Scroll-story chapters pin only when JS has run, the visitor allows motion and the viewport is
+   tall enough for a one-screen stage. `pinned:` styles a chapter's pinned layout under that
+   condition and `pinned-lg:` does the same from 1024 px (for `data-pin-from="lg"` chapters), so
+   the static layout is the unprefixed one. `:where()` keeps the specificity of a plain utility.
+   The media queries must match PINNED_QUERY and PINNED_LG_QUERY in components/story/pinned.ts,
+   which ScrollChapter animates by (globals.test.ts checks it). */
+@custom-variant pinned {
+  @media (prefers-reduced-motion: no-preference) and (min-height: 32rem) {
+    &:where(html.js *) {
+      @slot;
+    }
+  }
+}
+
+@custom-variant pinned-lg {
+  @media (prefers-reduced-motion: no-preference) and (min-height: 32rem) and (min-width: 64rem) {
+    &:where(html.js *) {
+      @slot;
+    }
+  }
 }
 
 @layer base {
@@ -88,6 +112,62 @@
     html.js [data-reveal]:not([data-revealed]) {
       opacity: 0;
       transform: translate3d(0, var(--reveal-y, 24px), 0);
+    }
+  }
+
+  /* Scroll-story chapters (see components/story/ScrollChapter.tsx): a tall track whose stage, one
+     screen high, sticks to the top while the track scrolls past. Under the `pinned` condition
+     only; otherwise both are plain blocks and every beat reads in order. `data-pinned-hidden`
+     hides later beats, and keeps them from catching clicks, until the chapter animates them, so
+     the stage never shows them stacked before hydration. */
+  .chapter:not([data-pin-from="lg"]) {
+    @variant pinned {
+      height: var(--chapter-len);
+    }
+
+    @variant pinned {
+      @variant md {
+        height: var(--chapter-len-md);
+      }
+    }
+  }
+
+  .chapter:not([data-pin-from="lg"]) > .chapter-stage {
+    @variant pinned {
+      position: sticky;
+      top: 0;
+      height: 100svh;
+      overflow: hidden;
+    }
+  }
+
+  .chapter:not([data-pin-from="lg"]) [data-pinned-hidden] {
+    @variant pinned {
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+
+  /* The same, from 1024 px only. */
+  .chapter[data-pin-from="lg"] {
+    @variant pinned-lg {
+      height: var(--chapter-len-md);
+    }
+  }
+
+  .chapter[data-pin-from="lg"] > .chapter-stage {
+    @variant pinned-lg {
+      position: sticky;
+      top: 0;
+      height: 100svh;
+      overflow: hidden;
+    }
+  }
+
+  .chapter[data-pin-from="lg"] [data-pinned-hidden] {
+    @variant pinned-lg {
+      opacity: 0;
+      pointer-events: none;
     }
   }
 }
