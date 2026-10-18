@@ -1,5 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { catalog } from "@/content/catalog";
 import { products } from "@/data/products";
 import type { CategoryId } from "@/data/types";
@@ -7,7 +7,8 @@ import { filterProducts, parseFilters } from "@/lib/catalog";
 import type { Locale } from "@/lib/i18n";
 import { CatalogTeaser } from "./CatalogTeaser";
 
-const tileIds = ["lenses", "led", "xenon"] as const;
+/** The category tiles, in strip order; the closing card ("all") follows them. */
+const tileIds = ["lenses", "headlights", "led", "xenon"] as const;
 
 function tile(id: string) {
   const el = document.querySelector<HTMLElement>(`[data-teaser-tile="${id}"]`);
@@ -15,9 +16,9 @@ function tile(id: string) {
   return el;
 }
 
-/** The tile's main link: the one in its title. */
+/** The tile's main link: the one in its title, or the closing card itself. */
 function mainLink(id: string) {
-  const link = tile(id).querySelector<HTMLAnchorElement>("h3 a");
+  const link = tile(id).querySelector<HTMLAnchorElement>("h3 a, a[data-tile-link]");
   if (!link) throw new Error(`no main link in ${id}`);
   return link;
 }
@@ -28,21 +29,59 @@ function listedBy(href: string, locale: Locale) {
   return filterProducts(products, parseFilters(new URLSearchParams(query)), locale);
 }
 
+/** The unit the complete-headlights tile shows: the first headlight the client has photographed. */
+const unit = products.find((product) => product.category === "headlights" && product.image);
+
+beforeEach(() => {
+  // A static visit (no pinning): the strip is a swipe row.
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn((query: string) => ({
+      matches: false,
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    })),
+  );
+});
+afterEach(() => vi.unstubAllGlobals());
+
 describe("CatalogTeaser", () => {
-  it("shows three photo tiles, each linking to the catalog filtered by every category it covers", () => {
+  it("is the catalog chapter, named by its heading", () => {
     render(<CatalogTeaser locale="et" />);
-    expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(3);
-    const expected: Record<(typeof tileIds)[number], string> = {
+    expect(screen.getByRole("region", { name: catalog.teaser.title.et })).toHaveAttribute("id", "catalog-teaser");
+  });
+
+  it("shows five tile links in order: lenses, complete headlights, LED, xenon, the whole catalog", () => {
+    render(<CatalogTeaser locale="et" />);
+    const order = [...document.querySelectorAll("[data-teaser-tile]")].map((el) => el.getAttribute("data-teaser-tile"));
+    expect(order).toEqual([...tileIds, "all"]);
+    expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(4);
+
+    const expected: Record<(typeof tileIds)[number] | "all", string> = {
       lenses: "/et/catalog?category=lenses",
+      headlights: "/et/catalog?category=headlights",
       led: "/et/catalog?category=led-projectors,led-lights",
       xenon: "/et/catalog?category=xenon-projectors,xenon-bulbs,ballasts",
+      all: "/et/catalog",
     };
+    for (const id of [...tileIds, "all"] as const) {
+      expect(mainLink(id), id).toHaveAttribute("href", expected[id]);
+    }
     for (const id of tileIds) {
-      const link = mainLink(id);
-      expect(link).toHaveTextContent(catalog.teaser.tiles[id].title.et);
-      expect(link).toHaveAttribute("href", expected[id]);
+      expect(mainLink(id)).toHaveTextContent(catalog.teaser.tiles[id].title.et);
       expect(within(tile(id)).getByRole("img")).toHaveAttribute("alt", catalog.teaser.tiles[id].alt.et);
     }
+  });
+
+  it("shows a real product photo, framed, on the complete-headlights tile", () => {
+    expect(unit?.image).toMatch(/^\/products\//);
+    render(<CatalogTeaser locale="en" />);
+    const frame = tile("headlights").querySelector('[data-media="photo"]');
+    expect(frame).not.toBeNull();
+    const img = within(tile("headlights")).getByRole("img");
+    expect(decodeURIComponent(img.getAttribute("src") ?? "")).toContain(unit?.image);
+    expect(img).toHaveAttribute("alt", catalog.teaser.tiles.headlights.alt.en);
   });
 
   it.each(["et", "en"] as const)(
@@ -82,11 +121,15 @@ describe("CatalogTeaser", () => {
     }
   });
 
-  it("links to the whole catalog with the total, and no longer shows featured products", () => {
-    const { container } = render(<CatalogTeaser locale="et" />);
-    expect(
-      screen.getByRole("link", { name: catalog.teaser.viewAll.et(products.length) }),
-    ).toHaveAttribute("href", "/et/catalog");
+  it.each(["et", "en"] as const)("closes with a card to the whole catalog and its total (%s)", (locale) => {
+    const { container } = render(<CatalogTeaser locale={locale} />);
+    const { title, count } = catalog.teaser.closing;
+    const link = screen.getByRole("link", { name: `${title[locale]} ${count[locale](products.length)}` });
+    expect(link).toHaveAttribute("href", `/${locale}/catalog`);
+    expect(link.closest("[data-teaser-tile]")).toHaveAttribute("data-teaser-tile", "all");
+    expect(link.querySelector("[data-tile-count]")).toHaveAttribute("data-tile-count", String(products.length));
+    expect(link).toHaveTextContent(String(products.length));
+    // No featured product cards, as before.
     expect(container.querySelector("[data-product-card]")).toBeNull();
   });
 });

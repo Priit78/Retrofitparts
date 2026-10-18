@@ -187,7 +187,10 @@ export const catalog = {
     illustration: { et: "Illustreeriv pilt", en: "Illustration" },
   },
 
-  /** The landing page's catalog section: three photo tiles and a link to the whole catalog. */
+  /**
+   * The landing page's catalog chapter: four tiles (lenses, complete headlights, LED, xenon) and a
+   * closing card to the whole catalog, in a strip that moves sideways on desktop.
+   */
   teaser: {
     eyebrow: { et: "Kataloog", en: "Catalog" },
     title: {
@@ -204,6 +207,14 @@ export const catalog = {
         alt: {
           et: "Põlev kaasaegne esituli, klaasil vihmapiisad",
           en: "A lit modern headlight with raindrops on the lens",
+        },
+      },
+      /** Shows the first headlight in the catalog that has a real product photo. */
+      headlights: {
+        title: { et: "Komplektsed tuled", en: "Complete headlights" },
+        alt: {
+          et: "Komplektne esituli, foto meie kataloogist",
+          en: "A complete headlight unit, a photo from our catalog",
         },
       },
       led: {
@@ -229,9 +240,13 @@ export const catalog = {
       "xenon-bulbs": { et: "Lambid", en: "Bulbs" },
       ballasts: { et: "Ballastid ja süütajad", en: "Ballasts and igniters" },
     } satisfies Partial<Record<CategoryId, Localized<string>>>,
-    viewAll: {
-      et: (n: number) => `Vaata kogu kataloogi (${productCount.et(n)})`,
-      en: (n: number) => `View the full catalog (${productCount.en(n)})`,
+    /** The card that closes the strip. */
+    closing: {
+      title: { et: "Vaata kogu kataloogi", en: "View the whole catalog" },
+      count: {
+        et: (n: number) => `(${productCount.et(n)})`,
+        en: (n: number) => `(${productCount.en(n)})`,
+      },
     },
   },
 };
