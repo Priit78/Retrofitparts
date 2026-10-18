@@ -13,7 +13,7 @@ export default function NotFound() {
 
   return (
     <Container className="flex min-h-[70svh] flex-col items-start justify-center gap-6 pt-24">
-      <p className="font-mono text-xs tracking-[0.2em] text-accent uppercase">404</p>
+      <p className="font-mono text-xs tracking-[0.08em] text-muted uppercase">404</p>
       <h1 className="text-4xl font-semibold tracking-tight md:text-6xl">{common.notFoundTitle[locale]}</h1>
       <p className="max-w-xl text-muted">{common.notFoundBody[locale]}</p>
       <Button href={localePath(locale)}>{common.backHome[locale]}</Button>

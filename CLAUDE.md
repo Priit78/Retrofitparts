@@ -3,6 +3,8 @@
 Marketing site and showcase catalog for Retrofit Parts OÜ (headlight retrofits, Tallinn).
 Spec: `docs/superpowers/specs/2026-10-17-retrofitparts-website-design.md`.
 Plan: `docs/superpowers/plans/2026-10-17-retrofitparts-website.md`.
+Redesign (direction A, current look): `docs/superpowers/specs/2026-10-18-redesign-direction-a.md`,
+plan `docs/superpowers/plans/2026-10-18-redesign-direction-a.md`.
 
 Read `AGENTS.md` too: this is Next.js 16.4. Check `node_modules/next/dist/docs/` before relying on
 memory of Next.js APIs.

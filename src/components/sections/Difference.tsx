@@ -1,101 +1,83 @@
+import type { ReactNode } from "react";
 import { CompareSlider } from "@/components/difference/CompareSlider";
-import { FactVisual } from "@/components/difference/FactVisual";
-import { RoadScene } from "@/components/difference/RoadScene";
-import { SceneLabel } from "@/components/difference/SceneLabel";
+import { RoadPhoto } from "@/components/difference/RoadPhoto";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { difference as t } from "@/content/difference";
 import type { Locale } from "@/lib/i18n";
 
-/** The section appears once per page, so a fixed id is safe. */
+/** The section appears once per page, so fixed ids are safe. */
 const HINT_ID = "difference-slider-hint";
+const FACTS_ID = "difference-facts";
 
-/** "See the difference": a before/after night-road slider plus three plain-physics facts. */
+const mono = "font-mono text-xs tracking-[0.08em] uppercase";
+
+/** Small dark tag in a top corner of the slider. */
+function SideTag({ children }: { children: ReactNode }) {
+  return (
+    <span className={`${mono} block rounded-[2px] bg-bg/75 px-2.5 py-1.5 leading-none text-fg`}>{children}</span>
+  );
+}
+
+/** "See the difference": a before/after slider on one night photo, plus three plain-physics facts. */
 export function Difference({ locale }: { locale: Locale }) {
   return (
-    <section id="difference" className="relative isolate overflow-x-clip border-b border-line py-24 md:py-36">
-      {/* A faint cool spill behind the scene, so it sits in light rather than on flat black. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-1/3 -z-10 mx-auto h-[60%] max-w-[1100px] rounded-full bg-accent/[0.06] blur-[120px]"
-      />
+    <section id="difference" className="border-b border-line py-24 md:py-30">
       <Container>
         <Reveal>
-          <SectionHeading
-            eyebrow={t.eyebrow[locale]}
-            title={t.title[locale]}
-            intro={t.intro[locale]}
-          />
+          <SectionHeading eyebrow={t.eyebrow[locale]} title={t.title[locale]} intro={t.intro[locale]} />
         </Reveal>
 
-        <Reveal className="mt-12 md:mt-16" y={32}>
+        <Reveal className="mt-12 md:mt-14">
           <figure>
             <CompareSlider
-              className="aspect-[5/4] rounded-2xl border border-line bg-bg shadow-[0_40px_120px_-40px_rgb(0_0_0/0.9)] sm:aspect-[16/10] md:aspect-[16/9] md:rounded-3xl"
+              className="aspect-[4/3] rounded-[2px] bg-surface md:aspect-[3/2]"
               label={t.slider.label[locale]}
               valueText={t.slider.valueText[locale]}
               describedBy={HINT_ID}
-              before={
-                <RoadScene variant="before" label={t.before.scene[locale]} className="size-full" />
-              }
-              after={<RoadScene variant="after" label={t.after.scene[locale]} className="size-full" />}
-              beforeLabel={
-                <SceneLabel
-                  variant="before"
-                  label={t.before.label[locale]}
-                  caption={t.before.caption[locale]}
-                />
-              }
-              afterLabel={
-                <SceneLabel
-                  variant="after"
-                  label={t.after.label[locale]}
-                  caption={t.after.caption[locale]}
-                />
-              }
+              before={<RoadPhoto variant="before" alt={t.before.photo[locale]} />}
+              after={<RoadPhoto variant="after" alt={t.after.photo[locale]} />}
+              beforeLabel={<SideTag>{t.before.label[locale]}</SideTag>}
+              afterLabel={<SideTag>{t.after.label[locale]}</SideTag>}
             />
-            <figcaption className="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-1.5 font-mono text-xs text-muted">
-              <span id={HINT_ID}>{t.slider.hint[locale]}</span>
+            <figcaption className={`${mono} mt-3.5 flex flex-wrap justify-between gap-x-6 gap-y-1.5 text-muted`}>
               <span>{t.slider.note[locale]}</span>
+              <span id={HINT_ID}>{t.slider.hint[locale]}</span>
             </figcaption>
           </figure>
         </Reveal>
 
-        <ul
-          aria-label={t.factsLabel[locale]}
-          className="mt-16 grid gap-4 md:mt-24 md:grid-cols-3 md:gap-6"
-        >
-          {t.facts.map((fact, index) => (
-            <Reveal
-              as="li"
-              key={fact.id}
-              delay={index * 0.08}
-              className="flex flex-col rounded-2xl border border-line bg-surface/70 p-6 md:p-7"
-            >
-              <FactVisual id={fact.id} className="h-[72px] w-full max-w-[280px]" />
-              <p className="mt-7 font-mono text-xs tracking-[0.2em] text-accent">
-                {String(index + 1).padStart(2, "0")}
-              </p>
-              <h3 className="mt-2 text-xl font-semibold tracking-tight text-fg">{fact.title[locale]}</h3>
-              <p className="mt-3 mb-6 text-sm leading-relaxed text-pretty text-muted">{fact.body[locale]}</p>
-              <dl className="mt-auto grid grid-cols-2 gap-4 border-t border-line pt-5">
-                <div>
-                  <dt className="font-mono text-[11px] tracking-[0.16em] text-muted uppercase">
-                    {t.beforeShort[locale]}
-                  </dt>
-                  <dd className="mt-1 text-sm font-medium text-halogen">{fact.before[locale]}</dd>
-                </div>
-                <div>
-                  <dt className="font-mono text-[11px] tracking-[0.16em] text-muted uppercase">
-                    {t.afterShort[locale]}
-                  </dt>
-                  <dd className="mt-1 text-sm font-medium text-light">{fact.after[locale]}</dd>
-                </div>
-              </dl>
-            </Reveal>
-          ))}
-        </ul>
+        <div className="mt-20 md:mt-28">
+          <Reveal>
+            <p id={FACTS_ID} className={`${mono} text-muted`}>
+              {t.factsLabel[locale]}
+            </p>
+          </Reveal>
+          <ul aria-labelledby={FACTS_ID} className="mt-5 grid border-t border-line md:grid-cols-3">
+            {t.facts.map((fact, index) => (
+              <Reveal
+                as="li"
+                key={fact.id}
+                delay={index * 0.08}
+                className="flex flex-col border-line py-8 not-first:border-t md:px-8 md:py-10 md:not-first:border-t-0 md:not-first:border-l md:first:pl-0 md:last:pr-0"
+              >
+                <h3 className="text-xl font-semibold text-fg">{fact.title[locale]}</h3>
+                <p className="mt-3 mb-7 text-[15px] leading-relaxed text-pretty text-soft">{fact.body[locale]}</p>
+                <dl className="mt-auto grid grid-cols-2 gap-4">
+                  <div>
+                    <dt className={`${mono} text-muted`}>{t.beforeShort[locale]}</dt>
+                    <dd className="mt-1.5 text-[15px] font-medium text-halogen">{fact.before[locale]}</dd>
+                  </div>
+                  <div>
+                    <dt className={`${mono} text-muted`}>{t.afterShort[locale]}</dt>
+                    <dd className="mt-1.5 text-[15px] font-medium text-fg">{fact.after[locale]}</dd>
+                  </div>
+                </dl>
+              </Reveal>
+            ))}
+          </ul>
+        </div>
       </Container>
     </section>
   );

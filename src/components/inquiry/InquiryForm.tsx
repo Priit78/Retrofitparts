@@ -53,16 +53,17 @@ function joinIds(...parts: (string | false | undefined)[]) {
   return parts.filter(Boolean).join(" ") || undefined;
 }
 
-const labelClass = "font-mono text-xs font-medium tracking-[0.12em] text-muted uppercase";
+const labelClass = "font-mono text-xs font-medium tracking-[0.08em] text-soft uppercase";
 
 function controlClass(compact: boolean) {
   return cn(
-    // The border is the only thing marking the control's edge, so it needs 3:1 (WCAG 1.4.11).
-    "block w-full rounded-xl border border-fg/40 bg-surface-2/70 px-4 text-base text-fg",
+    // The border is the only thing marking the control's edge, so it needs 3:1 (WCAG 1.4.11):
+    // fg at 40% over the fill is about 3.4:1.
+    "block w-full rounded-[2px] border border-fg/40 bg-surface-2 px-4 text-base text-fg",
     "placeholder:text-muted",
-    "transition-[border-color,background-color,box-shadow] duration-300 ease-out-expo",
-    "hover:border-fg/60 focus:border-accent focus:bg-surface-2 focus:ring-4 focus:ring-accent/15",
-    "aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger/15",
+    "transition-[border-color] duration-200",
+    "hover:border-fg/60 focus-visible:border-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg",
+    "aria-[invalid=true]:border-danger",
     compact ? "h-11" : "h-12",
   );
 }
@@ -115,26 +116,19 @@ function Field({
   );
 }
 
-/** A calm, breathing glow around a check mark that draws itself. Static in reduced motion. */
-function GlowCheck() {
+/** A check mark in a hairline ring that draws itself once. Static in reduced motion. */
+function SuccessCheck() {
   return (
-    <div aria-hidden className="relative grid size-24 place-items-center">
+    <div aria-hidden className="grid size-14 place-items-center rounded-full border border-fg/40">
       <style href="rp-inquiry-success" precedence="default">{`
         @media (prefers-reduced-motion: no-preference) {
           .rp-check { stroke-dasharray: 1; stroke-dashoffset: 1; animation: rp-check-draw 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards; }
-          .rp-check-glow { animation: rp-check-breathe 3.6s ease-in-out infinite; }
         }
         @keyframes rp-check-draw { to { stroke-dashoffset: 0; } }
-        @keyframes rp-check-breathe {
-          0%, 100% { opacity: 0.55; transform: scale(0.94); }
-          50% { opacity: 1; transform: scale(1.1); }
-        }
       `}</style>
-      <span className="rp-check-glow absolute inset-0 rounded-full bg-accent/30 blur-2xl" />
-      <span className="absolute inset-1 rounded-full border border-accent/40 bg-surface shadow-[0_0_56px_-8px] shadow-accent/65" />
       <svg
         viewBox="0 0 24 24"
-        className="relative size-10 text-accent"
+        className="size-6 text-fg"
         fill="none"
         stroke="currentColor"
         strokeWidth="1.75"
@@ -188,13 +182,13 @@ function InquiryFormBody({
       <div
         ref={successRef}
         tabIndex={-1}
-        className="flex flex-col items-center rounded-2xl px-2 py-8 text-center"
+        className="flex flex-col items-center rounded-[2px] px-2 py-8 text-center"
       >
-        <GlowCheck />
-        <h3 className="mt-8 text-2xl font-semibold tracking-tight text-balance text-fg">
+        <SuccessCheck />
+        <h3 className="mt-6 text-2xl font-semibold text-balance text-fg">
           {copy.success.title[locale]}
         </h3>
-        <p className="mt-3 max-w-sm text-base leading-relaxed text-pretty text-muted">
+        <p className="mt-3 max-w-sm text-base leading-relaxed text-pretty text-soft">
           {copy.success.body[locale]}
         </p>
         <Button variant="ghost" className="mt-8" onClick={onReset}>
@@ -318,7 +312,7 @@ function InquiryFormBody({
       </div>
 
       <fieldset className="min-w-0">
-        <legend className="mb-2 w-full p-0">
+        <legend className="mb-3 w-full p-0">
           <span className="flex items-baseline justify-between gap-3">
             <span className={labelClass}>{copy.labels.car[locale]}</span>
             <span className="font-mono text-xs text-muted">{copy.optional[locale]}</span>
@@ -423,13 +417,13 @@ function InquiryFormBody({
           ref={bannerRef}
           role="alert"
           tabIndex={-1}
-          className="rounded-2xl border border-danger/30 bg-danger/[0.07] p-4 md:p-5"
+          className="rounded-[2px] border border-danger/50 bg-danger/[0.07] p-4 md:p-5"
         >
           <p className="flex items-start gap-2 font-medium text-danger">
             <CircleAlert aria-hidden className="mt-0.5 size-5 shrink-0" />
             <span>{bannerCopy.title[locale]}</span>
           </p>
-          <p className="mt-2 text-sm leading-relaxed text-muted">{bannerCopy.body[locale]}</p>
+          <p className="mt-2 text-sm leading-relaxed text-soft">{bannerCopy.body[locale]}</p>
           {failure.code !== "invalid" ? (
             <div className="mt-4 flex flex-wrap gap-3">
               <Button href={site.phoneHref} variant="ghost">

@@ -196,15 +196,15 @@ export function CompareSlider({
       onPointerCancel={endDrag}
       onLostPointerCapture={endDrag}
     >
-      {/* Each scene sits in its own composited layer, so moving the clip doesn't repaint the SVG. */}
+      {/* Each scene sits in its own composited layer, so moving the clip doesn't re-filter the photo. */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 transform-gpu">{before}</div>
-        {beforeLabel ? <div className="absolute top-3 left-3 md:top-5 md:left-5">{beforeLabel}</div> : null}
+        {beforeLabel ? <div className="absolute top-3 left-3 md:top-4 md:left-4">{beforeLabel}</div> : null}
       </div>
 
       <motion.div className="absolute inset-0" style={{ clipPath }}>
         <div className="absolute inset-0 transform-gpu">{after}</div>
-        {afterLabel ? <div className="absolute top-3 right-3 md:top-5 md:right-5">{afterLabel}</div> : null}
+        {afterLabel ? <div className="absolute top-3 right-3 md:top-4 md:right-4">{afterLabel}</div> : null}
       </motion.div>
 
       <input
@@ -228,8 +228,7 @@ export function CompareSlider({
       <motion.div
         aria-hidden
         className={cn(
-          "pointer-events-none absolute inset-y-0 z-10 -ml-px w-0.5 bg-light/90",
-          "shadow-[0_0_18px_2px_color-mix(in_oklab,var(--color-light)_45%,transparent)]",
+          "pointer-events-none absolute inset-y-0 z-10 -ml-px w-0.5 bg-light",
           // Focus ring on the knob while the hidden range input has keyboard focus.
           "[.peer:focus-visible~&>span]:outline-2 [.peer:focus-visible~&>span]:outline-offset-4 [.peer:focus-visible~&>span]:outline-accent",
         )}
@@ -237,9 +236,11 @@ export function CompareSlider({
       >
         <span
           className={cn(
-            "absolute top-1/2 left-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full md:size-12",
-            "border border-light/50 bg-bg/55 text-light shadow-[0_8px_30px_-6px_rgb(0_0_0/0.8)] backdrop-blur-md",
-            "transition-[transform,background-color,box-shadow] duration-300 ease-out-expo",
+            "absolute top-1/2 left-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full",
+            // Flat: a plain knob with a small neutral shadow to lift it off bright snow.
+            // `shadow-black` is that deliberate neutral shadow, outside the theme tokens.
+            "bg-light text-bg shadow-md shadow-black/35",
+            "transition-transform duration-300 ease-out-expo",
             "group-hover/compare:scale-105 group-active/compare:scale-95",
           )}
         >

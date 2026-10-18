@@ -20,6 +20,17 @@ export const about = {
       "Our customers include car dealerships and insurance companies, and we work with several Estonian repair shops.",
     ],
   } satisfies Localized<string[]>,
+  /** The client's own photo, src/assets/photos/projector-bench.jpg. */
+  photo: {
+    alt: {
+      et: "Kaks põlevat Morimoto LED-projektorit lahtivõetud esitule korpuses laual",
+      en: "Two lit Morimoto LED projectors in an opened headlight housing on a bench",
+    },
+    caption: {
+      et: "Morimoto LED-projektorid lahtivõetud esitules",
+      en: "Morimoto LED projectors in an opened headlight",
+    },
+  },
   quote: {
     et: "Kõik tooted on meil endal ära testitud.",
     en: "We have tested every product ourselves.",
