@@ -25,6 +25,11 @@ describe("activeIndex", () => {
     expect(activeIndex(1, 4)).toBe(3); // never out of range
     expect(activeIndex(0.3, 4, 0.3, 0.98)).toBe(0);
   });
+
+  it("lands on the next step exactly at a boundary, even when it is not representable", () => {
+    expect(activeIndex(1 / 3, 3)).toBe(1);
+    expect(activeIndex(2 / 3, 3)).toBe(2);
+  });
 });
 
 describe("explodeOffset", () => {

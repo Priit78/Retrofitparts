@@ -15,6 +15,11 @@ import { useChapter } from "./ScrollChapter";
  * one under it; its text stays in the DOM for screen readers), and removes them when the chapter
  * stops animating. (motion keeps styles it has bound even after they leave `style`, so a beat
  * would stay hidden if reduced motion were switched on mid-visit.) Nothing is set on the server.
+ * The inline `pointer-events` overrides any `pointer-events-*` class on the Beat itself; put such
+ * a class on a child instead.
+ *
+ * When keyboard focus lands inside a faded beat, the chapter scrolls to where the beat is fully
+ * visible, so the focus ring is never invisible.
  */
 export function Beat({
   range,
@@ -35,7 +40,7 @@ export function Beat({
   className?: string;
   children: ReactNode;
 }) {
-  const { progress, animated } = useChapter();
+  const { progress, animated, seek } = useChapter();
   const ref = useRef<HTMLDivElement & HTMLParagraphElement>(null);
   const [start, end] = range;
 
@@ -45,8 +50,11 @@ export function Beat({
 
     const apply = (p: number) => {
       const opacity = beatOpacity(p, [start, end], fade);
-      // Below the range midpoint the beat is still arriving, so it sits lower; after, higher.
-      const y = (p < (start + end) / 2 ? 1 : -1) * (1 - opacity) * lift;
+      // The direction follows the active fade: a beat comes up from below while it fades in
+      // (or before its range), and moves on up while it fades out (or after its range). A beat
+      // that stays to the end (end > 1) never leaves.
+      const leaving = end <= 1 && p >= end - fade;
+      const y = (leaving ? -1 : 1) * (1 - opacity) * lift;
       el.style.opacity = String(opacity);
       el.style.transform = y === 0 ? "none" : `translateY(${y}px)`;
       // A mostly faded beat lets clicks through to the visible one under it. `auto` is set
@@ -54,15 +62,25 @@ export function Beat({
       el.style.pointerEvents = opacity < 0.5 ? "none" : "auto";
     };
 
+    // Keyboard focus inside a faded beat would be invisible: scroll to where the beat is fully
+    // visible, the middle of that span (or its start for a first beat, its fade-in end for a
+    // beat that stays to the end).
+    const onFocusIn = () => {
+      if (beatOpacity(progress.get(), [start, end], fade) >= 0.5) return;
+      seek(start <= 0 ? 0 : end > 1 ? start + fade : (start + end) / 2);
+    };
+
     apply(progress.get());
     const unsubscribe = progress.on("change", apply);
+    el.addEventListener("focusin", onFocusIn);
     return () => {
       unsubscribe();
+      el.removeEventListener("focusin", onFocusIn);
       el.style.removeProperty("opacity");
       el.style.removeProperty("transform");
       el.style.removeProperty("pointer-events");
     };
-  }, [animated, progress, start, end, fade, lift]);
+  }, [animated, progress, seek, start, end, fade, lift]);
 
   return (
     <Tag ref={ref} className={className} data-pinned-hidden={initiallyHidden ? "" : undefined}>

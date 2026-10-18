@@ -2,6 +2,8 @@
 /* Agent worktrees and scratch folders live inside the repo; never scan them for classes. */
 @source not "../../.claude";
 @source not "../../.superpowers";
+/* Its candidate class names are test input, not page styles. */
+@source not "./globals.test.ts";
 
 @theme {
   /* Direction A "Dark refined": graphite, warm white, no glow. */
@@ -28,12 +30,14 @@
   --font-mono: var(--font-plex), ui-monospace, monospace;
 }
 
-/* Scroll-story chapters pin only when JS has run and the visitor allows motion. `pinned:` styles
-   a chapter's pinned layout under that condition and `pinned-lg:` does the same from 1024 px (for
-   `data-pin-from="lg"` chapters), so the static layout is the unprefixed one. `:where()` keeps
-   the specificity of a plain utility. */
+/* Scroll-story chapters pin only when JS has run, the visitor allows motion and the viewport is
+   tall enough for a one-screen stage. `pinned:` styles a chapter's pinned layout under that
+   condition and `pinned-lg:` does the same from 1024 px (for `data-pin-from="lg"` chapters), so
+   the static layout is the unprefixed one. `:where()` keeps the specificity of a plain utility.
+   The media queries must match PINNED_QUERY and PINNED_LG_QUERY in components/story/pinned.ts,
+   which ScrollChapter animates by (globals.test.ts checks it). */
 @custom-variant pinned {
-  @media (prefers-reduced-motion: no-preference) {
+  @media (prefers-reduced-motion: no-preference) and (min-height: 32rem) {
     &:where(html.js *) {
       @slot;
     }
@@ -41,7 +45,7 @@
 }
 
 @custom-variant pinned-lg {
-  @media (prefers-reduced-motion: no-preference) and (width >= 64rem) {
+  @media (prefers-reduced-motion: no-preference) and (min-height: 32rem) and (min-width: 64rem) {
     &:where(html.js *) {
       @slot;
     }

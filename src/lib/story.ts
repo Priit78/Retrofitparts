@@ -6,11 +6,17 @@
  */
 
 /**
- * Float noise is rounded away, so values on an exact boundary stay on it: 0.7 − 0.3 is
- * 0.39999999999999997, which would otherwise make segment(0.5, 0.3, 0.7) 0.5000000000000001 and
- * could tip a floor in `activeIndex` to the wrong side of a step.
+ * Float noise is rounded away, so a value that is exactly representable stays exact: 0.7 − 0.3
+ * is 0.39999999999999997, which would otherwise make segment(0.5, 0.3, 0.7) 0.5000000000000001.
  */
 const PRECISION = 1e9;
+
+/**
+ * Step boundaries such as 1/3 are not representable, so segment × count can land just below a
+ * whole number (0.999999999 for p = 1/3 of 3 steps). The floor in `activeIndex` adds this much
+ * first, so a boundary always belongs to the step that starts there.
+ */
+const STEP_TOLERANCE = 1e-6;
 
 function clamp01(value: number): number {
   return Math.min(1, Math.max(0, value));
@@ -35,7 +41,7 @@ export function beatOpacity(p: number, range: readonly [number, number], fade = 
 
 /** Which of `count` equal steps between `start` and `end` is active, from 0 to `count − 1`. */
 export function activeIndex(p: number, count: number, start = 0, end = 1): number {
-  return Math.min(count - 1, Math.floor(segment(p, start, end) * count));
+  return Math.min(count - 1, Math.floor(segment(p, start, end) * count + STEP_TOLERANCE));
 }
 
 /**

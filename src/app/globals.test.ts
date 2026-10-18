@@ -5,14 +5,16 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { compile } from "tailwindcss";
 import { beforeAll, describe, expect, it } from "vitest";
+import { PINNED_LG_QUERY, PINNED_QUERY } from "@/components/story/pinned";
 
 /**
  * Compiles globals.css with Tailwind, as the build does, and checks where the scroll-story rules
- * land: pinning must only happen when JS has run and the visitor allows motion.
+ * land: pinning must only happen when JS has run, the visitor allows motion and the viewport is
+ * tall enough for a one-screen stage.
  */
 
-const PINNED = "@media (prefers-reduced-motion: no-preference)";
-const PINNED_LG = "@media (prefers-reduced-motion: no-preference) and (width >= 64rem)";
+const PINNED = "@media (prefers-reduced-motion: no-preference) and (min-height: 32rem)";
+const PINNED_LG = "@media (prefers-reduced-motion: no-preference) and (min-height: 32rem) and (min-width: 64rem)";
 
 let css = "";
 
@@ -52,6 +54,11 @@ function split(header: string, source = css): { inside: string; outside: string 
 }
 
 describe("pinned variants", () => {
+  it("use the same conditions as ScrollChapter's animated flag", () => {
+    expect(PINNED).toBe(`@media ${PINNED_QUERY}`);
+    expect(PINNED_LG).toBe(`@media ${PINNED_LG_QUERY}`);
+  });
+
   it("pinned: applies with JS and motion allowed", () => {
     expect(split(PINNED).inside).toContain(".pinned\\:sticky:where(html.js *) { position: sticky; }");
   });
