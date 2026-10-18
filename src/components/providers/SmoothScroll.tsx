@@ -2,6 +2,7 @@
 
 import Lenis from "lenis";
 import { useEffect } from "react";
+import { registerScroller } from "@/lib/scroller";
 
 /**
  * The element a same-page fragment link points to ("#services", or "/et#services" while on
@@ -50,11 +51,15 @@ function focusTarget(el: HTMLElement) {
  * then pull it back to animate from where it was: a double jump. The click is handled in the
  * capture phase, so Link sees it as handled and stays out. The offset is the target's
  * `scroll-margin-top` (globals.css), which Lenis honours.
+ *
+ * The instance is registered as the page's scroller (lib/scroller.ts), so a chapter's instant
+ * `seek` goes through Lenis rather than being overridden by its running animation.
  */
 export function SmoothScroll() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const lenis = new Lenis({ autoRaf: true, lerp: 0.1 });
+    const unregister = registerScroller(lenis);
 
     const onClick = (event: MouseEvent) => {
       const target = fragmentTarget(event);
@@ -73,6 +78,7 @@ export function SmoothScroll() {
     window.addEventListener("click", onClick, { capture: true });
     return () => {
       window.removeEventListener("click", onClick, { capture: true });
+      unregister();
       lenis.destroy();
     };
   }, []);

@@ -83,6 +83,9 @@ describe("chapter CSS", () => {
     expect(pinned).toContain(
       `${base} [data-pinned-hidden]:where(html.js *) { opacity: 0; pointer-events: none; }`,
     );
+    expect(pinned).toContain(
+      `${base}:not([data-animated]) [data-pinned-hidden]:where(html.js *) { visibility: hidden; }`,
+    );
   });
 
   it('pins a data-pin-from="lg" chapter from 1024 px only', () => {
@@ -91,6 +94,9 @@ describe("chapter CSS", () => {
     expect(pinnedLg).toContain(`${lg} > .chapter-stage:where(html.js *) { ${stage} }`);
     expect(pinnedLg).toContain(
       `${lg} [data-pinned-hidden]:where(html.js *) { opacity: 0; pointer-events: none; }`,
+    );
+    expect(pinnedLg).toContain(
+      `${lg}:not([data-animated]) [data-pinned-hidden]:where(html.js *) { visibility: hidden; }`,
     );
   });
 

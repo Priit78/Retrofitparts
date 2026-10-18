@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import { motion } from "motion/react";
 import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { registerScroller } from "@/lib/scroller";
 import { Beat } from "./Beat";
 import { ScrollChapter, useChapter } from "./ScrollChapter";
 
@@ -61,7 +62,10 @@ beforeEach(() => {
     })),
   );
 });
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
 
 describe("ScrollChapter", () => {
   it("renders the chapter track with its lengths as custom properties", () => {
@@ -165,6 +169,18 @@ describe("ScrollChapter", () => {
     expect(screen.getByText("animated at 0")).toBeInTheDocument();
   });
 
+  it("marks the section while it animates, for the pre-hydration CSS", () => {
+    const { container } = render(
+      <ScrollChapter id="x" length={{ base: 160, md: 190 }}>
+        <Probe />
+      </ScrollChapter>,
+    );
+    const section = container.querySelector("section#x");
+    expect(section).toHaveAttribute("data-animated");
+    setViewport({ reducedMotion: true });
+    expect(section).not.toHaveAttribute("data-animated");
+  });
+
   it("follows the viewport as it changes", () => {
     render(
       <ScrollChapter id="x" length={{ base: 160, md: 190 }} pinFrom="lg">
@@ -180,9 +196,8 @@ describe("ScrollChapter", () => {
     expect(screen.getByText("animated at 0")).toBeInTheDocument();
   });
 
-  it("seeks by scrolling the window to that point of the chapter's track", () => {
-    const scrollTo = vi.fn();
-    vi.stubGlobal("scrollTo", scrollTo);
+  /** Renders a seekable chapter 1000 px down the page, 3000 px tall, in an 800 px viewport. */
+  function renderSeekable() {
     const { container } = render(
       <ScrollChapter id="x" length={{ base: 160, md: 190 }}>
         <SeekButton />
@@ -191,11 +206,31 @@ describe("ScrollChapter", () => {
     const section = container.querySelector<HTMLElement>("section#x")!;
     section.getBoundingClientRect = () => ({ top: 1000 }) as DOMRect;
     Object.defineProperty(section, "offsetHeight", { value: 3000 });
+    // The viewport as motion's useScroll measures it (no scrollbar), not innerHeight.
+    vi.spyOn(document.documentElement, "clientHeight", "get").mockReturnValue(800);
+  }
+
+  it("seeks by scrolling the window to that point of the chapter's track", () => {
+    const scrollTo = vi.fn();
+    vi.stubGlobal("scrollTo", scrollTo);
+    renderSeekable();
     fireEvent.click(screen.getByRole("button", { name: "Seek" }));
-    expect(scrollTo).toHaveBeenCalledWith({
-      top: 1000 + 0.5 * (3000 - window.innerHeight),
-      behavior: "instant",
-    });
+    expect(scrollTo).toHaveBeenCalledWith({ top: 1000 + 0.5 * (3000 - 800), behavior: "instant" });
+  });
+
+  it("seeks through the smooth scroller when one runs, so its animation cannot override the jump", () => {
+    const scrollTo = vi.fn();
+    vi.stubGlobal("scrollTo", scrollTo);
+    const lenis = { scrollTo: vi.fn() };
+    const unregister = registerScroller(lenis);
+    try {
+      renderSeekable();
+      fireEvent.click(screen.getByRole("button", { name: "Seek" }));
+      expect(lenis.scrollTo).toHaveBeenCalledWith(1000 + 0.5 * (3000 - 800), { immediate: true, force: true });
+      expect(scrollTo).not.toHaveBeenCalled();
+    } finally {
+      unregister();
+    }
   });
 
   it("does not seek when it does not animate", () => {
@@ -225,6 +260,7 @@ describe("ScrollChapter", () => {
     expect(html).toContain("static at 0");
     expect(html).toContain("Second");
     expect(html).toContain("data-pinned-hidden");
+    expect(html).not.toContain("data-animated");
     expect(html).not.toContain("opacity");
     expect(html).not.toContain("transform");
   });

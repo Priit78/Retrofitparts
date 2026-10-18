@@ -13,6 +13,7 @@ import {
   type ReactNode,
 } from "react";
 import { cn } from "@/lib/cn";
+import { jumpTo } from "@/lib/scroller";
 import { PINNED_LG_QUERY, PINNED_QUERY } from "./pinned";
 
 export interface ChapterState {
@@ -27,8 +28,9 @@ export interface ChapterState {
    */
   animated: boolean;
   /**
-   * Scrolls the window, instantly, to the point of the track where the progress is `p`. Does
-   * nothing when the chapter does not animate.
+   * Scrolls the window, instantly, to the point of the track where the progress is `p` (through
+   * Lenis when it runs, so its smooth scroll cannot carry the page on past it). Does nothing when
+   * the chapter does not animate.
    */
   seek: (p: number) => void;
 }
@@ -103,7 +105,9 @@ export function ScrollChapter({
       if (!animated || !section) return;
       // The section's top in the document (as offsetTop, but independent of positioned ancestors).
       const top = section.getBoundingClientRect().top + window.scrollY;
-      window.scrollTo({ top: top + p * (section.offsetHeight - window.innerHeight), behavior: "instant" });
+      // The viewport height as motion's useScroll measures the progress: without a scrollbar.
+      const viewport = document.documentElement.clientHeight;
+      jumpTo(top + p * (section.offsetHeight - viewport));
     },
     [animated],
   );
@@ -126,6 +130,8 @@ export function ScrollChapter({
         aria-labelledby={labelledBy}
         aria-label={label}
         data-pin-from={pinFrom}
+        // For the pre-hydration CSS on hidden beats (globals.css); never in the server HTML.
+        data-animated={animated ? "" : undefined}
         className={cn("chapter", className)}
         style={style}
       >

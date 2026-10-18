@@ -148,6 +148,16 @@
     }
   }
 
+  /* Until the chapter animates (ScrollChapter sets `data-animated` once hydrated), a hidden beat
+     is also out of the tab order: focus there would show an invisible ring, and nothing can
+     bring the beat into view yet. Afterwards the beat's own opacity takes over, and focusing it
+     scrolls to it. */
+  .chapter:not([data-pin-from="lg"]):not([data-animated]) [data-pinned-hidden] {
+    @variant pinned {
+      visibility: hidden;
+    }
+  }
+
   /* The same, from 1024 px only. */
   .chapter[data-pin-from="lg"] {
     @variant pinned-lg {
@@ -168,6 +178,12 @@
     @variant pinned-lg {
       opacity: 0;
       pointer-events: none;
+    }
+  }
+
+  .chapter[data-pin-from="lg"]:not([data-animated]) [data-pinned-hidden] {
+    @variant pinned-lg {
+      visibility: hidden;
     }
   }
 }
