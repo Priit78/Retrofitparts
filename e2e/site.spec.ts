@@ -4,7 +4,10 @@ import { catalog } from "../src/content/catalog";
 import { common } from "../src/content/common";
 import { inquiry } from "../src/content/inquiry";
 import { layout } from "../src/content/layout";
+import { polish } from "../src/content/polish";
+import { processCopy } from "../src/content/process";
 import { site } from "../src/content/site";
+import { story } from "../src/content/story";
 
 const productPath = "/et/catalog/koito-bi-led";
 /** Landing sections the navigation points at; the page must always have them. */
@@ -15,6 +18,39 @@ async function hydrated(locator: Locator) {
   await expect
     .poll(() => locator.evaluate((el) => Object.keys(el).some((key) => key.startsWith("__reactFiber"))))
     .toBe(true);
+}
+
+/** The element's opacity times every ancestor's: how much of it the visitor sees. */
+function shownOpacity(locator: Locator) {
+  return locator.evaluate((el) => {
+    let value = 1;
+    for (let node: Element | null = el; node; node = node.parentElement) {
+      value *= Number(getComputedStyle(node).opacity);
+    }
+    return value;
+  });
+}
+
+/**
+ * Scrolls the window, at once, to progress `p` of a scroll-story chapter: 0 when its stage reaches
+ * the top, 1 at the end of its track.
+ */
+async function seekChapter(page: Page, id: string, p: number) {
+  await page.evaluate(
+    ({ id, p }) => {
+      const section = document.getElementById(id);
+      if (!section) throw new Error(`No #${id}`);
+      const top = section.getBoundingClientRect().top + window.scrollY;
+      const travel = section.offsetHeight - document.documentElement.clientHeight;
+      window.scrollTo({ top: top + p * travel, behavior: "instant" });
+    },
+    { id, p },
+  );
+}
+
+/** Whether the page is wider than the viewport. */
+function pageOverflow(page: Page) {
+  return page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
 }
 
 /** Scrolls through the whole page, so every scroll-driven part has run. */
@@ -49,19 +85,14 @@ test.describe("with reduced motion", () => {
   test("every landing section heading shows at once", async ({ page }) => {
     await page.goto("/et");
     const ids = await page.locator("main section[id]").evaluateAll((sections) => sections.map((el) => el.id));
-    expect(ids).toEqual(expect.arrayContaining(navSections));
+    // The story's chapters (top, problem, difference, anatomy, services, process, catalog-teaser)
+    // and what the navigation points at.
+    expect(ids).toEqual(expect.arrayContaining([...story.chapters.map((chapter) => chapter.id), ...navSections]));
     for (const id of ids) {
       const heading = page.locator(`[id="${id}"]`).getByRole("heading").first();
       await expect(heading, id).toBeVisible();
       // toBeVisible ignores opacity: check that nothing on the way up hides the heading.
-      const opacity = await heading.evaluate((el) => {
-        let value = 1;
-        for (let node: Element | null = el; node; node = node.parentElement) {
-          value *= Number(getComputedStyle(node).opacity);
-        }
-        return value;
-      });
-      expect(opacity, id).toBe(1);
+      expect(await shownOpacity(heading), id).toBe(1);
     }
   });
 });
@@ -125,6 +156,9 @@ test("a catalog teaser tile opens a view with exactly the products it counts", a
   );
   expect(count).toBeGreaterThan(0);
   await hydrated(link);
+  // The pinned strip has moved the xenon tile fully into view by its end.
+  await seekChapter(page, "catalog-teaser", 1);
+  await expect(page.locator('[data-teaser-tile="xenon"]')).toBeInViewport({ ratio: 1 });
   await link.click();
   await expect(page).toHaveURL(/\/et\/catalog\?category=[a-z-]+(,[a-z-]+)+$/);
   await expect(page.locator("[data-product-card]")).toHaveCount(count);
@@ -186,17 +220,142 @@ test("the inquiry form, sent empty, shows field errors without a request", async
   expect(posts).toEqual([]);
 });
 
-test("/et logs no console errors", async ({ page }) => {
-  const errors: string[] = [];
-  page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
-  });
-  page.on("pageerror", (error) => errors.push(error.message));
+for (const path of ["/et", "/en"]) {
+  test(`${path} logs no console errors through a full scroll`, async ({ page }) => {
+    const errors: string[] = [];
+    page.on("console", (message) => {
+      if (message.type() === "error") errors.push(message.text());
+    });
+    page.on("pageerror", (error) => errors.push(error.message));
 
-  await page.goto("/et", { waitUntil: "networkidle" });
-  await scrollThrough(page);
-  await page.waitForTimeout(1000);
-  expect(errors).toEqual([]);
+    await page.goto(path, { waitUntil: "networkidle" });
+    await scrollThrough(page);
+    await page.waitForTimeout(1000);
+    expect(errors).toEqual([]);
+  });
+}
+
+test.describe("the scroll story", () => {
+  const [aging, polishing] = story.problem.beats;
+  // includeHidden: a hidden beat's heading is still in the DOM, and must be found to be checked.
+  const problemTitle = (page: Page, title: string) =>
+    page.locator("#problem").getByRole("heading", { name: title, exact: true, includeHidden: true });
+
+  test("before hydration, a pinned chapter shows only its first beat", async ({ page }) => {
+    // The inline script marks the page as running JS, but no script chunk loads: nothing
+    // hydrates. (The stylesheets are chunks too, and they must load.)
+    await page.route("**/_next/static/chunks/**", (route) =>
+      route.request().resourceType() === "script" ? route.abort() : route.fallback(),
+    );
+    await page.goto("/et");
+    await expect(problemTitle(page, aging.title.et)).toBeVisible();
+    expect(await shownOpacity(problemTitle(page, aging.title.et))).toBe(1);
+    await expect(problemTitle(page, polishing.title.et)).toBeHidden();
+    expect(await shownOpacity(problemTitle(page, polishing.title.et))).toBe(0);
+  });
+
+  test("at load, the problem chapter shows its first beat and hides the second", async ({ page }) => {
+    await page.goto("/et");
+    await expect(page.locator("#problem")).toHaveAttribute("data-animated", "");
+    expect(await shownOpacity(problemTitle(page, aging.title.et))).toBe(1);
+    expect(await shownOpacity(problemTitle(page, polishing.title.et))).toBe(0);
+  });
+
+  test("the middle of the problem chapter shows the polished photo's caption", async ({ page }) => {
+    await page.goto("/et");
+    await expect(page.locator("#problem")).toHaveAttribute("data-animated", "");
+    const after = page.locator("#problem").getByText(polish.photos.polished.caption.et, { exact: true });
+    await expect(after).toBeHidden();
+    await seekChapter(page, "problem", 0.5);
+    await expect(after).toBeVisible();
+  });
+
+  test("the end of the fix chapter marks its last part, the housing", async ({ page }) => {
+    await page.goto("/et");
+    await expect(page.locator("#anatomy")).toHaveAttribute("data-animated", "");
+    await seekChapter(page, "anatomy", 1);
+    const housing = polish.parts[polish.parts.length - 1].name.et;
+    expect(housing).toBe("Korpus");
+    await expect(page.locator('#anatomy [aria-current="step"]')).toHaveCount(1);
+    await expect(page.locator('#anatomy [aria-current="step"] h3')).toHaveText(housing);
+  });
+
+  /** The catalog chapter's row of tiles. */
+  const track = (page: Page) => page.locator("#catalog-teaser ul:has(> li[data-teaser-tile])");
+
+  test.describe("at 1440 px", () => {
+    test.use({ viewport: { width: 1440, height: 900 } });
+
+    test("the catalog strip moves sideways as the chapter scrolls", async ({ page }) => {
+      await page.goto("/et");
+      await expect(page.locator("#catalog-teaser")).toHaveAttribute("data-animated", "");
+      const shift = () => track(page).evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m41);
+
+      await seekChapter(page, "catalog-teaser", 0);
+      await expect.poll(shift).toBe(0);
+      await seekChapter(page, "catalog-teaser", 1);
+      await expect.poll(shift).toBeLessThan(-100);
+      // The last card ends in view.
+      await expect(page.locator('[data-teaser-tile="all"]')).toBeInViewport({ ratio: 1 });
+    });
+
+    test("resizing to a phone and back, mid-chapter, never scrolls sideways", async ({ page }) => {
+      await page.goto("/et");
+      await expect(page.locator("#catalog-teaser")).toHaveAttribute("data-animated", "");
+      await seekChapter(page, "catalog-teaser", 0.6);
+      await expect.poll(() => track(page).evaluate((el) => getComputedStyle(el).transform)).not.toBe("none");
+
+      await page.setViewportSize({ width: 390, height: 844 });
+      await expect(page.locator("#catalog-teaser")).not.toHaveAttribute("data-animated");
+      await expect.poll(() => pageOverflow(page)).toBeLessThanOrEqual(0);
+      await scrollThrough(page);
+      expect(await pageOverflow(page)).toBeLessThanOrEqual(0);
+
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await expect(page.locator("#catalog-teaser")).toHaveAttribute("data-animated", "");
+      await seekChapter(page, "catalog-teaser", 0.6);
+      await expect.poll(() => pageOverflow(page)).toBeLessThanOrEqual(0);
+      await scrollThrough(page);
+      expect(await pageOverflow(page)).toBeLessThanOrEqual(0);
+    });
+  });
+
+  test.describe("at 390 px", () => {
+    test.use({ viewport: { width: 390, height: 844 } });
+
+    test("the catalog row swipes inside its own box, and the page never scrolls sideways", async ({ page }) => {
+      await page.goto("/et");
+      const row = track(page);
+      await row.scrollIntoViewIfNeeded();
+      const box = () => row.evaluate((el) => ({ scrollWidth: el.scrollWidth, clientWidth: el.clientWidth, left: el.scrollLeft }));
+      const before = await box();
+      expect(before.scrollWidth).toBeGreaterThan(before.clientWidth);
+      expect(before.left).toBe(0);
+
+      await row.evaluate((el) => el.scrollBy({ left: 300, behavior: "instant" }));
+      await expect.poll(async () => (await box()).left).toBeGreaterThan(0);
+      expect(await track(page).evaluate((el) => getComputedStyle(el).transform)).toBe("none");
+      expect(await pageOverflow(page)).toBeLessThanOrEqual(0);
+    });
+  });
+});
+
+test.describe("without JS", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("every problem beat and every process step is shown", async ({ page }) => {
+    await page.goto("/et");
+    for (const beat of story.problem.beats) {
+      const title = page.locator("#problem").getByRole("heading", { name: beat.title.et, exact: true });
+      await expect(title, beat.title.et).toBeVisible();
+      expect(await shownOpacity(title), beat.title.et).toBe(1);
+    }
+    for (const step of processCopy.steps) {
+      const title = page.locator("#process").getByRole("heading", { name: step.title.et, exact: true });
+      await expect(title, step.title.et).toBeVisible();
+      expect(await shownOpacity(title), step.title.et).toBe(1);
+    }
+  });
 });
 
 test.describe("navigation to a section", () => {
@@ -267,6 +426,21 @@ test.describe("navigation to a section", () => {
     await expect(page.locator('[id="services"]')).toBeFocused();
   });
 
+  test("the header link to the process chapter lands at its start, below the header", async ({ page }) => {
+    await page.goto("/et");
+    await hydrated(headerLink(page));
+    const processLink = page
+      .getByRole("navigation", { name: layout.header.mainNav.et })
+      .getByRole("link", { name: site.nav.find((item) => item.href === "#process")!.label.et });
+    const expectOneWay = await recordScroll(page);
+
+    await processLink.click();
+
+    await expectLandedBelowHeader(page, "process");
+    await expectOneWay();
+    await expect(page).toHaveURL("/et#process");
+  });
+
   test("an in-page link to the contact form scrolls once too", async ({ page }) => {
     await page.goto("/et");
     await hydrated(headerLink(page));
@@ -287,6 +461,25 @@ test.describe("navigation to a section", () => {
     await headerLink(page).click();
     await expect(page).toHaveURL("/et#services");
     await expectLandedBelowHeader(page, "services");
+  });
+
+  test.describe("at 1440 px", () => {
+    test.use({ viewport: { width: 1440, height: 900 } });
+
+    test("the chapter index jumps to the fix chapter's start, below the header", async ({ page }) => {
+      await page.goto("/et");
+      const index = page.getByRole("navigation", { name: story.index.label.et });
+      await hydrated(index);
+      const label = story.chapters.find((chapter) => chapter.id === "anatomy")!.label.et;
+      const expectOneWay = await recordScroll(page);
+
+      await index.getByRole("link", { name: label, exact: true }).click();
+
+      await expectLandedBelowHeader(page, "anatomy");
+      await expectOneWay();
+      await expect(page).toHaveURL("/et#anatomy");
+      await expect(index.getByRole("link", { name: label, exact: true })).toHaveAttribute("aria-current", "true");
+    });
   });
 
   test.describe("on a phone", () => {
