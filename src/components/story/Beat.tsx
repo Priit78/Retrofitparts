@@ -10,7 +10,9 @@ import { useChapter } from "./ScrollChapter";
  * `initiallyHidden`, so a pinned stage shows only the first one before hydration. When the
  * chapter does not animate, the beat is plain, visible content.
  *
- * The beat writes its own styles from the progress value, and removes them when the chapter
+ * The beat writes its own styles from the progress value (opacity, transform, and
+ * `pointer-events: none` while it is less than half visible, so a faded beat never blocks the
+ * one under it; its text stays in the DOM for screen readers), and removes them when the chapter
  * stops animating. (motion keeps styles it has bound even after they leave `style`, so a beat
  * would stay hidden if reduced motion were switched on mid-visit.) Nothing is set on the server.
  */
@@ -47,6 +49,9 @@ export function Beat({
       const y = (p < (start + end) / 2 ? 1 : -1) * (1 - opacity) * lift;
       el.style.opacity = String(opacity);
       el.style.transform = y === 0 ? "none" : `translateY(${y}px)`;
+      // A mostly faded beat lets clicks through to the visible one under it. `auto` is set
+      // inline so it also overrides the pinned pre-hydration CSS on `data-pinned-hidden`.
+      el.style.pointerEvents = opacity < 0.5 ? "none" : "auto";
     };
 
     apply(progress.get());
@@ -55,6 +60,7 @@ export function Beat({
       unsubscribe();
       el.style.removeProperty("opacity");
       el.style.removeProperty("transform");
+      el.style.removeProperty("pointer-events");
     };
   }, [animated, progress, start, end, fade, lift]);
 

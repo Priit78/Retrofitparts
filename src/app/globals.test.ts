@@ -73,14 +73,18 @@ describe("chapter CSS", () => {
       `@media (width >= 48rem) { ${base}:where(html.js *) { height: var(--chapter-len-md); } }`,
     );
     expect(pinned).toContain(`${base} > .chapter-stage:where(html.js *) { ${stage} }`);
-    expect(pinned).toContain(`${base} [data-pinned-hidden]:where(html.js *) { opacity: 0; }`);
+    expect(pinned).toContain(
+      `${base} [data-pinned-hidden]:where(html.js *) { opacity: 0; pointer-events: none; }`,
+    );
   });
 
   it('pins a data-pin-from="lg" chapter from 1024 px only', () => {
     const pinnedLg = split(PINNED_LG).inside;
     expect(pinnedLg).toContain(`${lg}:where(html.js *) { height: var(--chapter-len-md); }`);
     expect(pinnedLg).toContain(`${lg} > .chapter-stage:where(html.js *) { ${stage} }`);
-    expect(pinnedLg).toContain(`${lg} [data-pinned-hidden]:where(html.js *) { opacity: 0; }`);
+    expect(pinnedLg).toContain(
+      `${lg} [data-pinned-hidden]:where(html.js *) { opacity: 0; pointer-events: none; }`,
+    );
   });
 
   it("leaves chapters as plain blocks without JS or with reduced motion", () => {

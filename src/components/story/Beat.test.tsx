@@ -4,22 +4,44 @@ import { Beat } from "./Beat";
 import { ChapterProgressProvider } from "./ScrollChapter";
 
 describe("Beat", () => {
-  it("is fully visible inside its range", () => {
+  it("is fully visible and clickable inside its range", () => {
     render(
       <ChapterProgressProvider progress={0.5}>
-        <Beat range={[0.33, 0.66]}>Middle</Beat>
+        <Beat range={[0.33, 0.66]} initiallyHidden>
+          Middle
+        </Beat>
       </ChapterProgressProvider>,
     );
-    expect(screen.getByText("Middle")).toHaveStyle({ opacity: "1" });
+    const el = screen.getByText("Middle");
+    expect(el).toHaveStyle({ opacity: "1" });
+    // Inline, so it overrides the pinned pre-hydration CSS on a data-pinned-hidden beat.
+    expect(el.style.pointerEvents).toBe("auto");
   });
 
-  it("is hidden before its range", () => {
+  it("is hidden before its range, and lets clicks through to what is under it", () => {
     render(
       <ChapterProgressProvider progress={0.1}>
         <Beat range={[0.33, 0.66]}>Middle</Beat>
       </ChapterProgressProvider>,
     );
-    expect(screen.getByText("Middle")).toHaveStyle({ opacity: "0" });
+    expect(screen.getByText("Middle")).toHaveStyle({ opacity: "0", pointerEvents: "none" });
+  });
+
+  it("stops catching clicks once it is more than half faded", () => {
+    // range [0.2, 0.6], fade 0.05: opacity is 0.4 at p 0.22 and 0.6 at p 0.23.
+    const { unmount } = render(
+      <ChapterProgressProvider progress={0.22}>
+        <Beat range={[0.2, 0.6]}>Fading</Beat>
+      </ChapterProgressProvider>,
+    );
+    expect(screen.getByText("Fading").style.pointerEvents).toBe("none");
+    unmount();
+    render(
+      <ChapterProgressProvider progress={0.23}>
+        <Beat range={[0.2, 0.6]}>Fading</Beat>
+      </ChapterProgressProvider>,
+    );
+    expect(screen.getByText("Fading").style.pointerEvents).toBe("auto");
   });
 
   it("rises in from below and leaves upwards", () => {
@@ -47,6 +69,7 @@ describe("Beat", () => {
     const style = screen.getByText("Static").getAttribute("style") ?? "";
     expect(style).not.toContain("opacity");
     expect(style).not.toContain("transform");
+    expect(style).not.toContain("pointer-events");
   });
 
   it("drops its motion styles when the chapter stops animating", () => {
@@ -64,6 +87,7 @@ describe("Beat", () => {
     const style = screen.getByText("Toggled").getAttribute("style") ?? "";
     expect(style).not.toContain("opacity");
     expect(style).not.toContain("transform");
+    expect(style).not.toContain("pointer-events");
   });
 
   it("marks a later beat for the pinned pre-hydration CSS", () => {

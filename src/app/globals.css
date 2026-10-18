@@ -114,8 +114,8 @@
   /* Scroll-story chapters (see components/story/ScrollChapter.tsx): a tall track whose stage, one
      screen high, sticks to the top while the track scrolls past. Under the `pinned` condition
      only; otherwise both are plain blocks and every beat reads in order. `data-pinned-hidden`
-     hides later beats until the chapter animates them, so the stage never shows them stacked
-     before hydration. */
+     hides later beats, and keeps them from catching clicks, until the chapter animates them, so
+     the stage never shows them stacked before hydration. */
   .chapter:not([data-pin-from="lg"]) {
     @variant pinned {
       height: var(--chapter-len);
@@ -140,6 +140,7 @@
   .chapter:not([data-pin-from="lg"]) [data-pinned-hidden] {
     @variant pinned {
       opacity: 0;
+      pointer-events: none;
     }
   }
 
@@ -162,6 +163,7 @@
   .chapter[data-pin-from="lg"] [data-pinned-hidden] {
     @variant pinned-lg {
       opacity: 0;
+      pointer-events: none;
     }
   }
 }
