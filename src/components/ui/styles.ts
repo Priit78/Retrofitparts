@@ -16,3 +16,6 @@ export const monoLabel = `${mono} text-muted`;
 /** An inline text link: `fg`, with a quiet underline that firms up on hover. */
 export const textLink =
   "text-fg underline decoration-fg/35 underline-offset-4 transition-colors duration-300 hover:decoration-fg";
+
+/** A section's intro paragraph: under SectionHeading's title, or beside it in a chapter. */
+export const sectionIntro = "mt-5 max-w-[44ch] text-base leading-relaxed text-pretty text-soft md:text-[17px]";
