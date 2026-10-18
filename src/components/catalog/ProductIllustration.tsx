@@ -63,6 +63,8 @@ const shotFor: Record<CategoryId, Shot> = {
   adapters: "adapter",
   "led-lights": "led-light",
   fitting: "fitting",
+  // Temporary: R2e adds a dedicated render for complete headlight units.
+  headlights: "lens",
 };
 
 /* ----------------------------------------------------------------------------------------- */

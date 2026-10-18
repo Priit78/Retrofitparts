@@ -19,21 +19,20 @@ export function SectionHeading({
   return (
     <div className={cn("max-w-3xl", align === "center" && "mx-auto text-center", className)}>
       {eyebrow ? (
-        <p
-          className={cn(
-            "mb-4 flex items-center gap-3 font-mono text-xs tracking-[0.2em] text-accent uppercase",
-            align === "center" && "justify-center",
-          )}
-        >
-          <span aria-hidden className="h-px w-8 bg-accent/60" />
-          {eyebrow}
-        </p>
+        <p className="mb-4 font-mono text-xs tracking-[0.08em] text-muted uppercase">{eyebrow}</p>
       ) : null}
-      <Heading className="text-3xl leading-[1.05] font-semibold tracking-tight text-balance text-fg md:text-5xl">
+      <Heading className="text-[32px] leading-[1.05] font-semibold tracking-[-0.025em] text-balance text-fg md:text-[52px]">
         {title}
       </Heading>
       {intro ? (
-        <p className="mt-5 text-base leading-relaxed text-pretty text-muted md:text-lg">{intro}</p>
+        <p
+          className={cn(
+            "mt-5 max-w-[44ch] text-base leading-relaxed text-pretty text-soft md:text-[17px]",
+            align === "center" && "mx-auto",
+          )}
+        >
+          {intro}
+        </p>
       ) : null}
     </div>
   );

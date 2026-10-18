@@ -1,24 +1,29 @@
 @import "tailwindcss";
+/* Agent worktrees and scratch folders live inside the repo; never scan them for classes. */
+@source not "../../.claude";
+@source not "../../.superpowers";
 
 @theme {
-  --color-bg: #050607;
-  --color-surface: #0b0d10;
-  --color-surface-2: #12151a;
-  --color-line: rgb(255 255 255 / 0.08);
-  --color-fg: #f2f4f7;
-  --color-muted: #8a93a0;
-  --color-light: #e8f4ff;
-  --color-accent: #4cc3ff;
-  --color-halogen: #ffc46b;
+  /* Direction A "Dark refined": graphite, warm white, no glow. */
+  --color-bg: #0e1013;
+  --color-surface: #15181c;
+  --color-surface-2: #1b1f24;
+  --color-line: rgb(255 255 255 / 0.11);
+  --color-fg: #eeece8;
+  --color-soft: #c9cdd2;
+  --color-muted: #a2a6ac;
+  --color-light: #eeece8;
+  --color-accent: #d6d3cc;
+  --color-halogen: #d9a35b;
   --color-danger: #ff8a80;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @theme inline {
-  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+  --font-display: var(--font-albert), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-albert), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex), ui-monospace, monospace;
 }
 
 @layer base {
@@ -43,7 +48,7 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    font-stretch: 125%;
+    letter-spacing: -0.02em;
     overflow-wrap: anywhere;
     hyphens: auto;
   }
@@ -53,14 +58,14 @@
   }
 
   ::selection {
-    background-color: rgb(76 195 255 / 0.35);
+    background-color: rgb(238 236 232 / 0.25);
     color: var(--color-light);
   }
 
   :focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 3px;
-    border-radius: 4px;
+    border-radius: 2px;
   }
 }
 

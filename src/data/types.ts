@@ -10,7 +10,8 @@ export type CategoryId =
   | "lenses"
   | "shrouds"
   | "adapters"
-  | "fitting";
+  | "fitting"
+  | "headlights";
 
 export interface Category {
   id: CategoryId;

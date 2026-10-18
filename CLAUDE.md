@@ -24,13 +24,20 @@ memory of Next.js APIs.
   `src/content/site.ts`.
 - Sections are `export function Name({ locale }: { locale: Locale })` in
   `src/components/sections/`. Each is self-contained.
-- Colors come from theme tokens only (`bg`, `surface`, `surface-2`, `line`, `fg`, `muted`, `light`,
-  `accent`, `halogen`, `danger` for errors), defined in `src/app/globals.css`. Fonts: `font-display` (Archivo, expanded),
-  `font-sans` (Inter), `font-mono` (JetBrains Mono).
-- Animation uses `motion/react` and CSS. Every animation respects `prefers-reduced-motion`, and no
-  content may stay hidden if JS or animation doesn't run. Use `Reveal` for simple scroll entrances.
-  Never wrap above-the-fold or LCP content (the hero h1) in `Reveal`, and put hover transitions
-  on a child of a `Reveal` rather than on the element itself.
+- Design direction A "Dark refined" (`docs/superpowers/specs/2026-10-18-redesign-direction-a.md`):
+  graphite and warm white, photo-led, calm. **No glow**: no coloured box-shadow glows, text glow,
+  bloom, neon gradients, cursor-follow light or canvas effects. Radius 2 px. Prefer hairline
+  dividers over boxed cards.
+- Colors come from theme tokens only (`bg`, `surface`, `surface-2`, `line`, `fg`, `soft`, `muted`,
+  `light`, `accent`, `halogen` for "before" states, `danger` for errors), defined in
+  `src/app/globals.css`. Fonts: `font-display` and `font-sans` (Albert Sans), `font-mono` (IBM Plex
+  Mono, small uppercase labels).
+- Photos live in `src/assets/photos/` and render through `next/image` (static imports), with
+  bilingual alt text from content files. Sources are listed in `docs/CREDITS.md`.
+- Animation is quiet: `Reveal` entrances, the before/after slider, the process progress line and
+  the FAQ accordion. Every animation respects `prefers-reduced-motion`, and no content may stay
+  hidden if JS or animation doesn't run. Never wrap above-the-fold or LCP content (the hero h1) in
+  `Reveal`, and put hover transitions on a child of a `Reveal` rather than on the element itself.
 - Add `"use client"` only on leaf components that need it.
 - Use real facts only. No invented reviews, ratings, counts or performance figures.
 - No horizontal scroll at 360 px. Keep visible focus states and AA contrast.

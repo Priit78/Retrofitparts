@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, Inter, JetBrains_Mono } from "next/font/google";
+import { Albert_Sans, IBM_Plex_Mono } from "next/font/google";
 import { notFound } from "next/navigation";
 import "lenis/dist/lenis.css";
 import "../globals.css";
@@ -13,22 +13,16 @@ import { cn } from "@/lib/cn";
 import { isLocale, locales } from "@/lib/i18n";
 import { alternates, isIndexable, metadataRobots, siteUrl } from "@/lib/seo";
 
-const archivo = Archivo({
+const albert = Albert_Sans({
   subsets: ["latin", "latin-ext"],
-  axes: ["wdth"],
-  variable: "--font-archivo",
+  variable: "--font-albert",
   display: "swap",
 });
 
-const inter = Inter({
+const plex = IBM_Plex_Mono({
   subsets: ["latin", "latin-ext"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const jetbrains = JetBrains_Mono({
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-jetbrains",
+  weight: ["400", "500"],
+  variable: "--font-plex",
   display: "swap",
 });
 
@@ -40,7 +34,7 @@ export function generateStaticParams() {
 
 export const viewport: Viewport = {
   // Matches the `bg` token, so mobile browser chrome blends into the page.
-  themeColor: "#050607",
+  themeColor: "#0e1013",
 };
 
 /**
@@ -80,7 +74,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
   return (
     <html
       lang={locale}
-      className={cn(archivo.variable, inter.variable, jetbrains.variable)}
+      className={cn(albert.variable, plex.variable)}
       // The inline script below adds the `js` class before hydration.
       suppressHydrationWarning
     >
