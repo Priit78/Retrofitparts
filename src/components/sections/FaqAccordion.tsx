@@ -111,7 +111,7 @@ function FaqRow({ item, initiallyOpen }: { item: AccordionItem; initiallyOpen: b
         // answer from being clipped by overflow-hidden.
         className="-mx-2 overflow-hidden px-2 [.js_&[data-collapsed]]:invisible [.js_&[data-collapsed]]:h-0"
       >
-        <div className="max-w-[62ch] pt-0 pr-8 pb-7 text-base leading-relaxed text-pretty text-soft md:pr-10">
+        <div className="max-w-[62ch] pr-8 pb-7 text-base leading-relaxed text-pretty text-soft md:pr-10">
           {item.answer}
         </div>
       </div>

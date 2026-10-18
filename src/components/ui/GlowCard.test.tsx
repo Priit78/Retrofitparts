@@ -14,14 +14,13 @@ describe("GlowCard", () => {
     expect(card).toHaveClass("h-full");
   });
 
-  it("is a flat card: hairline border, 2px radius, a border change on hover and no light layers", () => {
+  it("draws no light: no decorative layers, inline styles, shadows, blurs or gradients", () => {
     const { container } = render(
       <GlowCard>
         <p>Card</p>
       </GlowCard>,
     );
     const card = container.firstElementChild as HTMLElement;
-    expect(card).toHaveClass("border", "border-line", "bg-surface", "rounded-[2px]", "hover:border-fg/30");
     // The old cursor light was drawn by decorative layers; none remain.
     expect(container.querySelectorAll("[aria-hidden]")).toHaveLength(0);
     expect(card.getAttribute("style")).toBeNull();

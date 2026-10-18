@@ -23,12 +23,12 @@ export const about = {
   /** The client's own photo, src/assets/photos/projector-bench.jpg. */
   photo: {
     alt: {
-      et: "Kaks põlevat Morimoto LED-projektorit lahtivõetud esitule korpuses töölaual",
-      en: "Two lit Morimoto LED projectors in a dismantled headlight housing on the workbench",
+      et: "Kaks põlevat Morimoto LED-projektorit lahtivõetud esitule korpuses laual",
+      en: "Two lit Morimoto LED projectors in an opened headlight housing on a bench",
     },
     caption: {
-      et: "Töökojas: Morimoto LED-projektorid",
-      en: "In the workshop: Morimoto LED projectors",
+      et: "Morimoto LED-projektorid lahtivõetud esitules",
+      en: "Morimoto LED projectors in an opened headlight",
     },
   },
   quote: {

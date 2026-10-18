@@ -78,13 +78,14 @@ export function About({ locale }: { locale: Locale }) {
 
             <Reveal delay={0.1} className="mt-12 md:mt-16">
               <h3 className="sr-only">{about.statsLabel[locale]}</h3>
-              <dl className="grid grid-cols-2 border-t border-line md:grid-cols-4">
+              {/* Two by two on phones and in the narrower lg column, one row of four otherwise. */}
+              <dl className="grid grid-cols-2 border-t border-line md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
                 {stats.map((stat, index) => (
                   <div
                     key={stat.id}
                     className={cn(
-                      "flex flex-col-reverse justify-end gap-2 py-6 pr-4 md:pt-7 md:pb-0",
-                      index < 2 && "border-b border-line md:border-b-0",
+                      "flex flex-col-reverse justify-end gap-2 py-6 pr-4 md:pt-7 md:pb-0 lg:pb-6 xl:pb-0",
+                      index < 2 && "border-b border-line md:border-b-0 lg:border-b xl:border-b-0",
                     )}
                   >
                     <dt className="text-sm leading-snug text-muted">{stat.label}</dt>

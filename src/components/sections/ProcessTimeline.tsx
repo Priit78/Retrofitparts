@@ -109,7 +109,6 @@ export function ProcessTimeline({ steps }: { steps: TimelineStep[] }) {
           return (
             <li
               key={step.id}
-              data-lit={lit ? "" : undefined}
               className="relative border-t border-line py-7 last:border-b md:grid md:grid-cols-[36px_1fr] md:gap-x-10 md:border-t-0 md:py-0 md:pb-20 md:last:border-b-0 md:last:pb-0"
             >
               <span
