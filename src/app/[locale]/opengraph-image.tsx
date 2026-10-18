@@ -1,5 +1,7 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
-import type { CSSProperties } from "react";
+import { hero } from "@/content/hero";
 import { seoCopy } from "@/content/seo";
 import { site } from "@/content/site";
 import { defaultLocale, isLocale, locales } from "@/lib/i18n";
@@ -11,29 +13,31 @@ export const contentType = "image/png";
 
 // Values of the theme tokens in globals.css. Satori cannot read CSS variables.
 const color = {
-  bg: "#050607",
-  surface: "#0b0d10",
-  surface2: "#12151a",
-  fg: "#f2f4f7",
-  muted: "#8a93a0",
-  light: "#e8f4ff",
-  accent: "#4cc3ff",
+  bg: "#0e1013",
+  fg: "#eeece8",
+  muted: "#a2a6ac",
 };
+/** `bg` at a given opacity, for the scrims over the photo. */
+const bg = (alpha: number) => `rgba(14,16,19,${alpha})`;
 
-// The lens: its centre on the canvas, and every layer a circle around that point.
-const lens = { x: 930, y: 315 };
+// Read once at build time; the images are prerendered for each locale. Literal paths, so the
+// output file trace lists exactly these files.
+const [photo, albert400, albert600] = await Promise.all([
+  readFile(join(process.cwd(), "src/assets/og/hero-og.jpg")),
+  readFile(join(process.cwd(), "src/assets/fonts/AlbertSans-400.ttf")),
+  readFile(join(process.cwd(), "src/assets/fonts/AlbertSans-600.ttf")),
+]);
+const photoSrc = `data:image/jpeg;base64,${photo.toString("base64")}`;
 
-function circle(diameter: number, style: CSSProperties): CSSProperties {
-  return {
-    position: "absolute",
-    left: lens.x - diameter / 2,
-    top: lens.y - diameter / 2,
-    width: diameter,
-    height: diameter,
-    borderRadius: 9999,
-    ...style,
-  };
-}
+/*
+ * `hero-og.jpg` is `photos/hero-headlight.jpg` prepared as this 1200×630 canvas, so it is drawn
+ * 1:1: the photo scaled to 920 px wide and anchored bottom right (30 px past the edge), its top
+ * 30 % faded into `bg`, film grain softened (6 px in the dark hood, 1.3 px on the lit headlight),
+ * dimmed 22 % towards `bg`, JPEG quality 68. Made once with PIL. The raw photo's grain made the
+ * PNG about 870 KB; prepared, it stays under 300 KB.
+ */
+
+const [wordFirst, ...wordRest] = site.name.split(" ");
 
 // A route handler does not inherit the layout's `generateStaticParams`, so it lists the locales itself.
 export const dynamicParams = false;
@@ -57,9 +61,17 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
           overflow: "hidden",
           background: color.bg,
           color: color.fg,
+          fontFamily: "Albert Sans",
         }}
       >
-        {/* Light spill into the room */}
+        <img
+          src={photoSrc}
+          alt=""
+          width={size.width}
+          height={size.height}
+          style={{ position: "absolute", left: 0, top: 0 }}
+        />
+        {/* Scrims: fade the photo into `bg` from the left and the bottom. */}
         <div
           style={{
             position: "absolute",
@@ -67,84 +79,58 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
             top: 0,
             width: "100%",
             height: "100%",
-            backgroundImage: `radial-gradient(circle at ${lens.x}px ${lens.y}px, rgba(76,195,255,0.26) 0px, rgba(76,195,255,0.09) 230px, rgba(76,195,255,0) 520px)`,
+            backgroundImage: [
+              `linear-gradient(90deg, ${bg(1)} 0%, ${bg(1)} 12%, ${bg(0.88)} 34%, ${bg(0.35)} 58%, ${bg(0)} 78%)`,
+              `linear-gradient(0deg, ${bg(0.75)} 0%, ${bg(0)} 30%)`,
+            ].join(", "),
           }}
         />
-        {/* Housing and bezel */}
-        <div
-          style={circle(440, {
-            backgroundImage: `radial-gradient(circle closest-side, ${color.surface} 0%, ${color.surface2} 100%)`,
-            border: "2px solid rgba(138,147,160,0.35)",
-          })}
-        />
-        <div
-          style={circle(370, {
-            background: "#07090b",
-            border: "1px solid rgba(255,255,255,0.1)",
-          })}
-        />
-        {/* The lit lens */}
-        <div
-          style={circle(380, {
-            backgroundImage:
-              "radial-gradient(circle closest-side, rgba(76,195,255,0.34) 0%, rgba(76,195,255,0.12) 72%, rgba(76,195,255,0) 100%)",
-          })}
-        />
-        <div
-          style={circle(310, {
-            backgroundImage: `radial-gradient(circle closest-side, #ffffff 0%, ${color.light} 22%, ${color.accent} 62%, rgba(76,195,255,0.8) 90%, rgba(76,195,255,0) 100%)`,
-          })}
-        />
-        <div
-          style={circle(76, {
-            background: "#ffffff",
-            boxShadow: "0 0 64px 26px rgba(232,244,255,0.85)",
-          })}
-        />
 
-        {/* Copy */}
         <div
           style={{
             position: "relative",
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
-            width: 660,
+            width: "100%",
             height: "100%",
-            padding: "72px 0 72px 80px",
+            padding: "64px 80px 72px",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <div
-              style={{
-                width: 12,
-                height: 12,
-                borderRadius: 9999,
-                background: color.accent,
-                boxShadow: "0 0 16px 3px rgba(76,195,255,0.7)",
-              }}
-            />
-            <div style={{ marginLeft: 18, fontSize: 26, letterSpacing: 7 }}>{site.name.toUpperCase()}</div>
+          <div style={{ display: "flex", fontSize: 30, letterSpacing: 0.6 }}>
+            <span style={{ fontWeight: 600 }}>{wordFirst}</span>
+            <span style={{ fontWeight: 400, color: color.muted, marginLeft: 8 }}>{wordRest.join(" ")}</span>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ width: 64, height: 3, background: color.accent }} />
-            <div
-              style={{
-                marginTop: 26,
-                fontSize: 24,
-                letterSpacing: 4,
-                textTransform: "uppercase",
-                color: color.muted,
-              }}
-            >
+            <div style={{ fontSize: 20, fontWeight: 400, letterSpacing: 2.4, textTransform: "uppercase", color: color.muted }}>
               {seoCopy[locale].ogKicker}
             </div>
-            <div style={{ marginTop: 18, fontSize: 66, lineHeight: 1.08, textWrap: "balance" }}>{site.tagline[locale]}</div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                marginTop: 22,
+                fontSize: 88,
+                fontWeight: 600,
+                lineHeight: 0.98,
+                letterSpacing: -3,
+              }}
+            >
+              {hero.title[locale].map((line) => (
+                <span key={line}>{line}</span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
     ),
-    { ...size },
+    {
+      ...size,
+      fonts: [
+        { name: "Albert Sans", data: albert400, weight: 400, style: "normal" },
+        { name: "Albert Sans", data: albert600, weight: 600, style: "normal" },
+      ],
+    },
   );
 }

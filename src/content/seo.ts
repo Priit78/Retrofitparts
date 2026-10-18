@@ -15,7 +15,7 @@ export interface SeoCopy {
   description: string;
   /** Open Graph locale. */
   ogLocale: string;
-  /** Small line above the tagline on the social-sharing image. */
+  /** Small line above the hero h1 on the social-sharing image. */
   ogKicker: string;
 }
 

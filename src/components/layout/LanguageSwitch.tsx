@@ -26,8 +26,8 @@ function LanguageLinks({ locale, query }: { locale: Locale; query: string }) {
         aria-label={`${visible} – ${layout.language.names[code]}`}
         aria-current={current ? "true" : undefined}
         className={cn(
-          "inline-flex h-8 min-w-10 items-center justify-center rounded-full px-2.5 font-mono text-[11px] font-medium tracking-[0.14em] uppercase transition-[color,background-color,border-color] duration-300",
-          current ? "bg-white/[0.08] text-fg" : "text-muted hover:text-fg",
+          "inline-flex h-8 min-w-9 items-center justify-center rounded-[1px] px-2 font-mono text-xs font-medium tracking-[0.08em] uppercase transition-colors duration-300",
+          current ? "bg-fg/10 text-fg" : "text-muted hover:text-fg",
         )}
       >
         {visible}
@@ -42,14 +42,14 @@ function LanguageLinksWithQuery({ locale }: { locale: Locale }) {
   return <LanguageLinks locale={locale} query={query ? `?${query}` : ""} />;
 }
 
-/** ET / EN pill. Links to the same page in the other language. */
+/** ET / EN switch. Links to the same page in the other language. */
 export function LanguageSwitch({ locale, className }: { locale: Locale; className?: string }) {
   return (
     <div
       role="group"
       aria-label={layout.language.label[locale]}
       className={cn(
-        "inline-flex items-center rounded-full border border-line bg-white/[0.02] p-0.5",
+        "inline-flex items-center rounded-[2px] border border-line p-0.5",
         className,
       )}
     >
