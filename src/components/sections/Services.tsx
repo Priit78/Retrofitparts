@@ -1,100 +1,66 @@
-import {
-  Aperture,
-  ArrowRight,
-  Droplets,
-  Focus,
-  PackageSearch,
-  Rotate3d,
-  SunMedium,
-  Wrench,
-  Zap,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { common } from "@/content/common";
-import { formatEur, services, type ServiceId } from "@/content/services";
+import { formatEur, services } from "@/content/services";
 import { site } from "@/content/site";
 import { Container } from "@/components/ui/Container";
 import { fillTemplate } from "@/components/ui/fillTemplate";
-import { GlowCard } from "@/components/ui/GlowCard";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import type { Locale } from "@/lib/i18n";
 
-const icons: Record<ServiceId, LucideIcon> = {
-  "projector-retrofit": Aperture,
-  "lens-replacement": Focus,
-  restoration: Wrench,
-  "led-high-beams": SunMedium,
-  afs: Rotate3d,
-  resealing: Droplets,
-  "xenon-repair": Zap,
-  "special-orders": PackageSearch,
-};
+const mono = "font-mono text-xs tracking-[0.08em] uppercase text-muted";
+const link =
+  "text-fg underline decoration-fg/35 underline-offset-4 transition-colors hover:decoration-fg";
 
-const mono = "font-mono text-[11px] tracking-[0.18em] uppercase";
-
-function PriceTable({ locale }: { locale: Locale }) {
+/** The installation price "menu": one hairline row per vehicle type, prices from site.ts. */
+function PriceMenu({ locale }: { locale: Locale }) {
   const t = services.priceTable;
-  const emailLink = (
-    <a
-      href={`mailto:${site.email}`}
-      className="text-light underline decoration-accent/40 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
-    >
+  const cell = "py-[22px] align-baseline";
+  const email = (
+    <a href={`mailto:${site.email}`} className={link}>
       {site.email}
     </a>
   );
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-line bg-surface">
-      {/* A strip of light along the top edge, and a faint pool of it below. */}
-      <span
-        aria-hidden
-        className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-accent/80 to-transparent"
-      />
-      <span
-        aria-hidden
-        className="pointer-events-none absolute -top-24 left-1/2 h-48 w-3/4 -translate-x-1/2 rounded-full bg-accent/10 blur-3xl"
-      />
-
-      <table className="relative w-full border-collapse text-left">
-        <caption className="px-5 pt-6 pb-2 text-left sm:px-7 sm:pt-7">
-          <span className="flex flex-wrap items-center justify-between gap-3">
-            <span className="text-lg font-semibold text-fg [font-stretch:125%] font-display">
-              {t.caption[locale]}
-            </span>
-            <span className={`${mono} rounded-full border border-accent/30 px-3 py-1 text-accent`}>
-              {t.vatBadge[locale]}
-            </span>
-          </span>
-        </caption>
+    <div>
+      <table className="w-full border-collapse text-left tabular-nums">
+        <caption className="sr-only">{services.title[locale]}</caption>
+        {/* Column names for screen readers only: the cells have no padding, so the row has no height. */}
         <thead>
-          <tr className={`${mono} border-b border-line text-muted`}>
-            <th scope="col" className="px-5 py-3 font-normal sm:px-7">
-              {t.colVehicle[locale]}
+          <tr>
+            <th scope="col" className="p-0 font-normal">
+              <span className="sr-only">{t.colVehicle[locale]}</span>
             </th>
-            <th scope="col" className="hidden px-4 py-3 font-normal sm:table-cell">
-              {t.colDuration[locale]}
+            <th scope="col" className="hidden p-0 font-normal sm:table-cell">
+              <span className="sr-only">{t.colDuration[locale]}</span>
             </th>
-            <th scope="col" className="px-5 py-3 text-right font-normal sm:px-7">
-              {t.colPrice[locale]}
+            <th scope="col" className="p-0 font-normal">
+              <span className="sr-only">{t.colPrice[locale]}</span>
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="border-t border-line">
           {site.pricing.map((item) => {
             const duration = item.duration?.[locale] ?? t.durationOnRequest[locale];
             return (
-              <tr key={item.id} className="border-b border-line last:border-b-0">
-                <th scope="row" className="px-5 py-5 align-middle font-normal sm:px-7">
-                  <span className="block text-[15px] leading-snug text-fg">{item.label[locale]}</span>
-                  <span className="mt-1.5 block font-mono text-xs text-muted sm:hidden">{duration}</span>
+              <tr key={item.id} className="border-b border-line">
+                <th scope="row" className={`${cell} pr-4 font-normal sm:pr-6`}>
+                  <span className="block text-base leading-snug text-fg md:text-[17px]">
+                    {item.label[locale]}
+                  </span>
+                  <span className="mt-1.5 block text-sm text-muted sm:hidden">{duration}</span>
                 </th>
-                <td className="hidden px-4 py-5 align-middle font-mono text-[13px] whitespace-nowrap text-muted sm:table-cell">
+                <td
+                  className={`${cell} hidden w-px pr-6 text-right text-sm whitespace-nowrap text-muted sm:table-cell`}
+                >
                   {duration}
                 </td>
-                <td className="px-5 py-5 text-right align-middle whitespace-nowrap sm:px-7">
-                  <span className={`${mono} block text-muted`}>{t.from[locale]}</span>
-                  <span className="font-display text-2xl leading-none font-semibold text-light [font-stretch:125%] md:text-3xl">
+                <td className={`${cell} w-px text-right whitespace-nowrap`}>
+                  <span className="block min-w-[6ch] text-xs tracking-[0.06em] text-muted uppercase">
+                    {t.from[locale]}
+                  </span>
+                  <span className="block text-[22px] leading-tight font-semibold text-fg">
                     {formatEur(locale, item.priceEur)}
                   </span>
                 </td>
@@ -103,69 +69,71 @@ function PriceTable({ locale }: { locale: Locale }) {
           })}
         </tbody>
       </table>
-
-      <div className="relative space-y-1.5 border-t border-line bg-bg/40 px-5 py-5 text-sm leading-relaxed text-muted sm:px-7">
-        <p>{t.footnote[locale]}</p>
-        <p>{fillTemplate(t.notSure[locale], { email: emailLink })}</p>
-      </div>
+      <p className="mt-6 text-sm leading-relaxed text-muted">
+        {fillTemplate(t.notSure[locale], { email })}
+      </p>
     </div>
   );
 }
 
 export function Services({ locale }: { locale: Locale }) {
+  const list = services.list;
+
   return (
-    <section id="services" className="relative py-24 md:py-36">
+    <section id="services" className="relative py-24 md:py-30">
       <Container>
-        <div className="grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-16">
-          <Reveal className="lg:col-span-6">
+        <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+          <Reveal className="lg:col-span-5">
             <SectionHeading
               eyebrow={services.eyebrow[locale]}
               title={services.title[locale]}
               intro={services.intro[locale]}
             />
           </Reveal>
-          <Reveal className="lg:col-span-6" delay={0.1}>
-            <PriceTable locale={locale} />
+          <Reveal className="lg:col-span-7" delay={0.08}>
+            <PriceMenu locale={locale} />
           </Reveal>
         </div>
 
-        <ul className="mt-16 grid gap-4 sm:grid-cols-2 md:mt-20 lg:grid-cols-4">
-          {services.items.map((item, index) => {
-            const Icon = icons[item.id];
-            const titleId = `service-${item.id}`;
-            return (
-              <Reveal as="li" key={item.id} delay={(index % 4) * 0.06} className="h-full">
-                <GlowCard className="h-full">
-                  <article className="flex h-full flex-col p-5 sm:p-6">
-                    <div className="flex items-start justify-between">
-                      <span className="grid size-11 place-items-center rounded-xl border border-line bg-surface-2 text-accent transition-colors duration-500 group-hover/glow:border-accent/40">
-                        <Icon aria-hidden className="size-5" strokeWidth={1.5} />
-                      </span>
-                      <span aria-hidden className="font-mono text-xs text-muted">
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
-                    </div>
-                    <h3 id={titleId} className="mt-5 text-lg leading-snug font-semibold text-fg sm:mt-8">
-                      {item.title[locale]}
-                    </h3>
-                    <p className="mt-3 text-sm leading-relaxed text-muted">{item.body[locale]}</p>
-                    <a
-                      href="#contact"
-                      aria-describedby={titleId}
-                      className="group/cta mt-auto inline-flex items-center gap-2 self-start pt-5 text-sm font-medium text-light transition-colors hover:text-accent sm:pt-7"
-                    >
-                      {common.requestOffer[locale]}
-                      <ArrowRight
-                        aria-hidden
-                        className="size-4 transition-transform duration-300 ease-out-expo group-hover/cta:translate-x-1"
-                      />
-                    </a>
-                  </article>
-                </GlowCard>
-              </Reveal>
-            );
-          })}
-        </ul>
+        <div className="mt-20 grid gap-10 md:mt-28 lg:grid-cols-12 lg:gap-16">
+          <Reveal className="lg:col-span-5">
+            <p className={mono}>{list.eyebrow[locale]}</p>
+            <h3 className="mt-4 max-w-[22ch] text-2xl leading-tight font-semibold tracking-[-0.02em] text-balance text-fg md:text-[28px]">
+              {list.title[locale]}
+            </h3>
+            <p className="mt-4 max-w-[44ch] text-base leading-relaxed text-pretty text-soft">
+              {list.intro[locale]}
+            </p>
+          </Reveal>
+
+          <Reveal className="lg:col-span-7" delay={0.08}>
+            <ul className="grid sm:grid-cols-2 sm:gap-x-10">
+              {services.items.map((item) => (
+                <li
+                  key={item.id}
+                  className="border-b border-line py-5 first:border-t sm:nth-2:border-t md:py-6"
+                >
+                  <h4 className="text-base leading-snug font-semibold text-fg md:text-[17px]">
+                    {item.title[locale]}
+                  </h4>
+                  <p className="mt-1.5 text-[15px] leading-relaxed text-pretty text-muted">
+                    {item.body[locale]}
+                  </p>
+                </li>
+              ))}
+            </ul>
+            <a
+              href="#contact"
+              className="group/cta mt-8 inline-flex items-center gap-2 text-[15px] font-medium text-fg underline decoration-transparent underline-offset-4 transition-colors hover:decoration-fg/50"
+            >
+              {common.requestOffer[locale]}
+              <ArrowRight
+                aria-hidden
+                className="size-4 transition-transform duration-300 ease-out-expo group-hover/cta:translate-x-1 motion-reduce:transition-none"
+              />
+            </a>
+          </Reveal>
+        </div>
       </Container>
     </section>
   );

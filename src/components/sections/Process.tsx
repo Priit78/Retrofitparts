@@ -20,14 +20,9 @@ export function Process({ locale }: { locale: Locale }) {
   }));
 
   return (
-    <section id="process" className="relative isolate overflow-clip py-24 md:py-36">
-      {/* A faint cone of light falling from the top of the section. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[36rem] bg-[radial-gradient(60%_100%_at_30%_0%,color-mix(in_oklab,var(--color-accent)_9%,transparent),transparent_70%)]"
-      />
+    <section id="process" className="relative border-t border-line py-24 md:py-30">
       <Container>
-        <div className="grid gap-16 lg:grid-cols-12 lg:gap-16">
+        <div className="grid gap-12 md:gap-16 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <div className="lg:sticky lg:top-32">
               <Reveal>
@@ -45,7 +40,7 @@ export function Process({ locale }: { locale: Locale }) {
               </Reveal>
             </div>
           </div>
-          <div className="lg:col-span-7 lg:pt-4">
+          <div className="lg:col-span-7 lg:pt-2">
             <ProcessTimeline steps={steps} />
           </div>
         </div>
