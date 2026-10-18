@@ -48,7 +48,7 @@ export function useChapter(): ChapterState {
  * Whether `query` matches, kept live. The server snapshot makes it `false` on the server and
  * during hydration, so this is "hydrated and matching".
  */
-function useHydratedMediaQuery(query: string): boolean {
+export function useHydratedMediaQuery(query: string): boolean {
   const subscribe = useCallback(
     (onChange: () => void) => {
       const mql = window.matchMedia(query);

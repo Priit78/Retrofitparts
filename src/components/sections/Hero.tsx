@@ -27,6 +27,17 @@ const CSS = `
 
 const delay = (seconds: number) => ({ "--hero-delay": `${seconds}s` }) as CSSProperties;
 
+/*
+ * Where the trust row shows. The stage holds it, except when the stage is pinned (one screen
+ * high) and has no room for it: below `lg`, where the photo band takes the space under the copy,
+ * and from `lg` on screens under 40rem (640 px) high (the centred copy and the row need up to
+ * 638 px, measured at 1024–1920 px wide in both locales). There the copy after the chapter shows
+ * instead, in the flow, and never fades. The two are exactly complementary (Hero.test.tsx checks
+ * it), so the row reaches the accessibility tree once.
+ */
+export const TRUST_IN_STAGE = "pinned:hidden pinned:lg:[@media(min-height:40rem)]:block";
+export const TRUST_AFTER_CHAPTER = "hidden pinned:block pinned:lg:[@media(min-height:40rem)]:hidden";
+
 function TrustList({ locale }: { locale: Locale }) {
   return (
     // role="list": Safari drops list semantics from a `list-style: none` list.
@@ -63,15 +74,14 @@ export function Hero({ locale }: { locale: Locale }) {
         labelledBy="hero-title"
         length={{ base: 160, md: 190 }}
         // No `relative` here: it would override the pinned stage's `position: sticky`. Pinned,
-        // the stage is at least one screen high and grows with its content rather than clip it.
-        stageClassName="isolate flex min-h-[640px] flex-col overflow-hidden md:min-h-[720px] pinned:h-auto pinned:min-h-svh"
+        // the stage is exactly one screen high, so it stays pinned to the end of its track.
+        stageClassName="isolate flex min-h-[640px] flex-col overflow-hidden md:min-h-[720px] pinned:h-svh pinned:min-h-0"
       >
         <HeroStage locale={locale} />
       </ScrollChapter>
 
-      {/* Pinned phones: the stage has no room for the trust row, so it follows the chapter in
-          the flow, and never fades. Every other time the stage's own copy shows. */}
-      <Container className="hidden max-md:pinned:block">
+      {/* Where the pinned stage has no room for the trust row (see TRUST_IN_STAGE). */}
+      <Container className={TRUST_AFTER_CHAPTER}>
         <TrustList locale={locale} />
       </Container>
     </>
@@ -86,18 +96,19 @@ export function HeroStage({ locale }: { locale: Locale }) {
 
       {/*
         The photo zone. It ends at the trust row, so the row always sits on plain `bg`. A pinned
-        stage is at least a screen high: from `lg` the copy is centred in it; below `lg` the copy
-        stays at the top and the photo band grows into the space left under it.
+        stage is one screen high: from `lg` the copy is centred in it; below `lg` the copy stays
+        at the top and the photo band takes the space left under it.
       */}
       <div className="relative isolate flex flex-1 flex-col justify-end pinned:max-lg:justify-start pinned:lg:justify-center">
         {/*
           The photo. Below `lg` it is a band at the bottom of the zone, which clips the photo's
           dark top: the clear photo starts 20–24 px below the buttons however long the copy runs.
-          (Pinned, the band follows the copy in the flow, 16 px up, as tall as the space allows.)
+          (Pinned, the band follows the copy in the flow, 16 px up, and takes whatever height is
+          left, down to none on the shortest screens; the photo box grows with a taller band.)
           From `lg` it fills the zone's right side and fades into `bg` on its left. The scrims
           stay put while the photo zooms.
         */}
-        <div className="absolute inset-x-0 bottom-0 -z-10 h-56 overflow-hidden sm:h-[18.75rem] lg:inset-y-0 lg:left-auto lg:h-auto lg:w-[80%] pinned:max-lg:relative pinned:max-lg:order-last pinned:max-lg:-mt-4 pinned:max-lg:grow">
+        <div className="absolute inset-x-0 bottom-0 -z-10 h-56 overflow-hidden sm:h-[18.75rem] lg:inset-y-0 lg:left-auto lg:h-auto lg:w-[80%] pinned:max-lg:relative pinned:max-lg:order-last pinned:max-lg:-mt-4 pinned:max-lg:h-auto pinned:max-lg:min-h-0 pinned:max-lg:flex-1">
           <HeroZoom className="absolute inset-x-0 bottom-0 h-[22rem] lg:top-0 lg:h-auto pinned:max-lg:min-h-full">
             <Image
               src={heroPhoto}
@@ -107,7 +118,11 @@ export function HeroStage({ locale }: { locale: Locale }) {
               // Below 626 px the 22 rem box is cover-scaled to its height, so the photo renders
               // 626 px wide; above that it spans the viewport (80 % of it from `lg`, plus crop).
               // Anchored right below `lg`, so the whole headlight sits in the band.
-              sizes="(min-width: 39.125rem) 100vw, 626px"
+              // Pinned below `lg` (the PINNED_QUERY condition), the box grows with the band: the
+              // screen less the copy, which ends at least 416 px down, plus the 16 px overlap.
+              // Cover-scaled at 16:9 that is 1.7778 × (100vh − 400 px) wide. A browser that
+              // can't read `max()` here skips that entry and uses the two after it.
+              sizes="(min-width: 64rem) 100vw, (prefers-reduced-motion: no-preference) and (min-height: 32rem) max(626px, 100vw, calc(177.78vh - 711px)), (min-width: 39.125rem) 100vw, 626px"
               className="object-cover object-[100%_90%] lg:object-[100%_60%]"
             />
           </HeroZoom>
@@ -121,9 +136,11 @@ export function HeroStage({ locale }: { locale: Locale }) {
         />
         <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-12 bg-linear-to-t from-bg to-transparent lg:h-1/3" />
 
-        {/* Pinned from `lg`, the paddings are only minimums around the centred copy, kept small
-            so the trust row still shows at p = 0 on laptop screens about 650 px high. */}
-        <Container className="pt-28 pb-52 sm:pt-32 sm:pb-70 lg:pt-40 lg:pb-[90px] pinned:max-lg:pb-0 pinned:lg:pt-24 pinned:lg:pb-12">
+        {/* Pinned, the copy fits one screen down to the 512 px pinning floor. From `lg` the
+            paddings are only minimums around the centred copy: it clears the 80 px header, and
+            keeps 48 px above the trust row when the stage holds it (16 px to the screen's edge
+            when it doesn't). Below `lg`, screens up to 544 px high get 16 px less top room. */}
+        <Container className="pt-28 pb-52 sm:pt-32 sm:pb-70 lg:pt-40 lg:pb-[90px] pinned:max-lg:pb-0 pinned:max-lg:[@media(max-height:34rem)]:pt-20 pinned:lg:pt-20 pinned:lg:pb-4 pinned:lg:[@media(min-height:40rem)]:pb-12">
           {/* The copy drifts up and fades out between p 0.08 and 0.38. The buttons stay inside:
               focusing one after scrolling brings the copy back into view. */}
           <Beat range={[0, 0.38]} fade={0.3} lift={50}>
@@ -162,9 +179,8 @@ export function HeroStage({ locale }: { locale: Locale }) {
         </Container>
       </div>
 
-      {/* Fades out between p 0.05 and 0.30. Hidden on pinned phones, where the copy after the
-          chapter shows instead. */}
-      <Beat range={[0, 0.3]} fade={0.25} className="max-md:pinned:hidden">
+      {/* Fades out between p 0.05 and 0.30, where the pinned stage holds it (TRUST_IN_STAGE). */}
+      <Beat range={[0, 0.3]} fade={0.25} className={TRUST_IN_STAGE}>
         <Container>
           <TrustList locale={locale} />
         </Container>
@@ -172,16 +188,17 @@ export function HeroStage({ locale }: { locale: Locale }) {
 
       {/*
         The second line fades in between p 0.42 and 0.66 and stays. Pinned, it overlays the
-        first screen of the stage: near the top on phones, centred from `md`. Static, it closes
-        the hero in the flow, before the problem chapter.
+        stage: near the top below `lg`, where the copy was (the photo band is under it), and
+        centred from `lg`, beside the photo. Static, it closes the hero in the flow, before the
+        problem chapter.
       */}
       <Beat
         range={[0.42, 1.01]}
         fade={0.24}
         initiallyHidden
-        className="pinned:absolute pinned:inset-x-0 pinned:top-0 pinned:flex pinned:h-svh pinned:items-start pinned:md:items-center"
+        className="pinned:absolute pinned:inset-x-0 pinned:top-0 pinned:flex pinned:h-svh pinned:items-start pinned:lg:items-center"
       >
-        <Container className="py-16 md:py-24 pinned:pt-28 pinned:pb-0 pinned:sm:pt-32 pinned:md:pt-0">
+        <Container className="py-16 md:py-24 pinned:pt-28 pinned:pb-0 pinned:sm:pt-32 pinned:lg:pt-0">
           <p className="max-w-[14ch] text-[clamp(34px,5vw,64px)] leading-[1.05] font-semibold tracking-[-0.03em] text-balance text-fg">
             {story.heroNext[locale]}
           </p>

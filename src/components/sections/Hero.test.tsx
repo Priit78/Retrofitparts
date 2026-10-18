@@ -5,7 +5,7 @@ import { hero } from "@/content/hero";
 import { site } from "@/content/site";
 import { story } from "@/content/story";
 import type { Locale } from "@/lib/i18n";
-import { Hero, HeroStage } from "./Hero";
+import { Hero, HeroStage, TRUST_AFTER_CHAPTER, TRUST_IN_STAGE } from "./Hero";
 
 /** The opacity an element renders at: its own inline opacity times its ancestors'. */
 function opacityOf(el: HTMLElement): number {
@@ -157,6 +157,48 @@ describe("Hero chapter", () => {
     stageAt(0.5, "en", seek);
     screen.getByRole("link", { name: "Request an offer" }).focus();
     expect(seek).toHaveBeenCalledWith(0);
+  });
+
+  it("leaves the h1 untouched at p = 0: no inline transform or partial opacity above it", () => {
+    const { container } = stageAt(0);
+    const h1 = screen.getByRole("heading", { level: 1 });
+    for (let node: HTMLElement | null = h1; node && node !== container; node = node.parentElement) {
+      expect(["", "none"], node.tagName).toContain(node.style.transform);
+      expect(node.style.opacity === "" || Number(node.style.opacity) >= 1, node.tagName).toBe(true);
+    }
+  });
+
+  it("shows exactly one trust row in every mode: the two copies' classes are complementary", () => {
+    const { container } = render(<Hero locale="et" />);
+    const [inStage, after] = trustLists("et");
+    const stageCopy = inStage.closest<HTMLElement>(".chapter-stage > *")!;
+    const afterCopy = after.parentElement!;
+    expect(container.querySelector("section#top")?.nextElementSibling).toBe(afterCopy);
+    for (const cls of TRUST_IN_STAGE.split(" ")) expect(stageCopy).toHaveClass(cls);
+    for (const cls of TRUST_AFTER_CHAPTER.split(" ")) expect(afterCopy).toHaveClass(cls);
+
+    // Displayed or not, per mode: the last matching rule of base < pinned < pinned and roomy wins.
+    type Mode = "static" | "pinned" | "roomy";
+    const order: Mode[] = ["static", "pinned", "roomy"];
+    const roomy = /^pinned:lg:\[@media\(min-height:[\d.]+rem\)\]:/;
+    const rules = (classes: string) =>
+      classes.split(" ").map((cls) => {
+        const mode: Mode = roomy.test(cls) ? "roomy" : cls.startsWith("pinned:") ? "pinned" : "static";
+        return { mode, shown: !cls.endsWith("hidden"), prefix: roomy.exec(cls)?.[0] };
+      });
+    const shownIn = (classes: string, mode: Mode) =>
+      rules(classes)
+        .filter((rule) => order.indexOf(rule.mode) <= order.indexOf(mode))
+        .sort((a, b) => order.indexOf(a.mode) - order.indexOf(b.mode))
+        .reduce((shown, rule) => rule.shown, true);
+    for (const mode of order) {
+      expect([shownIn(TRUST_IN_STAGE, mode), shownIn(TRUST_AFTER_CHAPTER, mode)], mode).toEqual(
+        mode === "pinned" ? [false, true] : [true, false],
+      );
+    }
+    // Both use the same height threshold.
+    const prefixes = (classes: string) => rules(classes).flatMap((rule) => rule.prefix ?? []);
+    expect(new Set([...prefixes(TRUST_IN_STAGE), ...prefixes(TRUST_AFTER_CHAPTER)]).size).toBe(1);
   });
 
   it("keeps the phone trust row after the stage, outside the faded beats", () => {
