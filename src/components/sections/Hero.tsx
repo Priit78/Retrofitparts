@@ -1,11 +1,15 @@
 import Image from "next/image";
 import { Fragment, type CSSProperties } from "react";
 import heroPhoto from "@/assets/photos/hero-headlight.jpg";
+import { Beat } from "@/components/story/Beat";
+import { HeroZoom } from "@/components/story/HeroZoom";
+import { ScrollChapter } from "@/components/story/ScrollChapter";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { monoLabel } from "@/components/ui/styles";
 import { common } from "@/content/common";
 import { hero } from "@/content/hero";
+import { story } from "@/content/story";
 import { localePath, type Locale } from "@/lib/i18n";
 
 /*
@@ -23,24 +27,78 @@ const CSS = `
 
 const delay = (seconds: number) => ({ "--hero-delay": `${seconds}s` }) as CSSProperties;
 
+function TrustList({ locale }: { locale: Locale }) {
+  return (
+    // role="list": Safari drops list semantics from a `list-style: none` list.
+    <ul
+      role="list"
+      aria-label={hero.trustLabel[locale]}
+      className="hero-fade grid grid-cols-2 border-t border-line lg:grid-cols-4"
+      style={delay(0.55)}
+    >
+      {hero.trust.map((item) => (
+        <li
+          key={item.id}
+          className="min-w-0 border-line py-5 pr-4 text-sm leading-normal text-muted max-lg:nth-[n+3]:border-t lg:border-l lg:px-5 lg:pt-[22px] lg:pb-[30px] lg:first:border-l-0 lg:first:pl-0"
+        >
+          <span className="mb-1 block text-[15px] font-semibold text-fg">{item.title[locale]}</span>
+          {item.detail[locale]}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/**
+ * The landing hero, the first chapter of the scroll story ("Light"). While it is pinned, the
+ * photo zooms towards the headlight, the copy and the trust row fade out, and a second line
+ * fades in. At p = 0 everything is fully visible, and without JS or with reduced motion it is
+ * the plain hero with the second line after it.
+ */
 export function Hero({ locale }: { locale: Locale }) {
   return (
-    <section
-      id="top"
-      aria-labelledby="hero-title"
-      className="relative isolate flex min-h-[640px] flex-col overflow-hidden md:min-h-[720px]"
-    >
+    <>
+      <ScrollChapter
+        id="top"
+        labelledBy="hero-title"
+        length={{ base: 160, md: 190 }}
+        // No `relative` here: it would override the pinned stage's `position: sticky`. Pinned,
+        // the stage is at least one screen high and grows with its content rather than clip it.
+        stageClassName="isolate flex min-h-[640px] flex-col overflow-hidden md:min-h-[720px] pinned:h-auto pinned:min-h-svh"
+      >
+        <HeroStage locale={locale} />
+      </ScrollChapter>
+
+      {/* Pinned phones: the stage has no room for the trust row, so it follows the chapter in
+          the flow, and never fades. Every other time the stage's own copy shows. */}
+      <Container className="hidden max-md:pinned:block">
+        <TrustList locale={locale} />
+      </Container>
+    </>
+  );
+}
+
+/** The hero chapter's stage. Exported for tests, which render it at a fixed progress. */
+export function HeroStage({ locale }: { locale: Locale }) {
+  return (
+    <>
       <style>{CSS}</style>
 
-      {/* The photo zone. It ends at the trust row, so the row always sits on plain `bg`. */}
-      <div className="relative isolate flex flex-1 flex-col justify-end">
+      {/*
+        The photo zone. It ends at the trust row, so the row always sits on plain `bg`. A pinned
+        stage is at least a screen high: from `lg` the copy is centred in it; below `lg` the copy
+        stays at the top and the photo band grows into the space left under it.
+      */}
+      <div className="relative isolate flex flex-1 flex-col justify-end pinned:max-lg:justify-start pinned:lg:justify-center">
         {/*
           The photo. Below `lg` it is a band at the bottom of the zone, which clips the photo's
           dark top: the clear photo starts 20–24 px below the buttons however long the copy runs.
-          From `lg` it fills the zone's right side and fades into `bg` on its left.
+          (Pinned, the band follows the copy in the flow, 16 px up, as tall as the space allows.)
+          From `lg` it fills the zone's right side and fades into `bg` on its left. The scrims
+          stay put while the photo zooms.
         */}
-        <div className="absolute inset-x-0 bottom-0 -z-10 h-56 overflow-hidden sm:h-[18.75rem] lg:inset-y-0 lg:left-auto lg:h-auto lg:w-[80%]">
-          <div className="absolute inset-x-0 bottom-0 h-[22rem] lg:top-0 lg:h-auto">
+        <div className="absolute inset-x-0 bottom-0 -z-10 h-56 overflow-hidden sm:h-[18.75rem] lg:inset-y-0 lg:left-auto lg:h-auto lg:w-[80%] pinned:max-lg:relative pinned:max-lg:order-last pinned:max-lg:-mt-4 pinned:max-lg:grow">
+          <HeroZoom className="absolute inset-x-0 bottom-0 h-[22rem] lg:top-0 lg:h-auto pinned:max-lg:min-h-full">
             <Image
               src={heroPhoto}
               alt={hero.photoAlt[locale]}
@@ -52,7 +110,7 @@ export function Hero({ locale }: { locale: Locale }) {
               sizes="(min-width: 39.125rem) 100vw, 626px"
               className="object-cover object-[100%_90%] lg:object-[100%_60%]"
             />
-          </div>
+          </HeroZoom>
           <div aria-hidden className="absolute inset-x-0 top-0 h-10 bg-linear-to-b from-bg to-transparent lg:hidden" />
           <div aria-hidden className="absolute inset-y-0 left-0 hidden w-2/5 bg-linear-to-r from-bg to-transparent lg:block" />
         </div>
@@ -63,60 +121,72 @@ export function Hero({ locale }: { locale: Locale }) {
         />
         <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-12 bg-linear-to-t from-bg to-transparent lg:h-1/3" />
 
-        <Container className="pt-28 pb-52 sm:pt-32 sm:pb-70 lg:pt-40 lg:pb-[90px]">
-          <p className={`hero-fade ${monoLabel}`} style={delay(0.1)}>
-            {hero.eyebrow[locale]}
-          </p>
+        {/* Pinned from `lg`, the paddings are only minimums around the centred copy, kept small
+            so the trust row still shows at p = 0 on laptop screens about 650 px high. */}
+        <Container className="pt-28 pb-52 sm:pt-32 sm:pb-70 lg:pt-40 lg:pb-[90px] pinned:max-lg:pb-0 pinned:lg:pt-24 pinned:lg:pb-12">
+          {/* The copy drifts up and fades out between p 0.08 and 0.38. The buttons stay inside:
+              focusing one after scrolling brings the copy back into view. */}
+          <Beat range={[0, 0.38]} fade={0.3} lift={50}>
+            <p className={`hero-fade ${monoLabel}`} style={delay(0.1)}>
+              {hero.eyebrow[locale]}
+            </p>
 
-          <h1
-            id="hero-title"
-            className="hero-rise mt-[18px] text-[clamp(2.75rem,7vw,5.75rem)] leading-[0.98] font-semibold tracking-[-0.035em] text-fg [hyphens:manual]"
-          >
-            {hero.title[locale].map((line, index) => (
-              <Fragment key={line}>
-                {index > 0 ? " " : null}
-                <span className="block">{line}</span>
-              </Fragment>
-            ))}
-          </h1>
+            <h1
+              id="hero-title"
+              className="hero-rise mt-[18px] text-[clamp(2.75rem,7vw,5.75rem)] leading-[0.98] font-semibold tracking-[-0.035em] text-fg [hyphens:manual]"
+            >
+              {hero.title[locale].map((line, index) => (
+                <Fragment key={line}>
+                  {index > 0 ? " " : null}
+                  <span className="block">{line}</span>
+                </Fragment>
+              ))}
+            </h1>
 
-          <p
-            className="hero-fade mt-6 max-w-[46ch] text-[17px] leading-[1.6] text-pretty text-soft md:mt-[26px] md:text-lg lg:max-w-[40ch] xl:max-w-[46ch]"
-            style={delay(0.25)}
-          >
-            {hero.lead[locale]}
-          </p>
+            <p
+              className="hero-fade mt-6 max-w-[46ch] text-[17px] leading-[1.6] text-pretty text-soft md:mt-[26px] md:text-lg lg:max-w-[40ch] xl:max-w-[46ch]"
+              style={delay(0.25)}
+            >
+              {hero.lead[locale]}
+            </p>
 
-          <div className="hero-fade mt-8 flex flex-wrap gap-3 md:mt-9" style={delay(0.4)}>
-            <Button href="#contact" size="lg">
-              {common.requestOffer[locale]}
-            </Button>
-            <Button href={localePath(locale, "/catalog")} variant="ghost" size="lg">
-              {common.viewCatalog[locale]}
-            </Button>
-          </div>
+            <div className="hero-fade mt-8 flex flex-wrap gap-3 md:mt-9" style={delay(0.4)}>
+              <Button href="#contact" size="lg">
+                {common.requestOffer[locale]}
+              </Button>
+              <Button href={localePath(locale, "/catalog")} variant="ghost" size="lg">
+                {common.viewCatalog[locale]}
+              </Button>
+            </div>
+          </Beat>
         </Container>
       </div>
 
-      <Container>
-        {/* role="list": Safari drops list semantics from a `list-style: none` list. */}
-        <ul
-          role="list"
-          aria-label={hero.trustLabel[locale]}
-          className="hero-fade grid grid-cols-2 border-t border-line lg:grid-cols-4"
-          style={delay(0.55)}
-        >
-          {hero.trust.map((item) => (
-            <li
-              key={item.id}
-              className="min-w-0 border-line py-5 pr-4 text-sm leading-normal text-muted max-lg:nth-[n+3]:border-t lg:border-l lg:px-5 lg:pt-[22px] lg:pb-[30px] lg:first:border-l-0 lg:first:pl-0"
-            >
-              <span className="mb-1 block text-[15px] font-semibold text-fg">{item.title[locale]}</span>
-              {item.detail[locale]}
-            </li>
-          ))}
-        </ul>
-      </Container>
-    </section>
+      {/* Fades out between p 0.05 and 0.30. Hidden on pinned phones, where the copy after the
+          chapter shows instead. */}
+      <Beat range={[0, 0.3]} fade={0.25} className="max-md:pinned:hidden">
+        <Container>
+          <TrustList locale={locale} />
+        </Container>
+      </Beat>
+
+      {/*
+        The second line fades in between p 0.42 and 0.66 and stays. Pinned, it overlays the
+        first screen of the stage: near the top on phones, centred from `md`. Static, it closes
+        the hero in the flow, before the problem chapter.
+      */}
+      <Beat
+        range={[0.42, 1.01]}
+        fade={0.24}
+        initiallyHidden
+        className="pinned:absolute pinned:inset-x-0 pinned:top-0 pinned:flex pinned:h-svh pinned:items-start pinned:md:items-center"
+      >
+        <Container className="py-16 md:py-24 pinned:pt-28 pinned:pb-0 pinned:sm:pt-32 pinned:md:pt-0">
+          <p className="max-w-[14ch] text-[clamp(34px,5vw,64px)] leading-[1.05] font-semibold tracking-[-0.03em] text-balance text-fg">
+            {story.heroNext[locale]}
+          </p>
+        </Container>
+      </Beat>
+    </>
   );
 }
