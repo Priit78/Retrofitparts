@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import projectorBench from "@/assets/photos/projector-bench.jpg";
 import { about } from "@/content/about";
 import { site } from "@/content/site";
@@ -69,7 +70,11 @@ export function About({ locale }: { locale: Locale }) {
                   // On phones the cropped frame shows the middle of an image about 1.5 screens wide.
                   sizes="(min-width: 1280px) 690px, (min-width: 1024px) 56vw, (min-width: 640px) 100vw, 150vw"
                   // Phones crop the wide frame to a taller one, so the projectors stay legible.
-                  className="aspect-[16/10] h-auto w-full rounded-[2px] bg-surface object-cover object-[62%_50%] sm:aspect-auto"
+                  // From `sm` the photo keeps its own shape, given here rather than left to the
+                  // image (`aspect-auto`): that box stays 0 px high until the file arrives, and
+                  // the sections below then jump.
+                  style={{ "--photo-ratio": `${projectorBench.width} / ${projectorBench.height}` } as CSSProperties}
+                  className="aspect-[16/10] h-auto w-full rounded-[2px] bg-surface object-cover object-[62%_50%] sm:aspect-(--photo-ratio)"
                 />
                 <figcaption className={`${monoLabel} mt-3`}>
                   {about.photo.caption[locale]}
