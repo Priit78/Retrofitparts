@@ -341,6 +341,79 @@ test.describe("the scroll story", () => {
   });
 });
 
+test.describe("keyboard focus in the catalog strip", () => {
+  /** The focused element's tile, whole in the viewport with room for its focus ring, or where it is. */
+  const focusedTileInView = (page: Page) =>
+    page.evaluate(() => {
+      const focused = document.activeElement;
+      const tile = focused?.closest("li[data-teaser-tile]");
+      if (!tile) return `focus is not in a tile: ${focused?.textContent?.trim().slice(0, 30)}`;
+      const box = tile.getBoundingClientRect();
+      const room = 8;
+      const whole =
+        box.left >= room && box.right <= window.innerWidth - room && box.top >= 0 && box.bottom <= window.innerHeight;
+      return whole ? "in view" : `${tile.getAttribute("data-teaser-tile")} at x ${Math.round(box.left)}–${Math.round(box.right)}`;
+    });
+
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 1024, height: 600 },
+  ]) {
+    test.describe(`at ${viewport.width}×${viewport.height}`, () => {
+      test.use({ viewport });
+
+      test("tabbing in from the process chapter brings every strip link's tile fully into view", async ({ page }) => {
+        await page.goto("/et");
+        await expect(page.locator("#catalog-teaser")).toHaveAttribute("data-animated", "");
+        const links = await page.locator("#catalog-teaser a").count();
+        const cta = page.locator("#process").getByRole("link", { name: common.requestOffer.et });
+        await hydrated(cta);
+        await cta.focus();
+        for (let i = 1; i <= links; i++) {
+          await page.keyboard.press("Tab");
+          await expect.poll(() => focusedTileInView(page), `link ${i} of ${links}`).toBe("in view");
+        }
+      });
+    });
+  }
+
+  test.describe("at 390×844", () => {
+    test.use({ viewport: { width: 390, height: 844 } });
+
+    /** Whether the focused link and its tile are whole inside the swipe row (and the viewport). */
+    const focusedInRow = (page: Page) =>
+      page.evaluate(() => {
+        const focused = document.activeElement;
+        const tile = focused?.closest("li[data-teaser-tile]");
+        const row = tile?.parentElement;
+        if (!focused || !tile || !row) return "focus is not in a tile";
+        const bounds = row.getBoundingClientRect();
+        const whole = (box: DOMRect) =>
+          box.left >= bounds.left - 0.5 &&
+          box.right <= bounds.right + 0.5 &&
+          box.top >= 0 &&
+          box.bottom <= window.innerHeight;
+        const tileBox = tile.getBoundingClientRect();
+        return whole(tileBox) && whole(focused.getBoundingClientRect())
+          ? "in the row"
+          : `${tile.getAttribute("data-teaser-tile")} at x ${Math.round(tileBox.left)}–${Math.round(tileBox.right)}`;
+      });
+
+    test("tabbing through the swipe row shows each focused link whole", async ({ page }) => {
+      await page.goto("/et");
+      const links = page.locator("#catalog-teaser a");
+      const count = await links.count();
+      await hydrated(links.first());
+      await links.first().focus();
+      await expect.poll(() => focusedInRow(page), "link 1").toBe("in the row");
+      for (let i = 2; i <= count; i++) {
+        await page.keyboard.press("Tab");
+        await expect.poll(() => focusedInRow(page), `link ${i} of ${count}`).toBe("in the row");
+      }
+    });
+  });
+});
+
 test.describe("without JS", () => {
   test.use({ javaScriptEnabled: false });
 

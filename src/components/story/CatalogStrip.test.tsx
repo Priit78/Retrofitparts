@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CatalogStrip } from "./CatalogStrip";
 import { ChapterProgressProvider } from "./ScrollChapter";
@@ -56,6 +56,9 @@ function Strip({
 }
 
 const track = () => screen.getByRole("list");
+
+/** Lets the next animation frame run: the strip checks a focused tile there. */
+const nextFrame = () => act(() => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())));
 const tile = (id: string) => screen.getByTestId(`tile-${id}`);
 
 /**
@@ -163,28 +166,28 @@ describe("CatalogStrip", () => {
   });
 
   describe("keyboard", () => {
-    it("brings a focused tile that sits off-screen to the right into view", () => {
+    it("brings a focused tile that sits off-screen to the right into view", async () => {
       const seek = vi.fn();
       render(<Strip progress={0.1} seek={seek} />);
       layOut(0);
       // Tile d spans 1260–1660 px, past the 1440 px viewport: its right edge comes to 1440.
       act(() => tile("d").querySelector("a")?.focus());
-      expect(seek).toHaveBeenCalledTimes(1);
+      await waitFor(() => expect(seek).toHaveBeenCalledTimes(1));
       const travelled = 1660 - 1440;
       expect(seek.mock.calls[0][0]).toBeCloseTo(0.1 + (travelled / 1560) * 0.82, 6);
     });
 
-    it("brings a focused tile that has moved off to the left back into view", () => {
+    it("brings a focused tile that has moved off to the left back into view", async () => {
       const seek = vi.fn();
       render(<Strip progress={0.92} seek={seek} />);
       layOut(-1560);
       // Tile b starts 420 px into the track, so 420 px of travel is the most that keeps it in view.
       act(() => tile("b").querySelector("a")?.focus());
-      expect(seek).toHaveBeenCalledTimes(1);
+      await waitFor(() => expect(seek).toHaveBeenCalledTimes(1));
       expect(seek.mock.calls[0][0]).toBeCloseTo(0.1 + (420 / 1560) * 0.82, 6);
     });
 
-    it("also moves a tile whose edge is in view but too close to the screen's edge for its focus ring", () => {
+    it("also moves a tile whose edge is in view but too close to the screen's edge for its focus ring", async () => {
       const seek = vi.fn();
       render(<Strip progress={0.1 + (224 / 1560) * 0.82} seek={seek} />);
       track().style.paddingRight = "24px";
@@ -192,20 +195,36 @@ describe("CatalogStrip", () => {
       // Tile d spans 1036–1436 px: inside the 1440 px viewport, but its ring (6 px out) is not.
       expect(tile("d").getBoundingClientRect().right).toBe(1436);
       act(() => tile("d").querySelector("a")?.focus());
-      expect(seek).toHaveBeenCalledTimes(1);
+      await waitFor(() => expect(seek).toHaveBeenCalledTimes(1));
       // Its right edge comes to the track's padding line, 24 px in from the viewport's edge.
       expect(seek.mock.calls[0][0]).toBeCloseTo(0.1 + ((1660 + 24 - 1440) / 1560) * 0.82, 6);
     });
 
-    it("leaves the strip alone when the focused tile is already in view", () => {
+    it("leaves the strip alone when the focused tile is already in view", async () => {
       const seek = vi.fn();
       render(<Strip progress={0.1} seek={seek} />);
       layOut(0);
       act(() => tile("b").querySelector("a")?.focus());
+      await nextFrame();
+      await nextFrame();
       expect(seek).not.toHaveBeenCalled();
     });
 
-    it("never moves the strip under a pointer that presses a tile", () => {
+    it("checks the tile after the browser's own focus scroll, which can move the strip", async () => {
+      const seek = vi.fn();
+      render(<Strip progress={0.1} seek={seek} />);
+      track().style.paddingLeft = "24px";
+      layOut(0, 24);
+      // In view when it takes focus (24 px from the edge)...
+      act(() => tile("a").querySelector("a")?.focus());
+      // ...then the browser scrolls the page to bring it into view, and the strip moves 126 px.
+      layOut(-126, 24);
+      await waitFor(() => expect(seek).toHaveBeenCalledTimes(1));
+      // Back to the start of the travel: tile a starts the track.
+      expect(seek.mock.calls[0][0]).toBeCloseTo(0.1, 6);
+    });
+
+    it("never moves the strip under a pointer that presses a tile", async () => {
       const seek = vi.fn();
       render(<Strip progress={0.1} seek={seek} />);
       layOut(0);
@@ -213,7 +232,54 @@ describe("CatalogStrip", () => {
       if (!link) throw new Error("no link");
       fireEvent.mouseDown(link);
       act(() => link.focus());
+      await nextFrame();
+      await nextFrame();
       expect(seek).not.toHaveBeenCalled();
+    });
+
+    describe("in the swipe row", () => {
+      let scrollIntoView: ReturnType<typeof vi.fn>;
+      beforeEach(() => {
+        // jsdom has no scrollIntoView.
+        scrollIntoView = vi.fn();
+        Element.prototype.scrollIntoView = scrollIntoView as unknown as Element["scrollIntoView"];
+      });
+      afterEach(() => {
+        delete (Element.prototype as Partial<Element>).scrollIntoView;
+      });
+
+      /** A 390 px row (the track itself scrolls) with the tiles laid out from its start. */
+      function layOutRow(scrolled = 0) {
+        rects.set(track(), { left: 0, width: 390 });
+        tileIds.forEach((id, index) => rects.set(tile(id), { left: 16 - scrolled + index * 420, width: 400 }));
+      }
+
+      it("brings a focused tile that is not fully in the row to its own snap point", () => {
+        render(<Strip progress={0} animated={false} />);
+        layOutRow();
+        act(() => tile("b").querySelector("a")?.focus());
+        expect(scrollIntoView).toHaveBeenCalledTimes(1);
+        expect(scrollIntoView.mock.contexts[0]).toBe(tile("b"));
+        expect(scrollIntoView).toHaveBeenCalledWith({ inline: "start", block: "nearest" });
+      });
+
+      it("leaves the row alone when the focused tile is already fully in it", () => {
+        render(<Strip progress={0} animated={false} />);
+        layOutRow(420);
+        rects.set(tile("b"), { left: 0, width: 390 });
+        act(() => tile("b").querySelector("a")?.focus());
+        expect(scrollIntoView).not.toHaveBeenCalled();
+      });
+
+      it("never scrolls the row under a pointer that presses a tile", () => {
+        render(<Strip progress={0} animated={false} />);
+        layOutRow();
+        const link = tile("b").querySelector("a");
+        if (!link) throw new Error("no link");
+        fireEvent.mouseDown(link);
+        act(() => link.focus());
+        expect(scrollIntoView).not.toHaveBeenCalled();
+      });
     });
   });
 });

@@ -52,7 +52,8 @@ function widthOf(track: HTMLElement): number {
  * sub-links.
  *
  * - Static (no JS, reduced motion, below 1024 px or a short viewport): a native swipe row that
- *   scrolls sideways with snap points; give each tile `snap-start`.
+ *   scrolls sideways with snap points; give each tile `snap-start`. A tile that takes keyboard
+ *   focus while not fully in the row scrolls to its own snap point.
  * - Pinned (`pinned-lg`, where the chapter animates): vertical scroll moves the track sideways,
  *   by `−travel · segment(p, 0.10, 0.92)`. The travel is the track's full width, padding
  *   included, past the viewport, so the last tile ends in view at p 0.92, and it is never
@@ -67,8 +68,10 @@ function widthOf(track: HTMLElement): number {
  * so a focused tile can never scroll the stage instead. When keyboard focus lands on a tile
  * that is off-screen, or within 8 px of the screen's edge where its focus ring would be cut off,
  * the chapter scrolls to the progress that brings the tile into view
- * (`seek`), by the inverse of the travel mapping. Focus that comes with a pointer press is left
- * alone: the pressed tile shows at least in part, and the strip must not move under the pointer.
+ * (`seek`), by the inverse of the travel mapping. That check runs on the next frame, after the
+ * browser's own focus scroll (which can move the strip). Focus that comes with a pointer press
+ * is left alone in both modes: the pressed tile shows at least in part, and the strip must not
+ * move under the pointer.
  *
  * The transform is written from the progress value (no React state per frame), and removed when
  * the chapter stops animating. Nothing is set on the server.
@@ -79,16 +82,7 @@ export function CatalogStrip({ className, children }: { className?: string; chil
 
   useLayoutEffect(() => {
     const track = trackRef.current;
-    if (!animated || !track) return;
-
-    let travel = 0;
-    const apply = (p: number) => {
-      track.style.transform = `translateX(${px(-travel * segment(p, START, END))})`;
-    };
-    const measure = () => {
-      travel = Math.max(0, widthOf(track) - viewportWidth());
-      apply(progress.get());
-    };
+    if (!track) return;
 
     // Focus that follows a press comes from a pointer; keyboard focus comes on its own.
     let pressed = false;
@@ -101,14 +95,62 @@ export function CatalogStrip({ className, children }: { className?: string; chil
       });
     };
 
-    const onFocusIn = (event: FocusEvent) => {
-      if (pressed || travel <= 0 || !(event.target instanceof Element)) return;
-      const tile = [...track.children].find((child) => child.contains(event.target as Element));
-      if (!tile) return;
+    /** The tile (a child of the track) that holds `target`. */
+    const tileOf = (target: EventTarget | null) =>
+      target instanceof Element ? [...track.children].find((child) => child.contains(target)) : undefined;
+
+    if (!animated) {
+      // The swipe row. The browser scrolls a focused link into view itself, but mandatory
+      // snapping then pulls the row back to the previous snap point, leaving the link partly
+      // hidden: bring a tile that is not fully in the row to its own snap point first.
+      const onFocusIn = (event: FocusEvent) => {
+        const tile = pressed ? undefined : tileOf(event.target);
+        if (!tile) return;
+        const row = track.getBoundingClientRect();
+        const box = tile.getBoundingClientRect();
+        if (box.left >= row.left && box.right <= row.right) return;
+        tile.scrollIntoView({ inline: "start", block: "nearest" });
+      };
+      track.addEventListener("mousedown", onPress);
+      track.addEventListener("focusin", onFocusIn);
+      return () => {
+        track.removeEventListener("mousedown", onPress);
+        track.removeEventListener("focusin", onFocusIn);
+        window.clearTimeout(pressTimer);
+      };
+    }
+
+    let travel = 0;
+    /** The translation last written. */
+    let shift = 0;
+    const shiftAt = (p: number) => -travel * segment(p, START, END);
+    const apply = (p: number) => {
+      shift = shiftAt(p);
+      track.style.transform = `translateX(${px(shift)})`;
+    };
+    const measure = () => {
+      travel = Math.max(0, widthOf(track) - viewportWidth());
+      apply(progress.get());
+    };
+
+    /**
+     * Where the strip sits for the window's scroll right now, from the chapter's own box: the
+     * progress value can lag a frame behind a scroll. The written translation outside a chapter.
+     */
+    const shiftNow = () => {
+      const chapter = track.closest<HTMLElement>(".chapter");
+      const length = chapter ? chapter.offsetHeight - document.documentElement.clientHeight : 0;
+      if (!chapter || length <= 0) return shift;
+      return shiftAt(Math.min(1, Math.max(0, -chapter.getBoundingClientRect().top / length)));
+    };
+
+    /** Seeks to the progress that shows `tile` whole, with room for its focus ring. */
+    const reveal = (tile: Element) => {
       const width = viewportWidth();
       const box = tile.getBoundingClientRect();
+      const left = box.left - shift + shiftNow();
       // In view with room for the focus ring (2 px, 4 px out) on both sides.
-      if (box.left >= RING_ROOM && box.right <= width - RING_ROOM) return;
+      if (left >= RING_ROOM && left + box.width <= width - RING_ROOM) return;
 
       // Where the tile sits in the track, whatever the current translation.
       const start = box.left - track.getBoundingClientRect().left;
@@ -116,11 +158,19 @@ export function CatalogStrip({ className, children }: { className?: string; chil
       const style = getComputedStyle(track);
       // The nearest translation that shows the whole tile, with the track's padding beside it.
       const x =
-        box.left < RING_ROOM
-          ? -(start - lengthOf(style.paddingLeft))
-          : width - end - lengthOf(style.paddingRight);
+        left < RING_ROOM ? -(start - lengthOf(style.paddingLeft)) : width - end - lengthOf(style.paddingRight);
       const share = Math.min(1, Math.max(0, -x / travel));
       seek(START + share * (END - START));
+    };
+
+    // The browser scrolls a focused element into view itself, after this event, and that scroll
+    // can move the strip: check the tile on the next frame, once it has.
+    let frame = 0;
+    const onFocusIn = (event: FocusEvent) => {
+      const tile = pressed || travel <= 0 ? undefined : tileOf(event.target);
+      if (!tile) return;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => reveal(tile));
     };
 
     measure();
@@ -139,6 +189,7 @@ export function CatalogStrip({ className, children }: { className?: string; chil
       track.removeEventListener("mousedown", onPress);
       track.removeEventListener("focusin", onFocusIn);
       window.clearTimeout(pressTimer);
+      cancelAnimationFrame(frame);
       track.style.removeProperty("transform");
     };
   }, [animated, progress, seek]);
